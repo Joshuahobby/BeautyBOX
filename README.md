@@ -1,0 +1,35 @@
+# BeautyBOX Phase 1
+
+One BeautyBOX storefront that sells only stock held at the BeautyBOX shop:
+
+- guest checkout
+- RWF pricing
+- one dispatch origin with distance-quoted delivery
+- MTN MoMo and Airtel Money through pawaPay
+
+The specification is the handoff package in `../BeautyBOX-Handoff-v1.0`; start with its `00-START-HERE.md`.
+
+**Status:** local implementation with synthetic data and simulated providers; a staging deployment behind a pre-launch access code is prepared (`docs/DEPLOYMENT.md`). Public checkout is closed by design until every release gate (G1–G5) passes. See `docs/RELEASE-CHECKLIST.md`.
+
+| Read | For |
+| --- | --- |
+| `docs/SETUP.md` | Local setup, review path, test commands |
+| `docs/DEPLOYMENT.md` | Staging on beautyboxmarket.com behind the pre-launch wall (Vercel, Supabase, Cloudflare) |
+| `docs/PROGRESS.md` | What is done, what is next, open founder inputs |
+| `docs/DECISION-LOG.md` | Implementation decisions (DR-001…) |
+| `docs/COMPATIBILITY.md` | Pinned versions and why |
+| `docs/CONTRACT-CHANGES.md` | Additive API changes against the handoff OpenAPI |
+| `docs/TEST-EVIDENCE.md` | Tests actually run, with results |
+
+## Layout
+
+```
+src/app            routes (storefront pages, /api/v1 handlers)
+src/modules        server-only domain logic (catalog, cart, checkout, delivery, payments, inventory, orders, jobs, ...)
+src/adapters       replaceable providers (payments, routing/places, SMS); fakes for local/test
+src/components     UI primitives and commerce components (tokens from src/design/tokens.json)
+src/messages       English message catalog (copy externalised for reviewed translation)
+prisma             schema, migrations, reviewed invariant SQL
+scripts            local database, setup, seed, worker, design token/font builders
+tests              unit, integration (real PostgreSQL), e2e (Playwright + axe)
+```

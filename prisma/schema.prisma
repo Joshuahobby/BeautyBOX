@@ -1,0 +1,1322 @@
+// BeautyBOX Phase 1 application schema (private "commerce" schema).
+// Authority: handoff technical/Data-and-State-Model.md. Constraints Prisma cannot
+// express (CHECKs, partial unique indexes, append-only triggers, grants) live in
+// reviewed SQL inside the migrations and are verified by integration tests.
+
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+  schemas  = ["commerce"]
+}
+
+// ---------------------------------------------------------------- enums
+
+enum DataOrigin {
+  REFERENCE_DEMO // design reference content (source retailer); never publishable in production
+  SYNTHETIC_DEMO // invented fixture data; never publishable in production
+  VERIFIED // reviewed BeautyBOX business data
+
+  @@schema("commerce")
+}
+
+enum ApprovalState {
+  DEMO
+  PROPOSED
+  APPROVED
+
+  @@schema("commerce")
+}
+
+enum PublishState {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+
+  @@schema("commerce")
+}
+
+enum MediaReviewState {
+  PENDING
+  APPROVED
+  REJECTED
+
+  @@schema("commerce")
+}
+
+enum ParcelClass {
+  STANDARD
+  BULKY
+  SPECIAL_HANDLING
+
+  @@schema("commerce")
+}
+
+enum LotOwnership {
+  OWNED
+  CONSIGNED
+
+  @@schema("commerce")
+}
+
+enum LotReviewState {
+  COUNTED
+  VERIFIED
+
+  @@schema("commerce")
+}
+
+enum MovementType {
+  RECEIPT
+  ADJUSTMENT
+  RESERVE
+  RELEASE
+  COMMIT
+  UNCOMMIT
+  SHIP
+  RETURN_ACCEPTED
+
+  @@schema("commerce")
+}
+
+enum ActorType {
+  STAFF
+  SYSTEM
+  CUSTOMER
+  PROVIDER
+
+  @@schema("commerce")
+}
+
+enum CartState {
+  ACTIVE
+  CONVERTED
+  EXPIRED
+
+  @@schema("commerce")
+}
+
+enum CheckoutState {
+  EDITING
+  REVIEWED
+  PAYMENT_PENDING
+  CONVERTED
+  EXPIRED
+
+  @@schema("commerce")
+}
+
+enum QuoteState {
+  VALID
+  SUPERSEDED
+  USED
+
+  @@schema("commerce")
+}
+
+enum OrderState {
+  AWAITING_PAYMENT
+  PAID
+  PREPARING
+  ON_HOLD
+  DISPATCHED
+  DELIVERED
+  CANCELLED
+
+  @@schema("commerce")
+}
+
+enum OrderPaymentState {
+  UNPAID
+  PENDING
+  PAID
+  PARTIALLY_REFUNDED
+  REFUNDED
+  EXCEPTION
+
+  @@schema("commerce")
+}
+
+enum HoldReason {
+  STOCK_UNAVAILABLE
+  PAYMENT_REVIEW
+  MANUAL
+
+  @@schema("commerce")
+}
+
+enum ReservationState {
+  ACTIVE
+  COMMITTED
+  RELEASED
+  EXPIRED
+
+  @@schema("commerce")
+}
+
+enum AllocationState {
+  COMMITTED
+  SHIPPED
+  RELEASED
+
+  @@schema("commerce")
+}
+
+enum PaymentProvider {
+  PAWAPAY
+  FAKE
+
+  @@schema("commerce")
+}
+
+enum PaymentMethod {
+  MTN_MOMO_RWA
+  AIRTEL_RWA
+
+  @@schema("commerce")
+}
+
+enum AttemptState {
+  CREATED
+  PENDING
+  SUCCEEDED
+  FAILED
+
+  @@schema("commerce")
+}
+
+enum VerificationFlag {
+  UNKNOWN
+  MISMATCH
+  NEEDS_REVIEW
+
+  @@schema("commerce")
+}
+
+enum ReceiptDisposition {
+  APPLIED // pays the order it belongs to
+  OVERPAYMENT // extra collection for an already-paid order; refund it
+  AFTER_CANCELLATION // order was cancelled first; refund it
+  REVIEW // conflicting/stale intent; finance reviews
+
+  @@schema("commerce")
+}
+
+enum RefundCaseSource {
+  STAFF_REQUEST
+  OVERPAYMENT
+  CANCELLATION
+  STOCK_HOLD
+  PAYMENT_REVIEW
+
+  @@schema("commerce")
+}
+
+enum RefundCaseState {
+  OPEN
+  CLOSED
+
+  @@schema("commerce")
+}
+
+enum RefundState {
+  REQUESTED
+  APPROVED
+  QUEUED
+  SUBMITTED
+  PENDING
+  SUCCEEDED
+  FAILED
+  REJECTED
+
+  @@schema("commerce")
+}
+
+enum DeliveryState {
+  UNASSIGNED
+  ASSIGNED
+  COLLECTED
+  DELIVERED
+  FAILED_ATTEMPT
+  RETURNED
+
+  @@schema("commerce")
+}
+
+enum DeliveryOutcome {
+  DELIVERED
+  FAILED
+
+  @@schema("commerce")
+}
+
+enum ObligationBasis {
+  AGREEMENT_COST
+  UNVALUED
+
+  @@schema("commerce")
+}
+
+enum SettlementState {
+  UNVALUED
+  OPEN
+  SETTLED
+  VOID // the sale was cancelled before handover: nothing is owed
+
+  @@schema("commerce")
+}
+
+enum StaffRole {
+  ADMIN
+  OPERATIONS
+  FINANCE
+  SUPPORT
+
+  @@schema("commerce")
+}
+
+enum JobType {
+  PAYMENT_INITIATE
+  PAYMENT_CHECK
+  PROVIDER_EVENT_APPLY
+  RESERVATION_EXPIRY
+  REFUND_SUBMIT
+  REFUND_CHECK
+  NOTIFICATION_SEND
+  MEDIA_PUBLIC_SYNC
+
+  @@schema("commerce")
+}
+
+enum JobState {
+  READY
+  LEASED
+  SUCCEEDED
+  RETRY_DUE
+  NEEDS_REVIEW
+
+  @@schema("commerce")
+}
+
+enum SignatureStatus {
+  VERIFIED
+  INVALID
+  UNKNOWN_KEY
+  SIMULATED
+
+  @@schema("commerce")
+}
+
+enum OperationType {
+  CANCELLATION_REQUEST
+  PAYMENT_RECONCILE
+  REFUND_RECONCILE
+  ACCESS_REISSUE
+
+  @@schema("commerce")
+}
+
+enum OperationState {
+  PENDING
+  SUCCEEDED
+  FAILED
+
+  @@schema("commerce")
+}
+
+enum NotificationState {
+  PENDING
+  ACCEPTED
+  FAILED
+  UNKNOWN
+  SUPPRESSED
+
+  @@schema("commerce")
+}
+
+enum ImportPreviewState {
+  INVALID
+  READY
+  APPLIED
+
+  @@schema("commerce")
+}
+
+enum MediaPurpose {
+  PRODUCT_PHOTO
+  PRIVATE_EVIDENCE
+
+  @@schema("commerce")
+}
+
+enum MediaUploadState {
+  INTENT
+  FINALIZED
+  REJECTED
+
+  @@schema("commerce")
+}
+
+enum DeploymentEnvironment {
+  LOCAL
+  TEST
+  STAGING
+  PRODUCTION
+
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- organisation
+
+/// Singleton describing what this database is for. Production refuses demo data.
+model DeploymentProfile {
+  id              Int                   @id @default(1)
+  environment     DeploymentEnvironment
+  demoDataAllowed Boolean               @map("demo_data_allowed")
+  updatedAt       DateTime              @default(now()) @map("updated_at") @db.Timestamptz(3)
+
+  @@map("deployment_profile")
+  @@schema("commerce")
+}
+
+model Seller {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name      String
+  isActive  Boolean  @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  locations DispatchLocation[]
+  products  Product[]
+  orders    Order[]
+
+  @@map("sellers")
+  @@schema("commerce")
+}
+
+model Supplier {
+  id                 String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String
+  agreementReference String?    @map("agreement_reference")
+  isActive           Boolean    @default(true) @map("is_active")
+  dataOrigin         DataOrigin @map("data_origin")
+  version            Int        @default(1)
+  createdAt          DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt          DateTime   @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  lots        InventoryLot[]
+  obligations SupplierObligation[]
+
+  @@map("suppliers")
+  @@schema("commerce")
+}
+
+model DispatchLocation {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sellerId      String        @map("seller_id") @db.Uuid
+  label         String
+  addressText   String        @map("address_text")
+  lat           Decimal       @db.Decimal(9, 6)
+  lng           Decimal       @db.Decimal(9, 6)
+  hours         Json?
+  parcelRules   Json          @map("parcel_rules")
+  isActive      Boolean       @map("is_active")
+  approvalState ApprovalState @map("approval_state")
+  dataOrigin    DataOrigin    @map("data_origin")
+  version       Int           @default(1)
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  seller Seller          @relation(fields: [sellerId], references: [id], onDelete: Restrict)
+  lots   InventoryLot[]
+  quotes DeliveryQuote[]
+
+  @@map("dispatch_locations")
+  @@schema("commerce")
+}
+
+/// Versioned delivery tariff. Rows are immutable; a change inserts a new version.
+model Tariff {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  version           Int           @unique
+  baseRwf           BigInt        @map("base_rwf")
+  includedMetres    Int           @map("included_metres")
+  extraRwfPerKm     BigInt        @map("extra_rwf_per_km")
+  roundingRwf       BigInt        @map("rounding_rwf")
+  maxDistanceMetres Int           @map("max_distance_metres")
+  coverageRules     Json          @map("coverage_rules")
+  approvalState     ApprovalState @map("approval_state")
+  dataOrigin        DataOrigin    @map("data_origin")
+  reason            String
+  createdByStaffId  String?       @map("created_by_staff_id") @db.Uuid
+  effectiveAt       DateTime      @default(now()) @map("effective_at") @db.Timestamptz(3)
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  quotes DeliveryQuote[]
+
+  @@map("tariffs")
+  @@schema("commerce")
+}
+
+/// Versioned operational settings; the newest version is current.
+model SettingsVersion {
+  id                     String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  version                Int             @unique
+  checkoutEnabled        Boolean         @map("checkout_enabled")
+  livePaymentsEnabled    Boolean         @map("live_payments_enabled")
+  notificationsEnabled   Boolean         @map("notifications_enabled")
+  quoteTtlSeconds        Int             @map("quote_ttl_seconds")
+  reservationTtlSeconds  Int             @map("reservation_ttl_seconds")
+  paymentMethodAllowlist PaymentMethod[] @map("payment_method_allowlist")
+  activeTariffId         String          @map("active_tariff_id") @db.Uuid
+  activeLocationId       String          @map("active_location_id") @db.Uuid
+  supportContact         Json?           @map("support_contact")
+  deliveryPromise        String?         @map("delivery_promise")
+  policiesApproved       Boolean         @default(false) @map("policies_approved")
+  dataOrigin             DataOrigin      @map("data_origin")
+  reason                 String
+  createdByStaffId       String?         @map("created_by_staff_id") @db.Uuid
+  createdAt              DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("settings_versions")
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- catalog
+
+model Category {
+  id          String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug        String  @unique
+  title       String
+  parentId    String? @map("parent_id") @db.Uuid
+  sortOrder   Int     @default(0) @map("sort_order")
+  isPublished Boolean @default(false) @map("is_published")
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children Category[] @relation("CategoryTree")
+  products Product[]
+
+  @@map("categories")
+  @@schema("commerce")
+}
+
+model Product {
+  id                     String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sellerId               String       @map("seller_id") @db.Uuid
+  categoryId             String       @map("category_id") @db.Uuid
+  slug                   String       @unique
+  brand                  String
+  title                  String
+  description            String
+  packSize               String?      @map("pack_size")
+  optionLabel            String?      @map("option_label")
+  publishState           PublishState @default(DRAFT) @map("publish_state")
+  dataOrigin             DataOrigin   @map("data_origin")
+  contentVersion         Int          @default(1) @map("content_version")
+  contentReviewedAt      DateTime?    @map("content_reviewed_at") @db.Timestamptz(3)
+  contentReviewedBy      String?      @map("content_reviewed_by") @db.Uuid
+  imageRightsConfirmedAt DateTime?    @map("image_rights_confirmed_at") @db.Timestamptz(3)
+  imageRightsConfirmedBy String?      @map("image_rights_confirmed_by") @db.Uuid
+  publishedAt            DateTime?    @map("published_at") @db.Timestamptz(3)
+  version                Int          @default(1)
+  createdAt              DateTime     @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  seller   Seller         @relation(fields: [sellerId], references: [id], onDelete: Restrict)
+  category Category       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  variants Variant[]
+  media    ProductMedia[]
+
+  @@index([publishState, categoryId])
+  @@map("products")
+  @@schema("commerce")
+}
+
+model ProductMedia {
+  id          String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId   String           @map("product_id") @db.Uuid
+  variantId   String?          @map("variant_id") @db.Uuid
+  storageKey  String           @map("storage_key")
+  alt         String
+  width       Int
+  height      Int
+  sortOrder   Int              @default(0) @map("sort_order")
+  reviewState MediaReviewState @default(PENDING) @map("review_state")
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  product Product  @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variant Variant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@unique([storageKey])
+  @@map("product_media")
+  @@schema("commerce")
+}
+
+model Variant {
+  id           String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  productId    String      @map("product_id") @db.Uuid
+  sku          String      @unique
+  attributes   Json
+  priceRwf     BigInt      @map("price_rwf")
+  priceVersion Int         @default(1) @map("price_version")
+  parcelClass  ParcelClass @default(STANDARD) @map("parcel_class")
+  isActive     Boolean     @default(true) @map("is_active")
+  sortOrder    Int         @default(0) @map("sort_order")
+  version      Int         @default(1)
+  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt    DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  product    Product        @relation(fields: [productId], references: [id], onDelete: Restrict)
+  media      ProductMedia[]
+  lots       InventoryLot[]
+  cartLines  CartLine[]
+  orderLines OrderLine[]
+
+  @@index([productId])
+  @@map("variants")
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- inventory
+
+model InventoryLot {
+  id                 String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  variantId          String         @map("variant_id") @db.Uuid
+  locationId         String         @map("location_id") @db.Uuid
+  supplierId         String?        @map("supplier_id") @db.Uuid
+  ownership          LotOwnership
+  agreementReference String?        @map("agreement_reference")
+  batchReference     String         @map("batch_reference")
+  quantityOnHand     Int            @map("quantity_on_hand")
+  reservedQty        Int            @default(0) @map("reserved_qty")
+  committedQty       Int            @default(0) @map("committed_qty")
+  expiryDate         DateTime?      @map("expiry_date") @db.Date
+  costBasisRwf       BigInt?        @map("cost_basis_rwf")
+  reviewState        LotReviewState @map("review_state")
+  isActive           Boolean        @default(true) @map("is_active")
+  dataOrigin         DataOrigin     @map("data_origin")
+  receivedAt         DateTime       @default(now()) @map("received_at") @db.Timestamptz(3)
+  countedByStaffId   String?        @map("counted_by_staff_id") @db.Uuid
+  countedAt          DateTime?      @map("counted_at") @db.Timestamptz(3)
+  importPreviewId    String?        @map("import_preview_id") @db.Uuid
+  version            Int            @default(1)
+
+  variant          Variant             @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  location         DispatchLocation    @relation(fields: [locationId], references: [id], onDelete: Restrict)
+  supplier         Supplier?           @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  movements        InventoryMovement[]
+  reservationLines ReservationLine[]
+  allocations      Allocation[]
+
+  @@unique([variantId, batchReference])
+  @@index([variantId, locationId, expiryDate])
+  @@map("inventory_lots")
+  @@schema("commerce")
+}
+
+/// Append-only stock ledger. Sum of deltas per lot equals the lot's current columns.
+model InventoryMovement {
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  lotId          String       @map("lot_id") @db.Uuid
+  type           MovementType
+  onHandDelta    Int          @map("on_hand_delta")
+  reservedDelta  Int          @map("reserved_delta")
+  committedDelta Int          @map("committed_delta")
+  orderId        String?      @map("order_id") @db.Uuid
+  reservationId  String?      @map("reservation_id") @db.Uuid
+  reason         String
+  actorType      ActorType    @map("actor_type")
+  actorId        String?      @map("actor_id")
+  dedupeKey      String?      @unique @map("dedupe_key")
+  occurredAt     DateTime     @default(now()) @map("occurred_at") @db.Timestamptz(3)
+
+  lot InventoryLot @relation(fields: [lotId], references: [id], onDelete: Restrict)
+
+  @@index([lotId, occurredAt])
+  @@index([orderId])
+  @@map("inventory_movements")
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- guest cart and checkout
+
+model GuestSession {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  tokenHash  String   @unique @map("token_hash")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+  expiresAt  DateTime @map("expires_at") @db.Timestamptz(3)
+  lastSeenAt DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(3)
+
+  carts     Cart[]
+  checkouts Checkout[]
+  orders    Order[]
+
+  @@map("guest_sessions")
+  @@schema("commerce")
+}
+
+model Cart {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  guestSessionId String    @map("guest_session_id") @db.Uuid
+  state          CartState @default(ACTIVE)
+  version        Int       @default(1)
+  expiresAt      DateTime  @map("expires_at") @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  guestSession GuestSession @relation(fields: [guestSessionId], references: [id], onDelete: Restrict)
+  lines        CartLine[]
+  checkouts    Checkout[]
+
+  @@index([guestSessionId, state])
+  @@map("carts")
+  @@schema("commerce")
+}
+
+model CartLine {
+  cartId       String   @map("cart_id") @db.Uuid
+  variantId    String   @map("variant_id") @db.Uuid
+  quantity     Int
+  /// Unit price the customer last saw for this line; a different current price is shown as a change.
+  seenPriceRwf BigInt   @map("seen_price_rwf")
+  addedAt      DateTime @default(now()) @map("added_at") @db.Timestamptz(3)
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Restrict)
+  variant Variant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+
+  @@id([cartId, variantId])
+  @@map("cart_lines")
+  @@schema("commerce")
+}
+
+model Checkout {
+  id                     String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  cartId                 String        @map("cart_id") @db.Uuid
+  guestSessionId         String        @map("guest_session_id") @db.Uuid
+  revision               Int           @default(1)
+  state                  CheckoutState @default(EDITING)
+  recipientName          String?       @map("recipient_name")
+  recipientPhone         String?       @map("recipient_phone")
+  landmark               String?
+  instructions           String?
+  destinationLat         Decimal?      @map("destination_lat") @db.Decimal(9, 6)
+  destinationLng         Decimal?      @map("destination_lng") @db.Decimal(9, 6)
+  destinationConfirmedAt DateTime?     @map("destination_confirmed_at") @db.Timestamptz(3)
+  currentQuoteId         String?       @map("current_quote_id") @db.Uuid
+  expiresAt              DateTime      @map("expires_at") @db.Timestamptz(3)
+  createdAt              DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt              DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  cart         Cart            @relation(fields: [cartId], references: [id], onDelete: Restrict)
+  guestSession GuestSession    @relation(fields: [guestSessionId], references: [id], onDelete: Restrict)
+  quotes       DeliveryQuote[]
+  order        Order?
+  reservations Reservation[]
+
+  @@index([cartId])
+  @@map("checkouts")
+  @@schema("commerce")
+}
+
+model DeliveryQuote {
+  id                  String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  checkoutId          String     @map("checkout_id") @db.Uuid
+  checkoutRevision    Int        @map("checkout_revision")
+  basketFingerprint   String     @map("basket_fingerprint")
+  originLocationId    String     @map("origin_location_id") @db.Uuid
+  originVersion       Int        @map("origin_version")
+  originLat           Decimal    @map("origin_lat") @db.Decimal(9, 6)
+  originLng           Decimal    @map("origin_lng") @db.Decimal(9, 6)
+  destinationLat      Decimal    @map("destination_lat") @db.Decimal(9, 6)
+  destinationLng      Decimal    @map("destination_lng") @db.Decimal(9, 6)
+  distanceMetres      Int?       @map("distance_metres")
+  amountRwf           BigInt     @map("amount_rwf")
+  tariffId            String     @map("tariff_id") @db.Uuid
+  tariffVersion       Int        @map("tariff_version")
+  routeProvider       String     @map("route_provider")
+  providerEvidenceRef String?    @map("provider_evidence_ref")
+  state               QuoteState @default(VALID)
+  validUntil          DateTime   @map("valid_until") @db.Timestamptz(3)
+  usedAt              DateTime?  @map("used_at") @db.Timestamptz(3)
+  createdAt           DateTime   @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  checkout Checkout         @relation(fields: [checkoutId], references: [id], onDelete: Restrict)
+  origin   DispatchLocation @relation(fields: [originLocationId], references: [id], onDelete: Restrict)
+  tariff   Tariff           @relation(fields: [tariffId], references: [id], onDelete: Restrict)
+
+  @@index([checkoutId, state])
+  @@map("delivery_quotes")
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- orders, stock reservation and allocation
+
+model Order {
+  id                   String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reference            String            @unique
+  sellerId             String            @map("seller_id") @db.Uuid
+  checkoutId           String            @unique @map("checkout_id") @db.Uuid
+  guestSessionId       String            @map("guest_session_id") @db.Uuid
+  state                OrderState        @default(AWAITING_PAYMENT)
+  paymentState         OrderPaymentState @default(PENDING) @map("payment_state")
+  holdReason           HoldReason?       @map("hold_reason")
+  snapshotRevision     Int               @map("snapshot_revision")
+  version              Int               @default(1)
+  recipientName        String            @map("recipient_name")
+  recipientPhone       String            @map("recipient_phone")
+  landmark             String?
+  instructions         String?
+  destinationLat       Decimal           @map("destination_lat") @db.Decimal(9, 6)
+  destinationLng       Decimal           @map("destination_lng") @db.Decimal(9, 6)
+  originLocationId     String            @map("origin_location_id") @db.Uuid
+  originVersion        Int               @map("origin_version")
+  originLabel          String            @map("origin_label")
+  originLat            Decimal           @map("origin_lat") @db.Decimal(9, 6)
+  originLng            Decimal           @map("origin_lng") @db.Decimal(9, 6)
+  deliveryQuoteId      String            @map("delivery_quote_id") @db.Uuid
+  tariffVersion        Int               @map("tariff_version")
+  distanceMetres       Int?              @map("distance_metres")
+  productsRwf          BigInt            @map("products_rwf")
+  deliveryRwf          BigInt            @map("delivery_rwf")
+  totalRwf             BigInt            @map("total_rwf")
+  currency             String            @default("RWF")
+  dataOrigin           DataOrigin        @map("data_origin")
+  paidAt               DateTime?         @map("paid_at") @db.Timestamptz(3)
+  cancelledAt          DateTime?         @map("cancelled_at") @db.Timestamptz(3)
+  cancellationReason   String?           @map("cancellation_reason")
+  /// Set by a support access reissue: the browser session that placed the order no
+  /// longer grants access; only links and sessions issued afterwards do.
+  guestAccessRevokedAt DateTime?         @map("guest_access_revoked_at") @db.Timestamptz(3)
+  createdAt            DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt            DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  seller           Seller             @relation(fields: [sellerId], references: [id], onDelete: Restrict)
+  checkout         Checkout           @relation(fields: [checkoutId], references: [id], onDelete: Restrict)
+  guestSession     GuestSession       @relation(fields: [guestSessionId], references: [id], onDelete: Restrict)
+  lines            OrderLine[]
+  attempts         PaymentAttempt[]
+  receipts         PaymentReceipt[]
+  reservations     Reservation[]
+  refundCases      RefundCase[]
+  fulfillment      Fulfillment?
+  deliveryAttempts DeliveryAttempt[]
+  links            PrivateOrderLink[]
+  orderSessions    OrderSession[]
+  operations       Operation[]
+  notifications    Notification[]
+
+  @@index([state, createdAt])
+  @@index([paymentState, createdAt])
+  @@map("orders")
+  @@schema("commerce")
+}
+
+/// Immutable price/product snapshot. A new payment intent after a verified failure
+/// writes a new snapshot revision; earlier revisions stay as history.
+model OrderLine {
+  id               String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId          String @map("order_id") @db.Uuid
+  snapshotRevision Int    @map("snapshot_revision")
+  variantId        String @map("variant_id") @db.Uuid
+  sku              String
+  title            String
+  attributes       Json
+  unitPriceRwf     BigInt @map("unit_price_rwf")
+  quantity         Int
+  lineTotalRwf     BigInt @map("line_total_rwf")
+
+  order            Order             @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  variant          Variant           @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  allocations      Allocation[]
+  reservationLines ReservationLine[]
+
+  @@unique([orderId, snapshotRevision, variantId])
+  @@map("order_lines")
+  @@schema("commerce")
+}
+
+model Reservation {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  checkoutId       String           @map("checkout_id") @db.Uuid
+  orderId          String           @map("order_id") @db.Uuid
+  paymentAttemptId String           @unique @map("payment_attempt_id") @db.Uuid
+  state            ReservationState @default(ACTIVE)
+  expiresAt        DateTime         @map("expires_at") @db.Timestamptz(3)
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt        DateTime         @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  checkout Checkout          @relation(fields: [checkoutId], references: [id], onDelete: Restrict)
+  order    Order             @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  attempt  PaymentAttempt    @relation(fields: [paymentAttemptId], references: [id], onDelete: Restrict)
+  lines    ReservationLine[]
+
+  @@index([state, expiresAt])
+  @@map("reservations")
+  @@schema("commerce")
+}
+
+model ReservationLine {
+  id            String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  reservationId String @map("reservation_id") @db.Uuid
+  orderLineId   String @map("order_line_id") @db.Uuid
+  lotId         String @map("lot_id") @db.Uuid
+  quantity      Int
+
+  reservation Reservation  @relation(fields: [reservationId], references: [id], onDelete: Restrict)
+  orderLine   OrderLine    @relation(fields: [orderLineId], references: [id], onDelete: Restrict)
+  lot         InventoryLot @relation(fields: [lotId], references: [id], onDelete: Restrict)
+
+  @@unique([reservationId, lotId, orderLineId])
+  @@map("reservation_lines")
+  @@schema("commerce")
+}
+
+/// Actual supplier-owned (or BeautyBOX-owned) units committed to an order line.
+model Allocation {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderLineId String          @map("order_line_id") @db.Uuid
+  lotId       String          @map("lot_id") @db.Uuid
+  quantity    Int
+  state       AllocationState @default(COMMITTED)
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  orderLine  OrderLine           @relation(fields: [orderLineId], references: [id], onDelete: Restrict)
+  lot        InventoryLot        @relation(fields: [lotId], references: [id], onDelete: Restrict)
+  obligation SupplierObligation?
+
+  @@index([orderLineId])
+  @@map("allocations")
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- payments
+
+model PaymentAttempt {
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId               String            @map("order_id") @db.Uuid
+  provider              PaymentProvider
+  providerDepositId     String            @unique @map("provider_deposit_id") @db.Uuid
+  orderSnapshotRevision Int               @map("order_snapshot_revision")
+  amountRwf             BigInt            @map("amount_rwf")
+  currency              String            @default("RWF")
+  method                PaymentMethod
+  payerPhoneEncrypted   String            @map("payer_phone_encrypted")
+  payerPhoneMasked      String            @map("payer_phone_masked")
+  state                 AttemptState      @default(CREATED)
+  verificationFlag      VerificationFlag? @map("verification_flag")
+  providerStatus        String?           @map("provider_status")
+  failureCode           String?           @map("failure_code")
+  initiationAcceptedAt  DateTime?         @map("initiation_accepted_at") @db.Timestamptz(3)
+  nextCheckAt           DateTime?         @map("next_check_at") @db.Timestamptz(3)
+  checkedAt             DateTime?         @map("checked_at") @db.Timestamptz(3)
+  checkCount            Int               @default(0) @map("check_count")
+  resolvedAt            DateTime?         @map("resolved_at") @db.Timestamptz(3)
+  version               Int               @default(1)
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  order       Order           @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  receipt     PaymentReceipt?
+  reservation Reservation?
+
+  @@index([state, nextCheckAt])
+  @@index([orderId])
+  @@map("payment_attempts")
+  @@schema("commerce")
+}
+
+/// Immutable verified collection. One per deposit (attempt).
+model PaymentReceipt {
+  id                    String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  attemptId             String             @unique @map("attempt_id") @db.Uuid
+  orderId               String             @map("order_id") @db.Uuid
+  providerTransactionId String?            @map("provider_transaction_id")
+  verifiedAmountRwf     BigInt             @map("verified_amount_rwf")
+  currency              String
+  disposition           ReceiptDisposition
+  evidenceRef           String             @map("evidence_ref")
+  verifiedAt            DateTime           @map("verified_at") @db.Timestamptz(3)
+  createdAt             DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  attempt PaymentAttempt @relation(fields: [attemptId], references: [id], onDelete: Restrict)
+  order   Order          @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  refunds Refund[]
+
+  @@index([orderId])
+  @@map("payment_receipts")
+  @@schema("commerce")
+}
+
+model RefundCase {
+  id                 String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId            String           @map("order_id") @db.Uuid
+  receiptId          String?          @map("receipt_id") @db.Uuid
+  source             RefundCaseSource
+  state              RefundCaseState  @default(OPEN)
+  reason             String
+  requestedByStaffId String?          @map("requested_by_staff_id") @db.Uuid
+  createdAt          DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  closedAt           DateTime?        @map("closed_at") @db.Timestamptz(3)
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  refunds Refund[]
+
+  @@index([state, createdAt])
+  @@map("refund_cases")
+  @@schema("commerce")
+}
+
+model Refund {
+  id                  String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  caseId              String            @map("case_id") @db.Uuid
+  receiptId           String            @map("receipt_id") @db.Uuid
+  amountRwf           BigInt            @map("amount_rwf")
+  state               RefundState       @default(REQUESTED)
+  reason              String
+  requestedByStaffId  String?           @map("requested_by_staff_id") @db.Uuid
+  approvedByStaffId   String?           @map("approved_by_staff_id") @db.Uuid
+  approvedAt          DateTime?         @map("approved_at") @db.Timestamptz(3)
+  providerRefundId    String?           @unique @map("provider_refund_id") @db.Uuid
+  submittedAt         DateTime?         @map("submitted_at") @db.Timestamptz(3)
+  verifiedAt          DateTime?         @map("verified_at") @db.Timestamptz(3)
+  failureCode         String?           @map("failure_code")
+  verificationFlag    VerificationFlag? @map("verification_flag")
+  /// Amount the provider reported when it differs from the requested amount (MISMATCH).
+  providerAmountRwf   BigInt?           @map("provider_amount_rwf")
+  /// Provider reference finance recorded when it resolved a review as paid by the provider (DR-043).
+  resolutionReference String?           @map("resolution_reference")
+  version             Int               @default(1)
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  refundCase RefundCase     @relation(fields: [caseId], references: [id], onDelete: Restrict)
+  receipt    PaymentReceipt @relation(fields: [receiptId], references: [id], onDelete: Restrict)
+
+  @@index([receiptId, state])
+  @@map("refunds")
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- fulfillment and suppliers
+
+model Fulfillment {
+  id                  String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId             String        @unique @map("order_id") @db.Uuid
+  state               DeliveryState @default(UNASSIGNED)
+  riderReference      String?       @map("rider_reference")
+  riderContact        String?       @map("rider_contact")
+  assignedAt          DateTime?     @map("assigned_at") @db.Timestamptz(3)
+  collectedAt         DateTime?     @map("collected_at") @db.Timestamptz(3)
+  deliveredAt         DateTime?     @map("delivered_at") @db.Timestamptz(3)
+  promisedWindowStart DateTime?     @map("promised_window_start") @db.Timestamptz(3)
+  promisedWindowEnd   DateTime?     @map("promised_window_end") @db.Timestamptz(3)
+  handoverEvidenceKey String?       @map("handover_evidence_key")
+  riderCostRwf        BigInt?       @map("rider_cost_rwf")
+  version             Int           @default(1)
+  createdAt           DateTime      @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt           DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@map("fulfillments")
+  @@schema("commerce")
+}
+
+model DeliveryAttempt {
+  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId           String          @map("order_id") @db.Uuid
+  outcome           DeliveryOutcome
+  reason            String?
+  evidenceKey       String?         @map("evidence_key")
+  goodsCustody      String?         @map("goods_custody")
+  recordedByStaffId String          @map("recorded_by_staff_id") @db.Uuid
+  occurredAt        DateTime        @default(now()) @map("occurred_at") @db.Timestamptz(3)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@map("delivery_attempts")
+  @@schema("commerce")
+}
+
+model SupplierObligation {
+  id               String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  allocationId     String          @unique @map("allocation_id") @db.Uuid
+  supplierId       String          @map("supplier_id") @db.Uuid
+  basis            ObligationBasis
+  amountRwf        BigInt?         @map("amount_rwf")
+  settlementState  SettlementState @map("settlement_state")
+  manualReference  String?         @map("manual_reference")
+  settledByStaffId String?         @map("settled_by_staff_id") @db.Uuid
+  settledAt        DateTime?       @map("settled_at") @db.Timestamptz(3)
+  version          Int             @default(1)
+  createdAt        DateTime        @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  allocation Allocation @relation(fields: [allocationId], references: [id], onDelete: Restrict)
+  supplier   Supplier   @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+
+  @@map("supplier_obligations")
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- staff, access and customer operations
+
+model StaffMember {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authUserId  String    @unique @map("auth_user_id") @db.Uuid
+  email       String    @unique
+  displayName String    @map("display_name")
+  role        StaffRole
+  isActive    Boolean   @default(true) @map("is_active")
+  roleVersion Int       @default(1) @map("role_version")
+  version     Int       @default(1)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@map("staff_members")
+  @@schema("commerce")
+}
+
+model PrivateOrderLink {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId         String    @map("order_id") @db.Uuid
+  tokenHash       String    @unique @map("token_hash")
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(3)
+  consumedAt      DateTime? @map("consumed_at") @db.Timestamptz(3)
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz(3)
+  issuedByStaffId String?   @map("issued_by_staff_id") @db.Uuid
+  reason          String
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@index([orderId])
+  @@map("private_order_links")
+  @@schema("commerce")
+}
+
+model OrderSession {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId     String    @map("order_id") @db.Uuid
+  sessionHash String    @unique @map("session_hash")
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(3)
+  revokedAt   DateTime? @map("revoked_at") @db.Timestamptz(3)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Restrict)
+
+  @@map("order_sessions")
+  @@schema("commerce")
+}
+
+// Durable, pollable operations (contract Operation): customer cancellation requests and
+// staff reconciliation / access-reissue requests. A cancellation REQUEST is not a
+// cancellation decision; staff decide, and handover wins over a late request.
+model Operation {
+  id                 String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId            String         @map("order_id") @db.Uuid
+  type               OperationType
+  state              OperationState @default(PENDING)
+  reason             String
+  outcome            String?
+  // Attempt or refund the operation is about (reconcile operations).
+  subjectId          String?        @map("subject_id") @db.Uuid
+  requestedByStaffId String?        @map("requested_by_staff_id") @db.Uuid
+  caseReference      String?        @map("case_reference")
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(3)
+  resolvedAt         DateTime?      @map("resolved_at") @db.Timestamptz(3)
+
+  order         Order          @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  notifications Notification[]
+
+  @@index([orderId])
+  @@index([subjectId])
+  @@map("operations")
+  @@schema("commerce")
+}
+
+model Notification {
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId           String            @map("order_id") @db.Uuid
+  event             String
+  templateId        String            @map("template_id")
+  templateVersion   Int               @map("template_version")
+  state             NotificationState @default(PENDING)
+  providerMessageId String?           @map("provider_message_id")
+  lastErrorCode     String?           @map("last_error_code")
+  // Distinguishes repeatable events of one order (each failed delivery attempt, each
+  // refund, each access reissue). Empty for once-per-order events.
+  intentKey         String            @default("") @map("intent_key")
+  operationId       String?           @map("operation_id") @db.Uuid
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt         DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  order     Order      @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  operation Operation? @relation(fields: [operationId], references: [id], onDelete: Restrict)
+
+  @@unique([orderId, event, templateId, templateVersion, intentKey])
+  @@map("notifications")
+  @@schema("commerce")
+}
+
+// ---------------------------------------------------------------- reliability infrastructure
+
+model IdempotencyRecord {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  scope          String
+  keyHash        String   @map("key_hash")
+  requestHash    String   @map("request_hash")
+  // Filled in the same transaction as the business change; a committed record
+  // therefore always names its resource.
+  responseStatus Int?     @map("response_status")
+  resourceType   String?  @map("resource_type")
+  resourceId     String?  @map("resource_id")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@unique([scope, keyHash])
+  @@map("idempotency_records")
+  @@schema("commerce")
+}
+
+model OutboxJob {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  uniqueIntentKey String    @unique @map("unique_intent_key")
+  type            JobType
+  entityId        String    @map("entity_id") @db.Uuid
+  payload         Json      @default("{}")
+  state           JobState  @default(READY)
+  attempts        Int       @default(0)
+  maxAttempts     Int       @default(50) @map("max_attempts")
+  dueAt           DateTime  @default(now()) @map("due_at") @db.Timestamptz(3)
+  leaseUntil      DateTime? @map("lease_until") @db.Timestamptz(3)
+  leaseOwner      String?   @map("lease_owner")
+  lastErrorCode   String?   @map("last_error_code")
+  lastErrorAt     DateTime? @map("last_error_at") @db.Timestamptz(3)
+  completedAt     DateTime? @map("completed_at") @db.Timestamptz(3)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+
+  @@index([state, dueAt])
+  @@index([entityId])
+  @@map("outbox_jobs")
+  @@schema("commerce")
+}
+
+model ProviderEvent {
+  id                String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventHash         String          @unique @map("event_hash")
+  provider          PaymentProvider
+  kind              String
+  reference         String
+  claimedStatus     String?         @map("claimed_status")
+  signatureStatus   SignatureStatus @map("signature_status")
+  encryptedEvidence String?         @map("encrypted_evidence")
+  receivedAt        DateTime        @default(now()) @map("received_at") @db.Timestamptz(3)
+  appliedAt         DateTime?       @map("applied_at") @db.Timestamptz(3)
+  outcome           String?
+
+  @@index([reference])
+  @@map("provider_events")
+  @@schema("commerce")
+}
+
+model AuditEvent {
+  id            String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorType     ActorType @map("actor_type")
+  actorId       String?   @map("actor_id")
+  entityType    String    @map("entity_type")
+  entityId      String    @map("entity_id")
+  action        String
+  beforeSummary Json?     @map("before_summary")
+  afterSummary  Json?     @map("after_summary")
+  reason        String?
+  requestId     String?   @map("request_id")
+  occurredAt    DateTime  @default(now()) @map("occurred_at") @db.Timestamptz(3)
+
+  @@index([entityType, entityId, occurredAt])
+  @@map("audit_events")
+  @@schema("commerce")
+}
+
+model RateLimitBucket {
+  key         String   @id
+  windowStart DateTime @map("window_start") @db.Timestamptz(3)
+  count       Int
+
+  @@index([windowStart])
+  @@map("rate_limit_buckets")
+  @@schema("commerce")
+}
+
+/// Launch list (DR-045): real personal data collected with consent before launch, an e-mail
+/// address and/or a Rwanda mobile number. Each is stored encrypted; the keyed hashes find a
+/// repeat sign-up without revealing it. Withdrawal deletes the row.
+model LaunchSignup {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  emailHash       String?  @unique @map("email_hash")
+  emailEncrypted  String?  @map("email_encrypted")
+  phoneHash       String?  @unique @map("phone_hash")
+  phoneEncrypted  String?  @map("phone_encrypted")
+  /// Keyed hash of a detail already listed that was typed together with this row's detail (RF-91).
+  linkedEmailHash String?  @map("linked_email_hash")
+  linkedPhoneHash String?  @map("linked_phone_hash")
+  consentVersion  String   @map("consent_version")
+  consentedAt     DateTime @map("consented_at") @db.Timestamptz(3)
+  sourceHost      String   @map("source_host")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@index([linkedEmailHash])
+  @@index([linkedPhoneHash])
+  @@index([consentedAt])
+  @@map("launch_signups")
+  @@schema("commerce")
+}
+
+/// Inventory intake preview (staff import): validated rows are applied only from a fresh
+/// READY preview whose source hash is unchanged.
+model InventoryImportPreview {
+  id               String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  rows             Json
+  sourceHash       String             @map("source_hash")
+  state            ImportPreviewState
+  errors           Json
+  rowCount         Int                @map("row_count")
+  validRows        Int                @map("valid_rows")
+  createdByStaffId String             @map("created_by_staff_id") @db.Uuid
+  appliedByStaffId String?            @map("applied_by_staff_id") @db.Uuid
+  appliedAt        DateTime?          @map("applied_at") @db.Timestamptz(3)
+  applyReason      String?            @map("apply_reason")
+  expiresAt        DateTime           @map("expires_at") @db.Timestamptz(3)
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(3)
+
+  @@map("inventory_import_previews")
+  @@schema("commerce")
+}
+
+/// Server-controlled media upload (storage key chosen by the server, bytes validated and
+/// re-encoded on finalize). Private evidence never becomes public.
+model MediaUpload {
+  id               String           @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  purpose          MediaPurpose
+  declaredMimeType String           @map("declared_mime_type")
+  declaredBytes    Int              @map("declared_bytes")
+  stagingKey       String           @unique @map("staging_key")
+  storageKey       String?          @unique @map("storage_key")
+  state            MediaUploadState @default(INTENT)
+  width            Int?
+  height           Int?
+  alt              String?
+  rejectReason     String?          @map("reject_reason")
+  createdByStaffId String           @map("created_by_staff_id") @db.Uuid
+  expiresAt        DateTime         @map("expires_at") @db.Timestamptz(3)
+  createdAt        DateTime         @default(now()) @map("created_at") @db.Timestamptz(3)
+  finalizedAt      DateTime?        @map("finalized_at") @db.Timestamptz(3)
+
+  @@map("media_uploads")
+  @@schema("commerce")
+}

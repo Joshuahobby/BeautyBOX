@@ -1,0 +1,21 @@
+node_modules/
+.next/
+out/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+.local/
+*.log
+# Settings files hold secrets: every .env file is ignored except the two templates.
+.env
+.env.*
+!.env.example
+!.env.staging.example
+src/generated/
+*.tsbuildinfo
+next-env.d.ts
+.DS_Store
+Thumbs.db
+.next-e2e/
+.vercel/

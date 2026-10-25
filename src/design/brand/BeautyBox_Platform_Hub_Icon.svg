@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180" role="img" aria-labelledby="title desc">
+  <title id="title">BeautyBox Platform Hub icon</title>
+  <desc id="desc">A modular B built from four connected service cells around a central hub.</desc>
+  <path d="M20 18h55v63H20zM20 99h55v63H20z" fill="#221720"/>
+  <path d="M75 18h27c35 0 58 18 58 44 0 12-5 23-15 31-10-8-23-12-43-12H75V18zM75 99h27c20 0 33-4 43-12 10 8 15 19 15 31 0 26-23 44-58 44H75V99z" fill="#D85F58"/>
+  <rect x="66" y="72" width="36" height="36" rx="8" fill="#F7F2EC"/>
+</svg>

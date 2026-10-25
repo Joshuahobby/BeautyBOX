@@ -1,0 +1,281 @@
+.layout {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.main {
+  display: grid;
+  gap: var(--space-5);
+  min-width: 0;
+}
+
+.steps {
+  list-style: none;
+  margin: 0 0 var(--space-2);
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+  counter-reset: step;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--color-muted);
+}
+
+.step::before {
+  content: "";
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-rule);
+}
+
+.stepDone::before {
+  background: var(--color-accent);
+}
+
+.stepCurrent {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.stepCurrent::before {
+  background: var(--color-text);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-3);
+}
+
+.places {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.placeButton {
+  width: 100%;
+  text-align: left;
+  min-height: var(--control-min-hit-target);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.placeButton:hover {
+  border-color: var(--color-text);
+}
+
+.map {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-panel);
+  border: 1px solid var(--color-input-border);
+  background:
+    linear-gradient(var(--color-rule) 1px, transparent 1px) 0 0 / 32px 32px,
+    linear-gradient(90deg, var(--color-rule) 1px, transparent 1px) 0 0 / 32px 32px,
+    var(--color-canvas);
+  overflow: hidden;
+}
+
+.pin {
+  position: absolute;
+  transform: translate(-50%, -100%);
+  color: var(--color-accent-text);
+}
+
+/* Preview pin at the map centre (was an inline style; DR-039). */
+.pinCentered {
+  left: 50%;
+  top: 50%;
+}
+
+.pin svg {
+  fill: var(--color-accent);
+}
+
+.origin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 2px solid var(--color-surface);
+}
+
+.nudge {
+  display: grid;
+  grid-template-columns: repeat(3, 48px);
+  grid-template-rows: repeat(3, 48px);
+  gap: var(--space-1);
+  justify-content: start;
+}
+
+.nudge button {
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nudge button:disabled {
+  cursor: not-allowed;
+  color: var(--color-muted);
+}
+
+.methods {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.methods legend {
+  font-weight: 500;
+  margin-bottom: var(--space-3);
+}
+
+.methodGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+
+.method {
+  position: relative;
+}
+
+.method input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.methodLabel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--control-primary-height);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  padding: 0 var(--space-3);
+}
+
+.method input:checked + .methodLabel {
+  border: 2px solid var(--color-text);
+  background: var(--color-canvas);
+  font-weight: 600;
+}
+
+.method input:focus-visible + .methodLabel {
+  outline: var(--control-focus-width) solid var(--color-text);
+  outline-offset: var(--control-focus-gap);
+}
+
+.summary {
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  align-self: start;
+}
+
+.summaryLines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.totalRow {
+  font-weight: 700;
+  font-size: var(--type-price-mobile-size);
+  line-height: var(--type-price-mobile-line);
+  border-top: 1px solid var(--color-rule);
+  padding-top: var(--space-3);
+}
+
+.payBar {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.errorSummary {
+  border: 2px solid var(--color-danger-text);
+  background: var(--color-danger-surface);
+  color: var(--color-danger-text);
+  border-radius: var(--radius-panel);
+  padding: var(--space-4);
+}
+
+.errorSummary ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+}
+
+.errorSummary a {
+  color: var(--color-danger-text);
+  font-weight: 500;
+}
+
+.demoHint {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+}
+
+.demoHint ul {
+  margin: var(--space-2) 0 0;
+  padding-left: var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 60fr 40fr;
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .summary {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+}

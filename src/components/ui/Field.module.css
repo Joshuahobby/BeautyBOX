@@ -1,0 +1,65 @@
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.label {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: 500;
+}
+
+.optional {
+  color: var(--color-muted);
+  font-weight: 400;
+}
+
+.input {
+  min-height: var(--control-primary-height);
+  width: 100%;
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  font-size: var(--type-body-size);
+}
+
+textarea.input {
+  padding: var(--space-3) var(--space-4);
+  min-height: 96px;
+  resize: vertical;
+}
+
+.input:focus-visible {
+  border-color: var(--color-text);
+}
+
+.input[aria-invalid="true"] {
+  border: 2px solid var(--color-danger-text);
+}
+
+.input:read-only {
+  background: var(--color-canvas);
+}
+
+.help {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--color-muted);
+}
+
+.error {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  color: var(--color-danger-text);
+  font-weight: 500;
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+}
+
+.error svg {
+  flex: none;
+  margin-top: 2px;
+}

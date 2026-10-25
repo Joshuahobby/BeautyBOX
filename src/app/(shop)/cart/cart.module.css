@@ -1,0 +1,114 @@
+.layout {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--color-rule);
+}
+
+.line {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-4) 0;
+  border-bottom: 1px solid var(--color-rule);
+}
+
+.lineBody {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.lineTop {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: baseline;
+}
+
+.lineTitle {
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.lineControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.qty {
+  display: inline-flex;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+}
+
+.qty button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty button:disabled {
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+
+.qtyValue {
+  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-inline: 1px solid var(--color-rule);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary {
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+  align-self: start;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.total {
+  font-weight: 700;
+  font-size: var(--type-price-mobile-size);
+  line-height: var(--type-price-mobile-line);
+}
+
+.pending {
+  font-size: var(--type-label-size);
+  color: var(--color-muted);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 60fr 40fr;
+    gap: var(--space-6);
+  }
+  .summary {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+  }
+}

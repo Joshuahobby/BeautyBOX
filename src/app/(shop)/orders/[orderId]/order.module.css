@@ -1,0 +1,132 @@
+.layout {
+  display: grid;
+  gap: var(--space-6);
+}
+
+.progress {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+}
+
+.progress li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dot {
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--type-label-size);
+  font-weight: 600;
+  border: 2px solid var(--color-input-border);
+  background: var(--color-surface);
+}
+
+.complete .dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
+.current {
+  font-weight: 600;
+}
+
+.current .dot {
+  border-color: var(--color-text);
+  box-shadow: 0 0 0 3px var(--color-accent);
+}
+
+.next {
+  color: var(--color-muted);
+}
+
+.summary {
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-3);
+  align-self: start;
+}
+
+.lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--type-label-size);
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.total {
+  font-weight: 700;
+  font-size: var(--type-price-mobile-size);
+  line-height: var(--type-price-mobile-line);
+  border-top: 1px solid var(--color-rule);
+  padding-top: var(--space-3);
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: 60fr 40fr;
+    align-items: start;
+  }
+}
+
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(34, 23, 32, 0.4);
+  z-index: 50;
+}
+
+.dialog {
+  position: fixed;
+  z-index: 51;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 32px);
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-popover);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.linkBox {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--type-label-size);
+  word-break: break-all;
+  padding: var(--space-3);
+  border: 1px solid var(--color-rule);
+  border-radius: 6px;
+  background: var(--color-page, transparent);
+}

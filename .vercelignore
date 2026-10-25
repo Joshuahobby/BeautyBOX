@@ -1,0 +1,18 @@
+# Never uploaded by `vercel` from this folder (DR-044): local secrets, databases, backups,
+# test output and build caches. Git deployments already exclude what .gitignore lists.
+.env
+.env.*
+!.env.example
+!.env.staging.example
+.local/
+.vercel/
+.next/
+.next-e2e/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+blob-report/
+src/generated/
+*.tsbuildinfo
+*.log

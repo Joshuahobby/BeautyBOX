@@ -1,0 +1,10 @@
+# Store text with LF line endings whatever the machine (Vercel builds on Linux); Git detects binaries.
+* text=auto eol=lf
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+*.ttf binary
+*.otf binary

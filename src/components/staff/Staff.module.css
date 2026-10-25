@@ -1,0 +1,300 @@
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--color-canvas);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--gutter);
+  border-bottom: 1px solid var(--color-rule);
+  background: var(--color-surface);
+}
+
+.topbar img {
+  width: 32px;
+  height: 32px;
+}
+
+.workspace {
+  display: grid;
+  min-width: 0;
+}
+
+.nav {
+  border-bottom: 1px solid var(--color-rule);
+  background: var(--color-surface);
+  overflow-x: auto;
+}
+
+.navList {
+  list-style: none;
+  margin: 0;
+  padding: 0 var(--gutter);
+  display: flex;
+  gap: var(--space-1);
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-min-hit-target);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-control);
+  text-decoration: none;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.navLink[aria-current="page"] {
+  background: var(--color-canvas);
+  box-shadow: inset 0 -2px 0 var(--color-accent);
+}
+
+.content {
+  padding: var(--space-5) var(--gutter) var(--space-8);
+  min-width: 0;
+  max-width: 1200px;
+}
+
+.who {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--type-label-size);
+}
+
+.role {
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-status);
+  padding: 0 var(--space-2);
+  font-weight: 600;
+}
+
+.cards {
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.metric {
+  font-size: var(--type-section-desktop-size);
+  line-height: var(--type-section-desktop-line);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.tableRegion {
+  overflow-x: auto;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--type-label-size);
+}
+
+.table th {
+  text-align: left;
+  font-weight: 600;
+  height: 44px;
+  padding: 0 var(--space-3);
+  border-bottom: 1px solid var(--color-rule);
+  white-space: nowrap;
+}
+
+.table td {
+  height: 56px;
+  padding: var(--space-2) var(--space-3);
+  border-bottom: 1px solid var(--color-rule);
+  vertical-align: middle;
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.status {
+  display: inline-block;
+  border-radius: var(--radius-status);
+  padding: 0 var(--space-2);
+  font-weight: 600;
+  border: 1px solid var(--color-rule);
+  background: var(--color-canvas);
+}
+
+.statusWarn {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-text);
+  border-color: transparent;
+}
+
+.statusOk {
+  background: var(--color-success-surface);
+  color: var(--color-success-text);
+  border-color: transparent;
+}
+
+.authPage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-5) var(--gutter);
+  background: var(--color-canvas);
+}
+
+.authCard {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  padding: var(--space-6) var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.qr {
+  width: 200px;
+  height: 200px;
+  background: #fff;
+  padding: var(--space-2);
+  border: 1px solid var(--color-rule);
+}
+
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(34, 23, 32, 0.4);
+  z-index: 50;
+}
+
+.dialog {
+  position: fixed;
+  z-index: 51;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: calc(100% - 32px);
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--color-surface);
+  border-radius: var(--radius-panel);
+  box-shadow: var(--shadow-popover);
+  padding: var(--space-5);
+  display: grid;
+  gap: var(--space-4);
+}
+
+.formGrid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* Former inline styles: the production CSP blocks style="" attributes (DR-039). None of
+   these properties is set on the same elements by any other rule, so plain classes keep
+   the result the inline styles had. */
+
+/* Staff live region: keeps one line of space so the layout does not jump. */
+.announcer {
+  min-height: 1.5em;
+}
+
+/* Select with the browser's own border (orders filter, action dialog). */
+.selectCompact {
+  min-height: 44px;
+  padding: 0 12px;
+}
+
+/* Text input in a list filter bar (stock, orders). */
+.filterInput {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+}
+
+.filterInputNarrow {
+  width: 140px;
+}
+
+.filterButton {
+  min-height: 44px;
+  padding: 0 16px;
+}
+
+/* Bordered select in an editor form (product category). */
+.selectField {
+  min-height: 48px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 6px;
+  padding: 0 12px;
+}
+
+/* Bordered group of fields in the product and settings editors. */
+.fieldsetPanel {
+  border: 1px solid var(--color-rule);
+  border-radius: 8px;
+  padding: var(--space-4);
+}
+
+.minHeight48 {
+  min-height: 48px;
+}
+
+.photoThumb {
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--color-rule);
+}
+
+@media (min-width: 1024px) {
+  .workspace {
+    grid-template-columns: var(--layout-admin-sidebar) minmax(0, 1fr);
+  }
+  .nav {
+    border-bottom: 0;
+    border-right: 1px solid var(--color-rule);
+    overflow: visible;
+  }
+  .navList {
+    flex-direction: column;
+    padding: var(--space-4) var(--space-3);
+    position: sticky;
+    top: 0;
+  }
+  .content {
+    padding: var(--space-6) var(--space-6) var(--space-8);
+  }
+}

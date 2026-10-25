@@ -1,0 +1,79 @@
+.hero {
+  padding: var(--space-6) 0 var(--space-5);
+}
+
+.heroInner {
+  display: grid;
+  gap: var(--space-4);
+}
+
+/* Signature: a short coral rule beside the discovery headline (DESIGN.md). */
+.heroTitle {
+  font-size: var(--type-hero-mobile-size);
+  line-height: var(--type-hero-mobile-line);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border-left: 6px solid var(--color-accent);
+  padding-left: var(--space-4);
+  max-width: 14ch;
+}
+
+.heroBody {
+  color: var(--color-muted);
+  max-width: 46ch;
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.categories {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.categoryLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--control-min-hit-target);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.categoryLink:hover {
+  border-color: var(--color-text);
+}
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-5);
+}
+
+.section {
+  padding-block: var(--space-5);
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    padding: var(--space-8) 0 var(--space-7);
+  }
+  .heroTitle {
+    font-size: var(--type-hero-desktop-size);
+    line-height: var(--type-hero-desktop-line);
+    padding-left: var(--space-5);
+  }
+}

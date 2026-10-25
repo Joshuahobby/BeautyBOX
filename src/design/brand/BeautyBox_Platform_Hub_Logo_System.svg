@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1300" viewBox="0 0 1600 1300" role="img" aria-labelledby="title desc">
+  <title id="title">BeautyBox Platform Hub logo system</title>
+  <desc id="desc">Primary BeautyBox lockup, app icons, monochrome versions, construction, spacing, and color palette.</desc>
+  <defs>
+    <style>
+      .sans { font-family: Inter, "Avenir Next", "Segoe UI", Arial, sans-serif; }
+      .caps { font-size: 20px; font-weight: 750; letter-spacing: 3px; }
+      .body { font-size: 21px; font-weight: 450; }
+      .wordmark { font-size: 100px; font-weight: 700; letter-spacing: -5px; }
+    </style>
+    <symbol id="hub" viewBox="0 0 180 180">
+      <path d="M20 18h55v63H20zM20 99h55v63H20z" fill="#221720"/>
+      <path d="M75 18h27c35 0 58 18 58 44 0 12-5 23-15 31-10-8-23-12-43-12H75V18zM75 99h27c20 0 33-4 43-12 10 8 15 19 15 31 0 26-23 44-58 44H75V99z" fill="#D85F58"/>
+      <rect x="66" y="72" width="36" height="36" rx="8" fill="#F7F2EC"/>
+    </symbol>
+    <symbol id="hub-mono" viewBox="0 0 180 180">
+      <path fill-rule="evenodd" d="M20 18h82c35 0 58 18 58 44 0 12-5 23-15 31 10 8 15 19 15 31 0 26-23 38-58 38H20V99h82c20 0 33-4 43-12-10-4-23-6-43-6H20V18zm46 54h36v36H66V72z" fill="currentColor"/>
+    </symbol>
+  </defs>
+
+  <rect width="1600" height="1300" fill="#F7F2EC"/>
+  <text x="90" y="82" class="sans caps" fill="#D85F58">BEAUTYBOX / PLATFORM HUB</text>
+  <text x="90" y="135" class="sans" font-size="35" font-weight="670" fill="#221720">Candidate identity system</text>
+  <text x="90" y="178" class="sans body" fill="#746872">One B. Four platform cells. One intelligent center.</text>
+
+  <!-- Primary lockup -->
+  <rect x="80" y="230" width="1440" height="340" rx="42" fill="#FFFFFF"/>
+  <text x="125" y="290" class="sans caps" fill="#897D86">PRIMARY LOCKUP</text>
+  <use href="#hub" x="165" y="335" width="180" height="180"/>
+  <text x="390" y="462" class="sans wordmark" fill="#221720">Beauty<tspan fill="#D85F58">Box</tspan></text>
+  <text x="1110" y="430" class="sans body" fill="#221720">Warm premium technology</text>
+  <text x="1110" y="468" class="sans body" fill="#746872">Clear at app size</text>
+  <text x="1110" y="506" class="sans body" fill="#746872">Gender-inclusive</text>
+
+  <!-- App icon row -->
+  <text x="90" y="645" class="sans caps" fill="#897D86">APP ICONS</text>
+  <g transform="translate(90 685)">
+    <rect width="210" height="210" rx="48" fill="#FFFFFF"/>
+    <use href="#hub" x="35" y="35" width="140" height="140"/>
+  </g>
+  <g transform="translate(330 685)">
+    <rect width="210" height="210" rx="48" fill="#221720"/>
+    <g color="#FFFFFF"><use href="#hub-mono" x="35" y="35" width="140" height="140"/></g>
+  </g>
+  <g transform="translate(570 685)">
+    <rect width="210" height="210" rx="48" fill="#D85F58"/>
+    <g color="#FFFFFF"><use href="#hub-mono" x="35" y="35" width="140" height="140"/></g>
+  </g>
+
+  <!-- 24 px proof -->
+  <rect x="830" y="685" width="270" height="210" rx="32" fill="#FFFFFF"/>
+  <text x="865" y="730" class="sans caps" fill="#897D86">24 PX TEST</text>
+  <use href="#hub" x="865" y="770" width="48" height="48"/>
+  <use href="#hub" x="935" y="762" width="64" height="64"/>
+  <use href="#hub" x="1020" y="750" width="88" height="88"/>
+
+  <!-- Clearspace -->
+  <rect x="1130" y="685" width="390" height="210" rx="32" fill="#FFFFFF"/>
+  <text x="1165" y="730" class="sans caps" fill="#897D86">CLEAR SPACE</text>
+  <rect x="1228" y="753" width="130" height="130" fill="none" stroke="#D85F58" stroke-width="2" stroke-dasharray="8 8"/>
+  <use href="#hub" x="1250" y="775" width="86" height="86"/>
+  <text x="1375" y="810" class="sans body" fill="#221720">Minimum:</text>
+  <text x="1375" y="845" class="sans body" fill="#746872">½ center cell</text>
+
+  <!-- Palette and monochrome -->
+  <text x="90" y="985" class="sans caps" fill="#897D86">COLOR SYSTEM</text>
+  <g transform="translate(90 1025)">
+    <rect width="300" height="150" rx="28" fill="#221720"/>
+    <text x="28" y="55" class="sans" font-size="24" font-weight="700" fill="#FFFFFF">Aubergine</text>
+    <text x="28" y="102" class="sans body" fill="#D9CED6">#221720</text>
+  </g>
+  <g transform="translate(420 1025)">
+    <rect width="300" height="150" rx="28" fill="#D85F58"/>
+    <text x="28" y="55" class="sans" font-size="24" font-weight="700" fill="#FFFFFF">Coral clay</text>
+    <text x="28" y="102" class="sans body" fill="#FFFFFF">#D85F58</text>
+  </g>
+  <g transform="translate(750 1025)">
+    <rect width="300" height="150" rx="28" fill="#FFFFFF" stroke="#E6DDE3" stroke-width="2"/>
+    <text x="28" y="55" class="sans" font-size="24" font-weight="700" fill="#221720">Warm ivory</text>
+    <text x="28" y="102" class="sans body" fill="#746872">#F7F2EC</text>
+  </g>
+  <g transform="translate(1120 1005)">
+    <text x="0" y="0" class="sans caps" fill="#897D86">MONOCHROME</text>
+    <g color="#221720"><use href="#hub-mono" x="0" y="35" width="120" height="120"/></g>
+    <g color="#D85F58"><use href="#hub-mono" x="150" y="35" width="120" height="120"/></g>
+  </g>
+
+  <line x1="90" y1="1230" x2="1510" y2="1230" stroke="#D9CED6" stroke-width="2"/>
+  <text x="90" y="1268" class="sans" font-size="17" fill="#897D86">Vector master candidate • Typography to be custom-outlined after direction approval</text>
+</svg>

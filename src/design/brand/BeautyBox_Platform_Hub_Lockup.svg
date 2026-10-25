@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="860" height="180" viewBox="0 0 860 180" role="img" aria-labelledby="title desc">
+  <title id="title">BeautyBox Platform Hub horizontal lockup</title>
+  <desc id="desc">BeautyBox logo icon and horizontal wordmark.</desc>
+  <g transform="translate(0 0)">
+    <path d="M20 18h55v63H20zM20 99h55v63H20z" fill="#221720"/>
+    <path d="M75 18h27c35 0 58 18 58 44 0 12-5 23-15 31-10-8-23-12-43-12H75V18zM75 99h27c20 0 33-4 43-12 10 8 15 19 15 31 0 26-23 44-58 44H75V99z" fill="#D85F58"/>
+    <rect x="66" y="72" width="36" height="36" rx="8" fill="#F7F2EC"/>
+  </g>
+  <text x="205" y="121" font-family="Inter, Avenir Next, Segoe UI, Arial, sans-serif" font-size="96" font-weight="700" letter-spacing="-5" fill="#221720">Beauty<tspan fill="#D85F58">Box</tspan></text>
+</svg>

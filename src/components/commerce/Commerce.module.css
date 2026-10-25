@@ -1,0 +1,128 @@
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* One column where the viewport is narrower than two readable cards (zoom, long text). */
+@media (max-width: 340px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  padding: var(--space-3);
+  gap: var(--space-3);
+}
+
+.cardLink {
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.cardLink:hover .cardTitle {
+  text-decoration: underline;
+}
+
+.cardTitle {
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.price {
+  font-size: var(--type-price-mobile-size);
+  line-height: var(--type-price-mobile-line);
+  font-weight: 700;
+}
+
+.cardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.badge {
+  align-self: flex-start;
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  border-radius: var(--radius-status);
+  padding: 0 var(--space-2);
+  font-weight: 500;
+}
+
+.badgeNeutral {
+  background: var(--color-canvas);
+  color: var(--color-text);
+  border: 1px solid var(--color-rule);
+}
+
+.badgeWarning {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-text);
+}
+
+.media {
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  border-radius: var(--radius-control);
+  background: var(--color-canvas);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  color: var(--color-muted);
+  text-align: center;
+  padding: var(--space-3);
+  overflow: hidden;
+}
+
+.mediaLarge {
+  aspect-ratio: 1 / 1;
+}
+
+.mediaText {
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+}
+
+.mediaImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (min-width: 1024px) {
+  .price {
+    font-size: var(--type-price-desktop-size);
+    line-height: var(--type-price-desktop-line);
+  }
+}
