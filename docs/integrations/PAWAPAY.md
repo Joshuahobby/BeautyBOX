@@ -38,7 +38,7 @@ Secrets live only in the environment of the deployment that uses them: productio
 
 ## Proving it before launch (gates G1 and G3)
 
-1. **Sandbox (G1):** run the purchase path with pawaPay's Rwanda test numbers (MTN `250783456789` completes, `250783456039` not approved, `250783456129` stays pending; Airtel `250733456789` completes, `250733456049` insufficient balance) and a refund. Done locally on 2026-10-24 without callbacks or request signing, then with request signing and "Only accept signed requests" on (2026-10-25, below). Still to do on a staging deployment (`APP_ENV=staging`): callbacks arriving signed and verifying.
+1. **Sandbox (G1):** run the purchase path with pawaPay's Rwanda test numbers (MTN `250783456789` completes, `250783456039` not approved, `250783456129` stays pending; Airtel `250733456789` completes, `250733456049` insufficient balance) and a refund. Done locally on 2026-10-24 without callbacks or request signing, then with request signing and "Only accept signed requests" on (2026-10-25, below). On the staging deployment (2026-10-25, `APP_ENV=staging`, Vercel `dub1`): order BB-J2JS-KAWB (RWF 5,100, MTN `250783456789`) was paid with request signing on; pawaPay's deposit callback reached `https://staging.beautyboxmarket.com/api/v1/callbacks/pawapay`, its signature verified, and the status check confirmed COMPLETED before the order was marked paid.
 2. **Live (G3, founder decision):** a controlled live transaction and refund on the production deployment with real handsets (the PIN step is skipped in sandbox), reviewed by finance before public launch.
 
 ### Re-running the sandbox checks

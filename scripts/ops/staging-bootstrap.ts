@@ -70,10 +70,33 @@ function poolerParts(ownerUrl: string) {
   return { url, ref };
 }
 
-async function bootstrapRoles(client: pg.Client, password: string) {
+/** Whether the app's own connection (DATABASE_URL in the file) already logs in. */
+async function runtimeLoginWorks(file: EnvFile): Promise<boolean> {
+  const url = envValue(file, "DATABASE_URL");
+  if (!url) return false;
+  const probe = new pg.Client({ connectionString: url, ssl: tls(file), connectionTimeoutMillis: 15_000 });
+  try {
+    await probe.connect();
+    await probe.query("SELECT 1");
+    return true;
+  } catch {
+    return false;
+  } finally {
+    await probe.end().catch(() => undefined);
+  }
+}
+
+async function bootstrapRoles(client: pg.Client, password: string, file: EnvFile) {
   const exists = (await client.query("SELECT 1 FROM pg_roles WHERE rolname = $1", [APP_ROLE])).rowCount === 1;
-  await client.query(`${exists ? "ALTER" : "CREATE"} ROLE ${APP_ROLE} WITH LOGIN PASSWORD ${client.escapeLiteral(password)}`);
-  say(`runtime login role ${APP_ROLE}: ${exists ? "password set" : "created"}`);
+  // Setting the password again, even to the same value, makes the pooler reject the live site's
+  // logins for a while (it caches the old verifier), so it is only set when the role is new or
+  // the app's connection does not log in.
+  if (!exists || !(await runtimeLoginWorks(file))) {
+    await client.query(`${exists ? "ALTER" : "CREATE"} ROLE ${APP_ROLE} WITH LOGIN PASSWORD ${client.escapeLiteral(password)}`);
+    say(`runtime login role ${APP_ROLE}: ${exists ? "password set" : "created"}`);
+  } else {
+    say(`runtime login role ${APP_ROLE}: logs in already; password left as it is`);
+  }
   const trgm = await client.query<{ schema: string }>("SELECT n.nspname AS schema FROM pg_extension e JOIN pg_namespace n ON n.oid = e.extnamespace WHERE e.extname = 'pg_trgm'");
   if (trgm.rowCount === 0) await client.query("CREATE EXTENSION pg_trgm WITH SCHEMA extensions");
   else if (trgm.rows[0]!.schema !== "extensions") throw new Error(`pg_trgm is installed in schema ${trgm.rows[0]!.schema}; the migrations need it in "extensions"`);
@@ -143,7 +166,7 @@ async function scheduler(client: pg.Client, file: EnvFile) {
   const origin = envValue(file, "APP_ORIGIN");
   const secret = envValue(file, "WORKER_SECRET");
   if (!origin || !secret) throw new Error("APP_ORIGIN and WORKER_SECRET are needed for the scheduler");
-  await client.query("CREATE EXTENSION IF NOT EXISTS pg_cron");
+  await client.query("CREATE EXTENSION IF NOT EXISTS pg_cron WITH SCHEMA pg_catalog"); // as Supabase documents it
   await client.query("CREATE EXTENSION IF NOT EXISTS pg_net WITH SCHEMA extensions");
   const existing = await client.query<{ id: string }>("SELECT id FROM vault.secrets WHERE name = $1", [VAULT_NAME]);
   if (existing.rowCount === 0) await client.query("SELECT vault.create_secret($1, $2)", [secret, VAULT_NAME]);
@@ -249,7 +272,7 @@ async function main() {
   await client.connect();
   say(`connected to the staging database (project ${ref}) over TLS${envValue(file, "DATABASE_SSL_CA") ? " with certificate verification" : " (certificate not verified: add DATABASE_SSL_CA)"}`);
   try {
-    await bootstrapRoles(client, password);
+    await bootstrapRoles(client, password, file);
     migrate(url, file);
     await finishDatabase(client);
     if (process.argv.includes("--scheduler")) await scheduler(client, file);
