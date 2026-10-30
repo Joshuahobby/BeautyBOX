@@ -32,7 +32,7 @@ Run in a fresh clone on Linux (Node 22.22.0, PostgreSQL 16 server binaries) rath
 | Lint | `npx eslint .` | 0 errors, 0 warnings |
 | Unit | `npm run test:unit` | **85/85 pass** (11 files; adds the bulk raw-upload delete for both storage adapters) |
 | Integration (real PostgreSQL) | `npm run test:integration` | **156/156 pass**, 6 opt-in live tests skipped (15 files; adds "raw upload clean-up" (3) in `media-publication.test.ts`; migration 20261030000000 applied, so the invariant triggers ran with `search_path = ''`) |
-| Browser | `npx playwright test` with the container's Chromium | running; result recorded in the next commit |
+| Browser (Playwright 1.64 + axe, fresh production build, CSP guard on every test) | `npx playwright test`, pointed at the container's pre-installed Chromium | **32/32 pass** (3.8 min) |
 
 Before the set-up fix, a fresh `setup:local` produced a `.env.test` without `STAFF_AUTH_PROVIDER=test` and 35 integration tests failed with 401; the developer machine's `.env.test` had the setting added by hand. One run also failed "slows down guessing per address" when the test crossed a 10-minute rate-limit window boundary; rate-limit tests now start at the beginning of a window.
 
