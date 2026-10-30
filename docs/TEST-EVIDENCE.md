@@ -21,6 +21,21 @@ All results below are from runs of the actual application code on this machine (
 | Migration TLS check (RF-77) against a local fake PostgreSQL TLS endpoint with a test CA | one-off `prisma migrate status` runs | with `sslcert` + `sslaccept=strict`: wrong CA refused (untrusted root), right CA connects; without them a wrong certificate was accepted | 2026-10-25 |
 | Live staging site (Vercel dub1 + Supabase eu-west-1), first deployment | curl against the three addresses; one scripted guest purchase through the public API | main domain and www: only the launch page, other paths 307 to /, APIs 401; staging: launch page without the access cookie, APIs 401, CSP/noindex/HSTS headers; wrong access code refused through the database rate limiter; staff sign-in page loads; Supabase Cron calls the job runner every minute (HTTP 200); order BB-J2JS-KAWB paid with MTN 250783456789 (sandbox): signed request accepted, signed callback verified, status check COMPLETED, one receipt | 2026-10-25 |
 
+## 2026-10-30 run (Linux cloud container)
+
+Run in a fresh clone on Linux (Node 22.22.0, PostgreSQL 16 server binaries) rather than the Windows machine above, after `npm ci` and `npm run setup:local`. The contract freshness check was not run: it reads the handoff package, which is not in the repository.
+
+| Suite | Command | Result |
+| --- | --- | --- |
+| Token freshness | `npm run design:tokens:check` | pass |
+| Typecheck | `npm run typecheck` (now runs `next typegen` first) | 0 errors |
+| Lint | `npx eslint .` | 0 errors, 0 warnings |
+| Unit | `npm run test:unit` | **85/85 pass** (11 files; adds the bulk raw-upload delete for both storage adapters) |
+| Integration (real PostgreSQL) | `npm run test:integration` | **156/156 pass**, 6 opt-in live tests skipped (15 files; adds "raw upload clean-up" (3) in `media-publication.test.ts`; migration 20261030000000 applied, so the invariant triggers ran with `search_path = ''`) |
+| Browser | `npx playwright test` with the container's Chromium | running; result recorded in the next commit |
+
+Before the set-up fix, a fresh `setup:local` produced a `.env.test` without `STAFF_AUTH_PROVIDER=test` and 35 integration tests failed with 401; the developer machine's `.env.test` had the setting added by hand. One run also failed "slows down guessing per address" when the test crossed a 10-minute rate-limit window boundary; rate-limit tests now start at the beginning of a window.
+
 ## Acceptance scenarios covered by automated tests
 
 | Scenario | Test (file › name) | Result |

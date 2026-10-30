@@ -1,6 +1,6 @@
 import "server-only";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
-import { assertMediaKey, PUBLIC_PHOTO_CACHE_SECONDS, type MediaStorage } from "./types";
+import { assertMediaKey, assertStagingKey, PUBLIC_PHOTO_CACHE_SECONDS, type MediaStorage } from "./types";
 
 // Supabase Storage (DR-041). Two buckets, created by the founder's go-ahead on 2026-10-24:
 // - private ("private-media"): staging uploads and every finalized derivative. Not public;
@@ -62,6 +62,14 @@ export class SupabaseMediaStorage implements MediaStorage {
   async deleteStaging(key: string): Promise<void> {
     assertMediaKey(key);
     const { error } = await this.bucket(this.privateBucket).remove([key]);
+    if (error) throw new Error(`storage_delete_failed: ${error.message}`);
+  }
+
+  async deleteStagingMany(keys: string[]): Promise<void> {
+    keys.forEach(assertStagingKey);
+    if (keys.length === 0) return;
+    // One request for the whole batch; keys that are already gone are skipped, not errors.
+    const { error } = await this.bucket(this.privateBucket).remove(keys);
     if (error) throw new Error(`storage_delete_failed: ${error.message}`);
   }
 

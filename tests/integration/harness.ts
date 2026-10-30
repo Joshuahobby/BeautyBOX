@@ -42,6 +42,16 @@ export function advanceSeconds(seconds: number) {
   offsetMs += seconds * 1000;
 }
 
+/**
+ * Rate limits count in fixed windows aligned to the clock (src/server/http/rate-limit.ts).
+ * A test that counts up to a limit starts just after a window boundary, so it cannot
+ * straddle one and see its count reset halfway.
+ */
+export function startFreshRateLimitWindow(windowSeconds = 600) {
+  const intoWindowMs = (Date.now() + offsetMs) % (windowSeconds * 1000);
+  offsetMs += windowSeconds * 1000 - intoWindowMs + 1000;
+}
+
 export async function ownerQuery(sql: string, params: unknown[] = []) {
   const client = new pg.Client({ connectionString: process.env.MIGRATION_DATABASE_URL });
   await client.connect();

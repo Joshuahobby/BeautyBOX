@@ -8,6 +8,10 @@ import type { LocalMediaStorage } from "@/adapters/storage/local";
 import type { MediaStorage } from "@/adapters/storage/types";
 import { enqueuePublicSync } from "@/modules/media/publication";
 import { runDueJobs } from "@/modules/jobs/worker";
+import { clearSpentStagingUploads, STAGING_CLEAR_AFTER_SECONDS } from "@/modules/media/staging-cleanup";
+import { INTENT_TTL_SECONDS } from "@/modules/media/uploads";
+import { runStorageHousekeepingSafely } from "@/modules/ops/housekeeping";
+import { POST as postJobsRun } from "@/app/api/v1/internal/jobs/run/route";
 import { POST as postIntent } from "@/app/api/v1/staff/media/upload-intents/route";
 import { PUT as putContent } from "@/app/api/v1/staff/media/[uploadId]/content/route";
 import { POST as postFinalize } from "@/app/api/v1/staff/media/[uploadId]/finalize/route";
@@ -16,7 +20,7 @@ import { PUT as putProduct } from "@/app/api/v1/staff/products/[productId]/route
 import { POST as postPublication } from "@/app/api/v1/staff/products/[productId]/publication/route";
 import { POST as postImportPreview } from "@/app/api/v1/staff/inventory/import-previews/route";
 import { POST as postImportApply } from "@/app/api/v1/staff/inventory/import-previews/[previewId]/apply/route";
-import { resetDatabase, seedShop } from "./harness";
+import { advanceSeconds, resetDatabase, seedShop } from "./harness";
 
 // DR-041: a product photo has a public copy exactly while it is approved. Approval and
 // removal are applied right after the save, a durable MEDIA_PUBLIC_SYNC job backs that up
@@ -318,5 +322,80 @@ describe("public copies of product photos", () => {
     await mediaStorage().putStaging(`staging/${uploadId}`, bytes, "image/png");
     const fin = await json(await postFinalize(jsonReq("POST", `/api/v1/staff/media/${uploadId}/finalize`, as, { alt: "x" }), params({ uploadId })));
     expect(fin.body).toMatchObject({ reviewState: "REJECTED", rejectReason: "The uploaded file is larger than declared." });
+  });
+});
+
+// DR-046: raw uploads (staging/<uploadId>) are deleted once no upload URL can still write
+// to them; finished photos are never touched.
+describe("raw upload clean-up", () => {
+  async function abandonedUpload(as: string): Promise<string> {
+    const bytes = await sharp({ create: { width: 400, height: 400, channels: 3, background: { r: 200, g: 90, b: 140 } } }).webp().toBuffer();
+    const intent = await json(await postIntent(jsonReq("POST", "/api/v1/staff/media/upload-intents", as, { purpose: "PRODUCT_PHOTO", mimeType: "image/webp", sizeBytes: bytes.length }), params({})));
+    const uploadId = String(intent.body.uploadId);
+    const put = await putContent(new NextRequest(`${origin()}/api/v1/staff/media/${uploadId}/content`, { method: "PUT", headers: { origin: origin(), "content-type": "image/webp", "x-test-staff": as }, body: new Uint8Array(bytes) }), params({ uploadId }));
+    expect(put.status).toBe(200);
+    return `staging/${uploadId}`;
+  }
+  const cleared = async (stagingKey: string) => (await db().mediaUpload.findUniqueOrThrow({ where: { stagingKey } })).stagingClearedAt;
+
+  it("removes abandoned and late raw uploads once their upload URLs are spent, never sooner and never a finished photo", async () => {
+    const as = await staff();
+    const photo = await uploadPhoto(as);
+    const finished = (await db().mediaUpload.findUniqueOrThrow({ where: { storageKey: photo } })).stagingKey;
+    expect(await local().readStaging(finished)).toBeNull(); // finalize already removed it
+    await local().putStaging(finished, Buffer.from("arrived late through a still-valid upload URL"));
+    const abandoned = await abandonedUpload(as);
+
+    advanceSeconds(INTENT_TTL_SECONDS + STAGING_CLEAR_AFTER_SECONDS - 60);
+    expect(await clearSpentStagingUploads()).toBe(0); // an upload URL could still be in use
+    expect(await local().readStaging(abandoned)).not.toBeNull();
+    const fresh = await abandonedUpload(as);
+
+    advanceSeconds(120);
+    expect(await clearSpentStagingUploads()).toBe(2);
+    expect(await local().readStaging(finished)).toBeNull();
+    expect(await local().readStaging(abandoned)).toBeNull();
+    expect(await cleared(finished)).not.toBeNull();
+    expect(await cleared(abandoned)).not.toBeNull();
+    expect(await local().readStaging(fresh)).not.toBeNull(); // its own URLs are still valid
+    expect(await cleared(fresh)).toBeNull();
+    expect(await local().readPrivate(photo)).not.toBeNull(); // the finished photo stays
+    expect(await clearSpentStagingUploads()).toBe(0);
+  });
+
+  it("marks nothing while storage fails, and the next run finishes", async () => {
+    const as = await staff();
+    const abandoned = await abandonedUpload(as);
+    advanceSeconds(INTENT_TTL_SECONDS + STAGING_CLEAR_AFTER_SECONDS + 60);
+    const real = mediaStorage();
+    let down = true;
+    const flaky: MediaStorage = Object.assign(Object.create(Object.getPrototypeOf(real)), real, {
+      deleteStagingMany: async (keys: string[]) => {
+        if (down) throw new Error("storage unavailable");
+        return real.deleteStagingMany(keys);
+      },
+    });
+    setAdaptersForTests({ media: flaky });
+
+    await runStorageHousekeepingSafely(); // logs, never throws
+    expect(await cleared(abandoned)).toBeNull();
+    expect(await local().readStaging(abandoned)).not.toBeNull();
+    down = false;
+    await runStorageHousekeepingSafely();
+    expect(await cleared(abandoned)).not.toBeNull();
+    expect(await local().readStaging(abandoned)).toBeNull();
+  });
+
+  it("runs from the scheduled job runner", async () => {
+    const as = await staff();
+    const abandoned = await abandonedUpload(as);
+    advanceSeconds(INTENT_TTL_SECONDS + STAGING_CLEAR_AFTER_SECONDS + 60);
+    const res = await postJobsRun(
+      new NextRequest(`${origin()}/api/v1/internal/jobs/run`, { method: "POST", headers: { authorization: `Bearer ${process.env.WORKER_SECRET}`, "content-type": "application/json" }, body: JSON.stringify({ batchSize: 5, maxRuntimeSeconds: 5 }) }),
+      params({}),
+    );
+    expect(res.status).toBe(200);
+    expect(await cleared(abandoned)).not.toBeNull();
+    expect(await local().readStaging(abandoned)).toBeNull();
   });
 });

@@ -50,6 +50,20 @@ describe("Supabase storage adapter, simulated API", () => {
     expect(await fakeSupabase(() => ({ status: 200 })).storage.isPublic(key)).toBe(true);
   });
 
+  it("deletes a batch of raw uploads in one request, and refuses any key that is not a raw upload", async () => {
+    const s = fakeSupabase(() => ({ status: 200, body: [] }));
+    const keys = [`staging/${randomUUID()}`, `staging/${randomUUID()}`];
+    await s.storage.deleteStagingMany(keys);
+    expect(s.calls).toHaveLength(1);
+    expect(s.calls[0]).toMatchObject({ method: "DELETE", hasSignal: true });
+    expect(s.calls[0]!.url).toContain("/storage/v1/object/private-media");
+    await s.storage.deleteStagingMany([]);
+    await expect(s.storage.deleteStagingMany([`staging/${randomUUID()}`, key])).rejects.toThrow(/Invalid staging key/);
+    expect(s.calls).toHaveLength(1);
+    const failing = fakeSupabase(() => ({ status: 500, body: { statusCode: "500", error: "internal", message: "boom" } }));
+    await expect(failing.storage.deleteStagingMany(keys)).rejects.toThrow(/storage_delete_failed/);
+  });
+
   it("refuses keys it did not generate before calling Supabase", async () => {
     const s = fakeSupabase(() => ({ status: 200 }));
     await expect(s.storage.publish("../private-media/evidence/x.webp")).rejects.toThrow(/Invalid media key/);
@@ -61,6 +75,18 @@ describe("Supabase storage adapter, simulated API", () => {
 describe("local storage adapter", () => {
   const root = path.join(os.tmpdir(), `bb-media-${randomUUID()}`);
   afterAll(() => fs.rm(root, { recursive: true, force: true }));
+
+  it("bulk-deletes raw uploads only, ignoring ones already gone", async () => {
+    const storage = new LocalMediaStorage(root, "http://localhost:3000");
+    const raw = `staging/${randomUUID()}`;
+    const photo = `products/${randomUUID()}.webp`;
+    await storage.putStaging(raw, Buffer.from("raw"));
+    await storage.putPrivate(photo, Buffer.from("photo"));
+    await storage.deleteStagingMany([raw, `staging/${randomUUID()}`]);
+    expect(await storage.readStaging(raw)).toBeNull();
+    await expect(storage.deleteStagingMany([photo])).rejects.toThrow(/Invalid staging key/);
+    expect((await storage.readPrivate(photo))?.toString()).toBe("photo");
+  });
 
   it("keeps a photo stored before DR-041 (public area only) when it is unpublished", async () => {
     const storage = new LocalMediaStorage(root, "http://localhost:3000");

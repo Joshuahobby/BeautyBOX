@@ -1,7 +1,7 @@
 import "server-only";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { assertMediaKey, type MediaStorage } from "./types";
+import { assertMediaKey, assertStagingKey, type MediaStorage } from "./types";
 
 // Development storage on the local disk under .local/media/<APP_ENV>/ (git-ignored), with
 // the same staging / private / public areas as hosted storage. Production configuration
@@ -43,6 +43,11 @@ export class LocalMediaStorage implements MediaStorage {
 
   async deleteStaging(key: string): Promise<void> {
     await fs.rm(this.file("staging", key), { force: true });
+  }
+
+  async deleteStagingMany(keys: string[]): Promise<void> {
+    keys.forEach(assertStagingKey);
+    for (const key of keys) await this.deleteStaging(key);
   }
 
   async putPrivate(key: string, bytes: Buffer): Promise<void> {

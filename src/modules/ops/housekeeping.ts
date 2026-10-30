@@ -4,6 +4,7 @@ import { LIMITS } from "@/server/http/rate-limit";
 import { logEvent } from "@/server/log";
 import { now } from "@/modules/shared/clock";
 import { LAUNCH_RETENTION_DAYS, purgeLaunchList } from "@/modules/launch/launch-list";
+import { clearSpentStagingUploads } from "@/modules/media/staging-cleanup";
 
 // Clean-up behind promises made to visitors (DR-045): launch-list sign-ups go at the
 // latest 12 months after the latest sign-up, and the keyed-hash rate-limit counters (which
@@ -33,5 +34,20 @@ export async function runHousekeepingSafely(): Promise<void> {
   } catch (error) {
     // Never fails the job run; the next run (a minute later) tries again.
     logEvent("warn", "housekeeping_failed", { error: error instanceof Error ? error.name : "unknown" });
+  }
+}
+
+/**
+ * Clean-up that calls the storage service: raw photo uploads no upload URL can still reach
+ * (DR-046). The job runner calls it after the jobs, and only with time to spare, so a slow
+ * storage service never delays payment work.
+ */
+export async function runStorageHousekeepingSafely(): Promise<void> {
+  try {
+    const stagingUploadsCleared = await clearSpentStagingUploads();
+    if (stagingUploadsCleared > 0) logEvent("info", "storage_housekeeping_done", { stagingUploadsCleared });
+  } catch (error) {
+    // Never fails the job run; nothing was marked, so the next run tries again.
+    logEvent("warn", "storage_housekeeping_failed", { error: error instanceof Error ? error.name : "unknown" });
   }
 }
