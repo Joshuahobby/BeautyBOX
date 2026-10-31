@@ -92,6 +92,8 @@ writeEnvFile(".env.test", {
   APP_ORIGIN: "http://localhost:3100",
   DATABASE_URL: urls.TEST_DATABASE_URL,
   MIGRATION_DATABASE_URL: urls.TEST_MIGRATION_DATABASE_URL,
+  // Staff tests sign in with the x-test-staff header; the app accepts it only when APP_ENV=test.
+  STAFF_AUTH_PROVIDER: "test",
   ...common,
 });
 

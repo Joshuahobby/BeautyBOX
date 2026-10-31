@@ -1,6 +1,6 @@
 # Implementation progress
 
-Updated 2026-10-25. Local build, plus a staging deployment prepared for the founder to switch on (DR-044, `docs/DEPLOYMENT.md`): synthetic data, pawaPay sandbox, simulated routing, no SMS. Evidence for every "verified" claim is in [TEST-EVIDENCE.md](TEST-EVIDENCE.md); review findings and their fixes are in [REVIEW-FINDINGS.md](REVIEW-FINDINGS.md).
+Updated 2026-10-30. Local build, plus the staging deployment live since 2026-10-25 (DR-044, `docs/DEPLOYMENT.md`): synthetic data, pawaPay sandbox, simulated routing, no SMS. Evidence for every "verified" claim is in [TEST-EVIDENCE.md](TEST-EVIDENCE.md); review findings and their fixes are in [REVIEW-FINDINGS.md](REVIEW-FINDINGS.md).
 
 ## Backlog status
 
@@ -19,11 +19,18 @@ Updated 2026-10-25. Local build, plus a staging deployment prepared for the foun
 | I12 | Settings (A07: pin, area, tariff, hours, parcel limits, quote expiry, checkout pause) | Verified (versioned settings, quote invalidation, production guard). **Google routing adapter not started:** needs a key decision and the routing pilot. |
 | I13 | Backup/restore drill (T20 local), runbooks, monitoring probe, reconciliation sweep, checkout switch, strict style CSP (DR-039), staff self-service password reset (DR-040) | Verified locally. Open: hosted restore rehearsal. |
 | Staging | Hosting on Vercel + Supabase (TLS to the database, transaction pooler, `prisma generate` on install, Supabase Cron job runner, staging-only seed, settings push allow-list), pre-launch wall on the real domain, launch list with its own privacy notice (DR-044, DR-045, CC-20) | **Live since 2026-10-25** at staging.beautyboxmarket.com (access code) with beautyboxmarket.com showing "Launching soon". Checked on the live site: the wall on all three addresses, database over verified TLS, the job runner every minute, and a sandbox order paid with a signed, verified pawaPay callback. Launch list closed until the founder opens it. |
-| I07 | pawaPay v2 adapter: deposits, status checks, refunds, active configuration, signed callbacks (RFC 9421) and signed requests; production refused outside production (DR-042) | Built, verified against a local imitation, then **run against the pawaPay sandbox** on 2026-10-24 (DR-043): every Rwanda test number through the browser checkout, and the app's payment and refund path in the opt-in `pawapay-sandbox.test.ts` (4/4). The sandbox's refund answers changed two rules (DR-043). Still to do on staging: signed callbacks and signed requests. See `docs/integrations/PAWAPAY.md`. |
+| I07 | pawaPay v2 adapter: deposits, status checks, refunds, active configuration, signed callbacks (RFC 9421) and signed requests; production refused outside production (DR-042) | Built, verified against a local imitation, then **run against the pawaPay sandbox** on 2026-10-24 (DR-043): every Rwanda test number through the browser checkout, and the app's payment and refund path in the opt-in `pawapay-sandbox.test.ts` (4/4). The sandbox's refund answers changed two rules (DR-043). Signed requests verified in the sandbox and signed callbacks verified on staging (2026-10-25). Still to do on staging: a refund through the finance page with callbacks on. See `docs/integrations/PAWAPAY.md`. |
 
 ## API contract
 
 The handoff contract (v1.0.0) is implemented together with documented additions CC-01..CC-20 ([CONTRACT-CHANGES.md](CONTRACT-CHANGES.md)). The machine-readable result is [api/API-Contract-v1.1.openapi.json](api/API-Contract-v1.1.openapi.json). Every implemented operation's real responses are validated against it in `tests/integration/contract.test.ts`; the provider callback is tested separately. Decisions: [DECISION-LOG.md](DECISION-LOG.md) DR-001..DR-045.
+
+## Done on 2026-10-30
+
+- **Raw photo uploads are cleaned up** (DR-046): the job runner deletes raw uploads once no upload URL can still reach them. Needs migration 20261030000000 on staging before the build that uses it is deployed (`npm run staging:bootstrap`, then deploy).
+- **Trigger functions have a fixed search path** (DR-047), clearing five warnings from Supabase's security advisor. Same migration.
+- **Fresh local set-up runs every test**: `setup:local` now writes `STAFF_AUTH_PROVIDER=test` into `.env.test` (without it, 35 staff tests answered 401 on a new machine), and `npm run typecheck` generates Next.js's type file first, so it passes on a fresh clone.
+- **Rate-limit tests no longer flake**: limits count in fixed 10-minute windows, and a test that crossed a window boundary saw its count reset. Those tests now start at the beginning of a window.
 
 ## Known gaps and follow-ups
 - **Access-reissue SMS wording** is not in the copy drafts; it needs approval with the other templates (B09).
@@ -31,6 +38,13 @@ The handoff contract (v1.0.0) is implemented together with documented additions 
 - Product weights do not exist yet, so a parcel weight limit can be recorded but is not enforced.
 - Staff sessions revoked by a password reset keep working on other devices until their access token expires (one hour by default), because the app verifies staff tokens locally; see the release checklist.
 - Staff UI is desktop-first; it has not been tested below 768 px.
+- Finalized product photos that are never used on a product stay in private storage; deleting them needs a retention rule.
+- Supabase reports 24 foreign keys without their own index (informational). At staging volumes this costs nothing; revisit with real order volumes.
+
+## Supabase advisor findings for the founder (staging project, 2026-10-30)
+
+- `public.rls_auto_enable()` is a `SECURITY DEFINER` function that anyone, signed in or not, can call through the Data API. It is not part of the BeautyBOX code; Supabase creates it when automatic RLS for new tables is switched on. If that setting is not needed, switch it off; otherwise revoke `EXECUTE` on the function from `anon` and `authenticated`. Not changed without your go-ahead.
+- Leaked-password protection is off (see the staff account security list in RELEASE-CHECKLIST).
 
 ## Open founder inputs
 B01-B13 remain outstanding (see the handoff `business/Founder-Inputs.md`). None block local work, and the public sale flow stays closed until they and the release gates pass.

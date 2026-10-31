@@ -14,6 +14,8 @@ export interface MediaStorage {
   putStaging(key: string, bytes: Buffer, contentType: string): Promise<void>;
   readStaging(key: string): Promise<Buffer | null>;
   deleteStaging(key: string): Promise<void>;
+  /** Deletes several raw uploads in one call (staging keys only). Missing ones are ignored. */
+  deleteStagingMany(keys: string[]): Promise<void>;
   /** Stores a finalized derivative privately. Keys are immutable: an existing key is never overwritten. */
   putPrivate(key: string, bytes: Buffer, contentType: string): Promise<void>;
   readPrivate(key: string): Promise<Buffer | null>;
@@ -22,6 +24,9 @@ export interface MediaStorage {
   /** Removes the public copy. Idempotent. A CDN may keep serving it until its cache time ends. */
   unpublish(key: string): Promise<void>;
 }
+
+/** A signed upload URL stays usable this long after it is issued (Supabase's fixed lifetime). */
+export const SIGNED_UPLOAD_URL_SECONDS = 2 * 60 * 60;
 
 /** Product photo derivatives: browser caches and the CDN keep them for this long (also the takedown delay). */
 export const PUBLIC_PHOTO_CACHE_SECONDS = 600;
@@ -32,4 +37,9 @@ export const PRODUCT_PHOTO_KEY = /^products\/[0-9a-f-]{36}\.webp$/;
 
 export function assertMediaKey(key: string): void {
   if (!MEDIA_KEY.test(key)) throw new Error("Invalid media key");
+}
+
+/** Bulk deletes take raw-upload keys only, so a mistake can never remove a finished photo. */
+export function assertStagingKey(key: string): void {
+  if (!/^staging\/[0-9a-f-]{36}$/.test(key)) throw new Error("Invalid staging key");
 }

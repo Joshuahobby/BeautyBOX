@@ -42,7 +42,7 @@ Status values: ✅ done (evidence in repo) · 🟡 partly done · ⬜ open (foun
 | Item | Status | Owner |
 | --- | --- | --- |
 | pawaPay production merchant approval; MTN and Airtel enabled; limits, fees and settlement confirmed | ⬜ | Founder (B06) |
-| Signed callbacks verified on the deployed URL (proxy and request target) | 🔒 | Engineering after I07 |
+| Signed callbacks verified on the deployed URL (proxy and request target) | 🟡 | Verified on the staging URL with the sandbox (2026-10-25, order BB-J2JS-KAWB, signature verified behind Vercel). Repeat on the production URL with production credentials at launch |
 | Refund funding process confirmed; controlled live collection and refund reviewed by finance | 🔒 | Founder and finance |
 
 ## G4 – Fulfilment
@@ -63,7 +63,7 @@ Status values: ✅ done (evidence in repo) · 🟡 partly done · ⬜ open (foun
 - [ ] Real-device accessibility and responsive review; original logo (B11 wordmark check) and real product imagery verified.
 - [ ] Privacy, policy, receipt/tax and language approvals recorded (`policiesApproved`); support contact set.
 - [ ] Backup, media restore and rollback rehearsed on the hosted platform (local drill: `npm run ops:drill`, passing); checkout pause exercised from `/staff/settings`.
-- [ ] Migration compatibility: for every migration since the last deployed build, the rollback plan names the last compatible build. Any rename, drop or type change ships expand/contract across two releases (DR-037). Migrations 20261022 and 20261023 are not rollback-compatible with earlier builds (acceptable only because no earlier build was ever deployed); 20261024000000 (a job type), 20261024100000 (a nullable refund column), 20261025000000 (the launch-list table) and 20261025100000 (nullable link columns and indexes) are additive.
+- [ ] Migration compatibility: for every migration since the last deployed build, the rollback plan names the last compatible build. Any rename, drop or type change ships expand/contract across two releases (DR-037). Migrations 20261022 and 20261023 are not rollback-compatible with earlier builds (acceptable only because no earlier build was ever deployed); 20261024000000 (a job type), 20261024100000 (a nullable refund column), 20261025000000 (the launch-list table), 20261025100000 (nullable link columns and indexes) and 20261030000000 (a nullable upload column, a partial index, and a fixed `search_path` on the trigger functions) are additive.
 - [ ] Monitoring (`/api/v1/internal/ops-summary`, alert on non-empty `alerts`), escalation owner and the daily reconciliation sweep (`/api/v1/internal/reconciliation`, zero issues) assigned and exercised.
 - [ ] Controlled live transaction and refund evidence reviewed by finance and the founder.
 - [ ] Production environment separate from staging (DR-044): Vercel Pro, `APP_ENV=production` with live pawaPay, real routing and SMS, its own database and secrets; `SITE_GATE=off` and no `HOLDING_HOSTS` on the production domain; staging moved off `beautyboxmarket.com`; `robots.txt` open only then.
@@ -86,7 +86,7 @@ These are account settings, so I have not changed them without your go-ahead. St
 ### Staff account security before launch (from the 2026-10-23 reset review)
 
 - ⬜ Redirect URLs are exact (`https://<production host>/staff/reset-password`); never a wildcard host someone else could serve (for example `*.vercel.app`), and the localhost entry only on the dev project.
-- ⬜ Server-side password policy in Supabase (Authentication → Policies or Passwords): minimum length 12 and leaked-password protection where the plan allows. The app's 12-character rule is checked in the browser only.
+- ⬜ Server-side password policy in Supabase (Authentication → Policies or Passwords): minimum length 12 and leaked-password protection where the plan allows. The app's 12-character rule is checked in the browser only. Supabase's security advisor on 2026-10-30 still reports leaked-password protection off.
 - ⬜ CAPTCHA on Supabase Auth (slows scripted probing of `/recover` and email flooding), wired into the request page's `captchaToken`.
 - ⬜ The "Reset password" email says to ignore it if not requested and to open it only in the browser that asked for it.
 - ⬜ Decide the access-token lifetime: after a reset, a page already open on another device keeps working until its token expires (default one hour), because the app verifies tokens locally. Shorten it, or check the session server-side for staff actions, if that window is too long.
@@ -96,5 +96,5 @@ These are account settings, so I have not changed them without your go-ahead. St
 
 - ⬜ Production uses `MEDIA_STORAGE=supabase` (the configuration validator refuses `local` in production) with the two buckets created as above.
 - ⬜ Storage objects are backed up separately from the database (database backups do not include them); rehearse restoring a photo.
-- ⬜ Clean up abandoned uploads: staging objects of upload intents that expired or finished more than 2 hours ago are not deleted automatically yet (a signed upload URL stays usable for 2 hours).
+- 🟡 Clean up abandoned uploads: built and tested locally (DR-046): the job runner deletes raw uploads 2 h 10 min after their intent expired. Live on staging once migration 20261030000000 is applied and this build is deployed. Finalized photos that never get used on a product are still kept; that needs a retention rule.
 - ⬜ Decide the takedown window: a removed photo can stay visible for up to 10 minutes (`PUBLIC_PHOTO_CACHE_SECONDS`) because the CDN and browsers cache it; Supabase's Smart CDN (paid plans) purges on delete.

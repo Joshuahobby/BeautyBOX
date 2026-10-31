@@ -9,7 +9,7 @@ import { isDomainError } from "@/modules/shared/errors";
 import { POST as postLaunchList } from "@/app/api/v1/launch-list/route";
 import { POST as postSiteAccess } from "@/app/api/v1/site-access/route";
 import { proxy } from "@/proxy";
-import { advanceSeconds, resetDatabase } from "./harness";
+import { advanceSeconds, resetDatabase, startFreshRateLimitWindow } from "./harness";
 
 // DR-044 (pre-launch wall) and DR-045 (launch list) against the real database.
 
@@ -133,6 +133,7 @@ describe("launch list", () => {
   });
 
   it("is rate-limited per address", async () => {
+    startFreshRateLimitWindow();
     for (let i = 0; i < 10; i++) await joinLaunchList({ email: `p${i}@example.test`, consent: true }, ctx("198.51.100.9"));
     expect((await failure(joinLaunchList({ email: "p11@example.test", consent: true }, ctx("198.51.100.9"))))?.code).toBe("RATE_LIMITED");
     await joinLaunchList({ email: "elsewhere@example.test", consent: true }, ctx("198.51.100.10"));
@@ -210,6 +211,7 @@ describe("access code endpoint", () => {
   });
 
   it("slows down guessing per address", async () => {
+    startFreshRateLimitWindow();
     for (let i = 0; i < 8; i++) expect((await send({ code: `guess-${i}` }, "192.0.2.77")).status).toBe(401);
     expect((await send({ code: CODE }, "192.0.2.77")).status).toBe(429);
     expect((await send({ code: CODE }, "192.0.2.78")).status).toBe(200);

@@ -22,6 +22,7 @@ import {
   resetDatabase,
   seedShop,
   settleAndDrain,
+  startFreshRateLimitWindow,
   type Shop,
 } from "./harness";
 
@@ -145,6 +146,7 @@ describe("RF-04 the cart stays readable right after a purchase", () => {
 
 describe("RF-05 session creation is rate limited even with a forged cookie", () => {
   it("limits requests that would create a session", async () => {
+    startFreshRateLimitWindow();
     const origin = process.env.APP_ORIGIN!;
     const send = () =>
       createSession(
@@ -163,6 +165,7 @@ describe("RF-05 session creation is rate limited even with a forged cookie", () 
 
 describe("RF-06 unverified callbacks cannot fill the event table", () => {
   it("stops storing forged events after the per-address limit", async () => {
+    startFreshRateLimitWindow();
     const forged = (i: number) =>
       ingestProviderCallback(
         { rawBody: Buffer.from(JSON.stringify({ depositId: crypto.randomUUID(), status: "COMPLETED", n: i })), headers: new Headers({ "x-devsim-signature": `bad-${i}` }), method: "POST", url: "http://localhost/api/v1/callbacks/pawapay" },
