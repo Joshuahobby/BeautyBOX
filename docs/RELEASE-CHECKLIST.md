@@ -57,7 +57,7 @@ Status values: ✅ done (evidence in repo) · 🟡 partly done · ⬜ open (foun
 ## G5 – Public release
 
 - [ ] Catalog importer dry run and stock reconciliation signed by operations.
-- [ ] Payment and refund critical scenarios passed against the pawaPay sandbox; no unresolved money discrepancy. (Locally without callbacks or request signing: passed 2026-10-24, DR-043. Repeat on staging with both.)
+- [ ] Payment and refund critical scenarios passed against the pawaPay sandbox; no unresolved money discrepancy. (Locally without callbacks or request signing: passed 2026-10-24, DR-043. On staging with signed requests and signed callbacks: a payment on 2026-10-25, and a refund on 2026-11-01: order BB-J2JS-KAWB was refunded in full (RWF 5,100) from the staff order page on 2026-11-01: approved 10:20:33 UTC, sent signed at 10:21:00, pawaPay's refund callback arrived with a verified signature at 10:21:02 and only prompted the status check, which confirmed it; refund SUCCEEDED with no flag, payment REFUNDED, refund case closed.)
 - [ ] Delivery pilot and quote acceptance approved.
 - [ ] Staff role, MFA and access tests passed; public/private cache checks passed.
 - [ ] Real-device accessibility and responsive review; original logo (B11 wordmark check) and real product imagery verified.
