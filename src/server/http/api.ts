@@ -38,6 +38,18 @@ export function errorResponse(error: DomainError, requestId: string) {
   return res;
 }
 
+/**
+ * The request path as written to logs: record ids become ":id", and any other long opaque
+ * segment (a secret in a provider's callback address, DR-048) becomes ":token", so a log line
+ * never carries a credential.
+ */
+export function routeForLog(pathname: string): string {
+  return pathname
+    .split("/")
+    .map((segment) => (/^[0-9a-f-]{36}$/i.test(segment) ? ":id" : /^[A-Za-z0-9_-]{32,}$/.test(segment) ? ":token" : segment.replace(/[0-9a-f-]{36}/gi, ":id")))
+    .join("/");
+}
+
 export function withApi<P extends Record<string, string | string[]> = Record<string, never>>(
   handler: (request: NextRequest, params: P, ctx: ApiContext) => Promise<NextResponse>,
 ) {
@@ -52,7 +64,7 @@ export function withApi<P extends Record<string, string | string[]> = Record<str
       if (isDomainError(error)) return errorResponse(error, requestId);
       logEvent("error", "api_unhandled", {
         requestId,
-        route: request.nextUrl.pathname.replace(/[0-9a-f-]{36}/gi, ":id"),
+        route: routeForLog(request.nextUrl.pathname),
         error: error instanceof Error ? `${error.name}: ${error.message.slice(0, 200)}` : "unknown",
       });
       return errorResponse(new DomainError("INTERNAL_ERROR", "Something went wrong. Please try again."), requestId);

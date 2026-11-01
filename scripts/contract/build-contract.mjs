@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Builds docs/api/API-Contract-v1.1.openapi.json: the handoff baseline contract (read-only,
-// v1.0.0) plus every documented additive change CC-01..CC-20 (docs/CONTRACT-CHANGES.md).
+// v1.0.0) plus every documented additive change CC-01..CC-21 (docs/CONTRACT-CHANGES.md).
 // The integration test tests/integration/contract.test.ts validates real responses
 // against this file, so an undocumented response change fails the build.
 //
@@ -287,8 +287,18 @@ c.paths["/launch-list"] = {
   },
 };
 
+// CC-21 SMS handset delivery as later reported by the SMS provider (DR-048)
+{
+  const notificationItem = S.StaffOrder.properties.notifications.items;
+  Object.assign(notificationItem.properties, {
+    deliveryStatus: nullable({ type: "string", enum: ["Sent", "Submitted", "Buffered", "Success", "Failed", "Rejected", "AbsentSubscriber", "Expired"] }),
+    deliveryFailureReason: nullable(str),
+  });
+  notificationItem.required = [...notificationItem.required, "deliveryStatus", "deliveryFailureReason"];
+}
+
 c.info.version = "1.1.0";
-c.info.description = `${c.info.description}\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-20 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed.`;
+c.info.description = `${c.info.description}\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-21 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed.`;
 
 const output = `${JSON.stringify(c, null, 2)}\n`;
 if (process.argv.includes("--check")) {

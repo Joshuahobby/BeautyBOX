@@ -1,5 +1,6 @@
 import "server-only";
 import { z } from "zod";
+import { AFRICASTALKING_SANDBOX_USERNAME } from "@/adapters/sms/africastalking";
 
 // Server configuration, validated once at startup. Production refuses demo adapters,
 // missing secrets and anything that would let synthetic data or fake payments reach
@@ -62,6 +63,17 @@ const schema = z
     PAWAPAY_SIGNING_KEY_ID: unsetIfEmpty(z.string()),
     // A custom API address, only for a local imitation of pawaPay in development and tests.
     PAWAPAY_BASE_URL: unsetIfEmpty(z.url()),
+    // Africa's Talking SMS (I11, DR-048): required only when SMS_PROVIDER=africastalking. The
+    // username picks the API: "sandbox" is Africa's Talking's sandbox (messages reach only their
+    // simulator); any other username is a live account that texts real phones.
+    AFRICASTALKING_USERNAME: unsetIfEmpty(z.string().regex(/^[A-Za-z0-9_.-]{1,100}$/, "must be the Africa's Talking app username (letters, digits, '.', '_' or '-')")),
+    AFRICASTALKING_API_KEY: unsetIfEmpty(z.string().regex(/^[\x21-\x7e]{8,512}$/, "must be the API key from the Africa's Talking dashboard, on one line without spaces")),
+    // Approved alphanumeric sender ID (up to 11 characters) or a short code. Optional until the
+    // sender ID is approved (Africa's Talking then sends from its default); required in production.
+    AFRICASTALKING_SENDER_ID: unsetIfEmpty(z.string().regex(/^(?:[A-Za-z0-9][A-Za-z0-9 ._-]{0,10}|\d{3,15})$/, "must be an approved sender ID (up to 11 letters, digits, spaces, '.', '_' or '-') or a short code")),
+    // Secret part of the delivery-report address given to Africa's Talking, which does not sign
+    // its callbacks (scripts/ops/sms-callback-token.ts). Without it delivery reports are refused.
+    AFRICASTALKING_CALLBACK_TOKEN: unsetIfEmpty(z.string().regex(/^[A-Za-z0-9_-]{32,128}$/, "must be 32 to 128 letters, digits, '-' or '_' (make one with scripts/ops/sms-callback-token.ts)")),
     // Google routing (I12): required only when ROUTING_PROVIDER=google
     GOOGLE_ROUTES_API_KEY: z.string().optional(),
     // Staff identity (I08): Supabase Auth with TOTP MFA; "test" exists only for automated tests.
@@ -103,6 +115,20 @@ const schema = z
     if (Boolean(env.PAWAPAY_SIGNING_PRIVATE_KEY) !== Boolean(env.PAWAPAY_SIGNING_KEY_ID)) {
       problem("PAWAPAY_SIGNING_KEY_ID", "set both PAWAPAY_SIGNING_PRIVATE_KEY and PAWAPAY_SIGNING_KEY_ID, or neither");
     }
+    if (env.SMS_PROVIDER === "africastalking") {
+      if (!env.AFRICASTALKING_USERNAME) problem("AFRICASTALKING_USERNAME", "required when SMS_PROVIDER=africastalking (use sandbox for the Africa's Talking sandbox)");
+      if (!env.AFRICASTALKING_API_KEY) problem("AFRICASTALKING_API_KEY", "required when SMS_PROVIDER=africastalking");
+      const sandbox = env.AFRICASTALKING_USERNAME === AFRICASTALKING_SANDBOX_USERNAME;
+      // Every environment but production holds synthetic phone numbers, which may belong to real
+      // people: only the sandbox, which texts nobody, is allowed there.
+      if (env.AFRICASTALKING_USERNAME && !sandbox && env.APP_ENV !== "production") {
+        problem("AFRICASTALKING_USERNAME", "a live Africa's Talking account texts real phones and is only allowed with APP_ENV=production; use AFRICASTALKING_USERNAME=sandbox here");
+      }
+      if (env.APP_ENV === "production") {
+        if (sandbox) problem("AFRICASTALKING_USERNAME", "production needs the live Africa's Talking account, not the sandbox");
+        if (!env.AFRICASTALKING_SENDER_ID) problem("AFRICASTALKING_SENDER_ID", "production needs the approved sender ID, so customers see BeautyBOX as the sender");
+      }
+    }
     if (env.ROUTING_PROVIDER === "google" && !env.GOOGLE_ROUTES_API_KEY) {
       problem("GOOGLE_ROUTES_API_KEY", "required when ROUTING_PROVIDER=google");
     }
@@ -139,12 +165,11 @@ const schema = z
     }
     // Implemented adapters only: an unbuilt provider would take down payments and photos too.
     if (env.ROUTING_PROVIDER === "google") problem("ROUTING_PROVIDER", "Google routing is not implemented in this build yet (I12)");
-    if (env.SMS_PROVIDER === "africastalking") problem("SMS_PROVIDER", "Africa's Talking SMS is not implemented in this build yet (I11)");
     if (env.APP_ENV === "staging") {
       // Staging runs on serverless hosting: no writable local disk, and no simulator schema.
       if (env.MEDIA_STORAGE === "local") problem("MEDIA_STORAGE", "staging needs MEDIA_STORAGE=supabase (serverless hosting has no writable disk)");
       if (env.PAYMENT_PROVIDER === "fake") problem("PAYMENT_PROVIDER", "staging uses the pawaPay sandbox (the payment simulator's tables exist only locally)");
-      if (env.SMS_PROVIDER === "fake") problem("SMS_PROVIDER", "staging uses SMS_PROVIDER=disabled until a real SMS provider exists (the simulator's tables exist only locally)");
+      if (env.SMS_PROVIDER === "fake") problem("SMS_PROVIDER", "staging uses SMS_PROVIDER=disabled or the Africa's Talking sandbox (the SMS simulator's tables exist only locally)");
     }
     if (env.APP_ENV === "production") {
       if (env.PAYMENT_PROVIDER === "fake") problem("PAYMENT_PROVIDER", "fake payments are forbidden in production");
@@ -178,7 +203,7 @@ export function publicSecretProblems(env: Record<string, string | undefined>): s
   return Object.entries(env)
     .filter(([name, value]) => {
       if (!name.startsWith("NEXT_PUBLIC_")) return false;
-      if (/SECRET|PASSWORD|PRIVATE|SERVICE_ROLE|API_TOKEN/i.test(name)) return true;
+      if (/SECRET|PASSWORD|PRIVATE|SERVICE_ROLE|API_TOKEN|AFRICASTALKING|CALLBACK_TOKEN/i.test(name)) return true;
       return typeof value === "string" && (value.startsWith("sb_secret_") || isServiceRoleJwt(value));
     })
     .map(([name]) => `${name}: secrets must not use the NEXT_PUBLIC_ prefix, which sends them to browsers`);

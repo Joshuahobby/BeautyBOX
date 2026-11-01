@@ -23,6 +23,24 @@ export const EXCEPTION_LABEL: Record<string, string> = {
   CANCELLATION_REQUESTED: "The customer asked to cancel. Decide before handover.",
   SMS_FAILED: "An SMS to the customer could not be sent.",
   SMS_OUTCOME_UNKNOWN: "An SMS may or may not have been sent. Check before contacting the customer again.",
+  SMS_NOT_DELIVERED_TO_PHONE: "The network reported that an SMS did not reach the customer's phone. Check the contact number with the customer.",
 };
+
+/** What the SMS provider later reported about handset delivery (DR-048). */
+const SMS_DELIVERY_LABEL: Record<string, string> = {
+  Sent: "with the network",
+  Submitted: "with the network",
+  Buffered: "queued by the network",
+  Success: "delivered to the phone",
+  Failed: "not delivered to the phone",
+  Rejected: "rejected by the network",
+  Expired: "discarded by the network",
+  AbsentSubscriber: "phone unreachable (off or out of coverage)",
+};
+
+export function smsDeliveryLabel(status: string, failureReason: string | null): string {
+  const reason = failureReason ? ` (${failureReason.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase()})` : "";
+  return `${SMS_DELIVERY_LABEL[status] ?? status}${reason}`;
+}
 
 export const humanize = (value: string) => value.toLowerCase().replaceAll("_", " ");

@@ -3,7 +3,7 @@
   "info": {
     "title": "BeautyBOX Phase 1 application API",
     "version": "1.1.0",
-    "description": "Design contract, not an implemented service. Server-derived money; RWF integer amounts. API prefix /api/v1. ISO UTC timestamps, opaque cursor pagination. Cookie auth requires origin/CSRF defense. All mutations use version checks where specified; idempotent intent keys claimed atomically. Staff roles are server DB records plus active MFA session. Error status mapping: validation400/422, auth401/403, private-not-found404, state/idempotency409, rate429, unavailable503. Unknown financial outcomes stay pending. Provider wire payloads are defined by official provider schemas, not this internal contract.\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-20 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed."
+    "description": "Design contract, not an implemented service. Server-derived money; RWF integer amounts. API prefix /api/v1. ISO UTC timestamps, opaque cursor pagination. Cookie auth requires origin/CSRF defense. All mutations use version checks where specified; idempotent intent keys claimed atomically. Staff roles are server DB records plus active MFA session. Error status mapping: validation400/422, auth401/403, private-not-found404, state/idempotency409, rate429, unavailable503. Unknown financial outcomes stay pending. Provider wire payloads are defined by official provider schemas, not this internal contract.\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-21 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed."
   },
   "servers": [
     {
@@ -5530,13 +5530,45 @@
                 "createdAt": {
                   "type": "string",
                   "format": "date-time"
+                },
+                "deliveryStatus": {
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "enum": [
+                        "Sent",
+                        "Submitted",
+                        "Buffered",
+                        "Success",
+                        "Failed",
+                        "Rejected",
+                        "AbsentSubscriber",
+                        "Expired"
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
+                "deliveryFailureReason": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
                 }
               },
               "required": [
                 "event",
                 "state",
                 "lastErrorCode",
-                "createdAt"
+                "createdAt",
+                "deliveryStatus",
+                "deliveryFailureReason"
               ],
               "additionalProperties": false
             },

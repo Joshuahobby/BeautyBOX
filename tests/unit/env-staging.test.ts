@@ -62,14 +62,19 @@ describe("staging configuration", () => {
     staging({ PAYMENT_PROVIDER: "fake" });
     expect(problems()).toMatch(/PAYMENT_PROVIDER: staging uses the pawaPay sandbox/);
     staging({ SMS_PROVIDER: "fake" });
-    expect(problems()).toMatch(/SMS_PROVIDER: staging uses SMS_PROVIDER=disabled/);
+    expect(problems()).toMatch(/SMS_PROVIDER: staging uses SMS_PROVIDER=disabled or the Africa's Talking sandbox/);
   });
 
   it("refuses providers that are not built yet, anywhere", () => {
     staging({ ROUTING_PROVIDER: "google", GOOGLE_ROUTES_API_KEY: "k" });
     expect(problems()).toMatch(/ROUTING_PROVIDER: Google routing is not implemented/);
-    staging({ SMS_PROVIDER: "africastalking" });
-    expect(problems()).toMatch(/SMS_PROVIDER: Africa's Talking SMS is not implemented/);
+  });
+
+  it("accepts the Africa's Talking sandbox, but not a live account, on staging (DR-048)", () => {
+    staging({ SMS_PROVIDER: "africastalking", AFRICASTALKING_USERNAME: "sandbox", AFRICASTALKING_API_KEY: "atsk_0123456789abcdef" });
+    expect(problems()).toBe("");
+    staging({ SMS_PROVIDER: "africastalking", AFRICASTALKING_USERNAME: "beautybox", AFRICASTALKING_API_KEY: "atsk_0123456789abcdef" });
+    expect(problems()).toMatch(/AFRICASTALKING_USERNAME: a live Africa's Talking account texts real phones/);
   });
 
   it("reaches a hosted database over TLS, with the certificate checked when verifying", () => {

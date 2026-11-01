@@ -6,6 +6,7 @@ import { toRwf } from "@/modules/shared/money";
 import { can } from "@/modules/staff/capabilities";
 import type { StaffIdentity } from "@/modules/staff/identity";
 import { receiptBudget } from "@/modules/refunds/refunds";
+import { NOT_DELIVERED, smsProblemWhere, type DeliveryStatus } from "@/modules/notifications/delivery-reports";
 
 // Staff order projections (A01/A02, contract StaffOrder). Payment and fulfilment are shown
 // as separate facts. Contact and destination are visible only to roles whose work needs
@@ -54,7 +55,8 @@ export type StaffOrderView = {
   /** `providerPaymentId` (CC-19): the payment's id at the provider (pawaPay depositId), for its dashboard. */
   receipts: { id: string; amountRwf: number; disposition: string; verifiedAt: string; remainingRefundableRwf: number; providerPaymentId: string }[];
   attempts: { id: string; state: string; verificationFlag: string | null; method: string; createdAt: string }[];
-  notifications: { event: string; state: string; lastErrorCode: string | null; createdAt: string }[];
+  /** `deliveryStatus` (CC-21): handset delivery as later reported by the SMS provider (DR-048). */
+  notifications: { event: string; state: string; lastErrorCode: string | null; deliveryStatus: string | null; deliveryFailureReason: string | null; createdAt: string }[];
   deliveryAttempts: { outcome: string; occurredAt: string; custody: string | null; reason: string | null }[];
 };
 
@@ -93,7 +95,7 @@ export async function listStaffOrders(input: { state?: OrderState; reference?: s
       fulfillment: true,
       attempts: { orderBy: { createdAt: "desc" }, take: 1 },
       operations: { where: { type: "CANCELLATION_REQUEST", state: "PENDING" }, take: 1 },
-      notifications: { where: { state: { in: ["FAILED", "UNKNOWN"] } }, take: 1 },
+      notifications: { where: smsProblemWhere, take: 1 },
     },
   });
   return {
@@ -153,6 +155,7 @@ export async function getStaffOrder(staff: StaffIdentity, orderId: string): Prom
   if (order.operations.length > 0) exceptions.push("CANCELLATION_REQUESTED");
   if (order.notifications.some((n) => n.state === "FAILED")) exceptions.push("SMS_FAILED");
   if (order.notifications.some((n) => n.state === "UNKNOWN")) exceptions.push("SMS_OUTCOME_UNKNOWN");
+  if (order.notifications.some((n) => n.deliveryStatus !== null && NOT_DELIVERED.includes(n.deliveryStatus as DeliveryStatus))) exceptions.push("SMS_NOT_DELIVERED_TO_PHONE");
   const receipts = [];
   for (const r of order.receipts) {
     const budget = await receiptBudget(db(), r.id);
@@ -230,7 +233,14 @@ export async function getStaffOrder(staff: StaffIdentity, orderId: string): Prom
     cancellationRequest: request ? { operationId: request.id, reason: request.reason, requestedAt: request.createdAt.toISOString() } : null,
     receipts,
     attempts: order.attempts.map((a) => ({ id: a.id, state: a.state, verificationFlag: a.verificationFlag, method: a.method, createdAt: a.createdAt.toISOString() })),
-    notifications: order.notifications.map((n) => ({ event: n.event, state: n.state, lastErrorCode: n.lastErrorCode, createdAt: n.createdAt.toISOString() })),
+    notifications: order.notifications.map((n) => ({
+      event: n.event,
+      state: n.state,
+      lastErrorCode: n.lastErrorCode,
+      deliveryStatus: n.deliveryStatus,
+      deliveryFailureReason: n.deliveryFailureReason,
+      createdAt: n.createdAt.toISOString(),
+    })),
     deliveryAttempts: order.deliveryAttempts.map((d) => ({ outcome: d.outcome, occurredAt: d.occurredAt.toISOString(), custody: d.goodsCustody, reason: contactVisible ? d.reason : null })),
   };
 }

@@ -15,7 +15,7 @@ Updated 2026-11-01. Local build, plus the staging deployment live since 2026-10-
 | I08 | Staff identity (Supabase Auth + MFA, test provider), roles, catalog drafts/publication, photo upload (local or Supabase Storage, DR-041), stock adjust/import, staff access | Verified (T16, T18, T23, photo pipeline, browser; Supabase adapter against the live dev buckets) |
 | I09 | Order queue/detail, guarded commands incl. redelivery after a failed attempt, customer cancellation requests, supplier attribution and obligations | Verified (T09 both winners, AT11, browser staff flow) |
 | I10 | Refunds (budget, serialized submission that never gives up, mismatch handling), reconcile operations, finance queues, supplier settlement evidence | Verified (T11, T12, RF-09/11/16) |
-| I11 | Private links, per-order sessions, reissue (cuts off old access), SMS with retry and alerts, simulated SMS inbox | Verified (T15, T19, RF-22/25) |
+| I11 | Private links, per-order sessions, reissue (cuts off old access), SMS with retry and alerts, simulated SMS inbox; Africa's Talking sender and delivery reports (DR-048) | Verified (T15, T19, RF-22/25). Africa's Talking adapter built and verified against simulated answers and through the real job handler and database; delivery reports through the real route. **Sandbox run pending** the founder's sandbox API key (`africastalking-sandbox.test.ts`). Live account and sender ID wait for B07. |
 | I12 | Settings (A07: pin, area, tariff, hours, parcel limits, quote expiry, checkout pause) | Verified (versioned settings, quote invalidation, production guard). **Google routing adapter not started:** needs a key decision and the routing pilot. |
 | I13 | Backup/restore drill (T20 local), runbooks, monitoring probe, reconciliation sweep, checkout switch, strict style CSP (DR-039), staff self-service password reset (DR-040) | Verified locally. Open: hosted restore rehearsal. |
 | Staging | Hosting on Vercel + Supabase (TLS to the database, transaction pooler, `prisma generate` on install, Supabase Cron job runner, staging-only seed, settings push allow-list), pre-launch wall on the real domain, launch list with its own privacy notice (DR-044, DR-045, CC-20) | **Live since 2026-10-25** at staging.beautyboxmarket.com (access code) with beautyboxmarket.com showing "Launching soon". Checked on the live site: the wall on all three addresses, database over verified TLS, the job runner every minute, and a sandbox order paid with a signed, verified pawaPay callback. Launch list closed until the founder opens it. |
@@ -23,7 +23,13 @@ Updated 2026-11-01. Local build, plus the staging deployment live since 2026-10-
 
 ## API contract
 
-The handoff contract (v1.0.0) is implemented together with documented additions CC-01..CC-20 ([CONTRACT-CHANGES.md](CONTRACT-CHANGES.md)). The machine-readable result is [api/API-Contract-v1.1.openapi.json](api/API-Contract-v1.1.openapi.json). Every implemented operation's real responses are validated against it in `tests/integration/contract.test.ts`; the provider callback is tested separately. Decisions: [DECISION-LOG.md](DECISION-LOG.md) DR-001..DR-045.
+The handoff contract (v1.0.0) is implemented together with documented additions CC-01..CC-21 ([CONTRACT-CHANGES.md](CONTRACT-CHANGES.md)). The machine-readable result is [api/API-Contract-v1.1.openapi.json](api/API-Contract-v1.1.openapi.json). Every implemented operation's real responses are validated against it in `tests/integration/contract.test.ts`; the provider callback is tested separately. Decisions: [DECISION-LOG.md](DECISION-LOG.md) DR-001..DR-048.
+
+## Done on 2026-11-01
+
+- **Africa's Talking SMS sender** (DR-048, `docs/integrations/AFRICASTALKING.md`): `SMS_PROVIDER=africastalking` now works. Definite refusals are retried (3 attempts in all), anything that may have gone out is never resent, and the provider's message id is kept. Outside production only the Africa's Talking sandbox is accepted. New settings `AFRICASTALKING_USERNAME`, `AFRICASTALKING_API_KEY`, `AFRICASTALKING_SENDER_ID` (optional until approved) and `AFRICASTALKING_CALLBACK_TOKEN`, in both example files and the Vercel push list.
+- **Delivery reports**: `/api/v1/callbacks/africastalking/delivery-reports/<token>` records what the network said about handset delivery, for staff only (order page, exception `SMS_NOT_DELIVERED_TO_PHONE`, overview count, ops alert). Africa's Talking does not sign callbacks, so the address carries a secret token (`npm run sms:callback-token`). Needs migration 20261101000000 on staging before this build is deployed.
+- **SMS length**: templates are plain GSM-7 (tested) and the sent text is cleaned to GSM-7. Order confirmation, dispatch and access-link messages are 2 parts; `npm run sms:lengths` prints the table. A shorter order link would make confirmation and dispatch 1 part (proposal in the integration note).
 
 ## Done on 2026-10-30
 
@@ -34,6 +40,8 @@ The handoff contract (v1.0.0) is implemented together with documented additions 
 
 ## Known gaps and follow-ups
 - **Access-reissue SMS wording** is not in the copy drafts; it needs approval with the other templates (B09).
+- **Shorter order link** (proposal, DR-048): `/o#` plus 16 random bytes would bring order confirmations and dispatch notices from 2 SMS parts to 1. Needs a decision.
+- Africa's Talking may append opt-out instructions to the first message sent to each number from an alphanumeric sender ID; confirm for Rwanda when the sender ID is approved.
 - **No staff tool to value an unvalued supplier obligation** or to close a refund case that turns out not to be owed. Both need a finance procedure first.
 - Product weights do not exist yet, so a parcel weight limit can be recorded but is not enforced.
 - Staff sessions revoked by a password reset keep working on other devices until their access token expires (one hour by default), because the app verifies staff tokens locally; see the release checklist.

@@ -84,6 +84,7 @@ Branch (preview) deployments get no settings and will not run; that is intended.
   ```
 
   Check: Supabase → **Integrations → Cron** shows `beautybox-jobs-run` succeeding; the staff Operations page shows recent job runs.
+- **SMS (optional, sandbox only, DR-048)**: in `.env.staging.local` set `SMS_PROVIDER=africastalking`, `AFRICASTALKING_USERNAME=sandbox` and the sandbox API key. For delivery reports run `npm run sms:callback-token -- --env-file .env.staging.local` and paste the copied address in the Africa's Talking **sandbox** dashboard under SMS → SMS Callback URLs → Delivery Reports. Push the settings and redeploy. Messages then appear only in Africa's Talking's simulator; a live account is refused on staging.
 
 ## 6. Check before sharing the code
 
@@ -114,7 +115,7 @@ npm run launch-list -- count
 
 ## Routine changes
 
-- **New code**: push to `main`. Database changes (new migrations) are applied from this machine first: `npm run staging:bootstrap` (it runs `prisma migrate deploy` as the owner), then push.
+- **New code**: push to `main`. Database changes (new migrations) are applied from this machine first: `npm run staging:bootstrap` (it runs `prisma migrate deploy` as the owner), then push. Merging a pull request to `main` deploys too, so apply its migrations before merging (for example 20261101000000 for the SMS delivery columns).
 - **Change the access code** (signs everyone out): `npm run staging:access-code`, `npm run staging:env-push -- --target production`, redeploy.
 - **Turn the wall off or on**: `SITE_GATE` in the file, push, redeploy. Keep it on until launch.
 - **Undo a bad deployment**: Vercel → Deployments → the previous one → **Instant Rollback**.

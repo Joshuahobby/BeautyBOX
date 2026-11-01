@@ -2,6 +2,7 @@ import "server-only";
 import { db } from "@/server/db";
 import { now } from "@/modules/shared/clock";
 import { UNRESOLVED_REVIEW_AFTER_SECONDS } from "@/modules/payments/handlers";
+import { NOT_DELIVERED } from "@/modules/notifications/delivery-reports";
 
 // Operational summary for monitoring and alerting (I13). Counts and ages only: no order
 // references, phone numbers, amounts or provider payloads, so it is safe to send to an
@@ -52,6 +53,8 @@ export async function opsSummary() {
   const refundReviews = await client.refund.count({ where: { verificationFlag: "NEEDS_REVIEW" } });
   const smsFailed = await client.notification.count({ where: { state: "FAILED", updatedAt: { gte: recent } } });
   const smsUnknown = await client.notification.count({ where: { state: "UNKNOWN", updatedAt: { gte: recent } } });
+  // Accepted by the provider, then reported as not reaching the phone (DR-048).
+  const smsNotDelivered = await client.notification.count({ where: { deliveryStatus: { in: [...NOT_DELIVERED] }, deliveryReportedAt: { gte: recent } } });
   // Money stuck with the provider: a refund approved more than a day ago and not finished.
   const refundsStuck = await client.refund.count({ where: { state: { in: ["QUEUED", "SUBMITTED", "PENDING"] }, approvedAt: { lt: new Date(at.getTime() - REFUND_STUCK_AFTER_SECONDS * 1000) } } });
   // Stock invariant: lot quantities must equal their ledger (spec "stock invariant violations").
@@ -78,7 +81,7 @@ export async function opsSummary() {
   if (refundsStuck > 0) alerts.push("REFUNDS_STUCK");
   if (ledgerDrift > 0) alerts.push("STOCK_LEDGER_DRIFT");
   if (refundsAwaiting > 0) alerts.push("REFUNDS_AWAITING_DECISION");
-  if (smsFailed + smsUnknown > 0) alerts.push("SMS_NOT_DELIVERED");
+  if (smsFailed + smsUnknown + smsNotDelivered > 0) alerts.push("SMS_NOT_DELIVERED");
   if (cancellationRequests > 0) alerts.push("CANCELLATION_REQUESTS_WAITING");
 
   return {
@@ -87,7 +90,7 @@ export async function opsSummary() {
     payments: { unresolved, unresolvedOverReviewAge: unresolvedLong, flagged },
     refunds: { awaitingDecision: refundsAwaiting, inFlight: refundsInFlight, stuckOverADay: refundsStuck, failed: refundsFailed, amountMismatch: refundMismatches, needsReview: refundReviews },
     stock: { ledgerDriftLots: ledgerDrift },
-    notifications: { failed: smsFailed, outcomeUnknown: smsUnknown },
+    notifications: { failed: smsFailed, outcomeUnknown: smsUnknown, notDeliveredToPhone: smsNotDelivered },
     operations: { cancellationRequestsWaiting: cancellationRequests },
     alerts,
   };

@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { Notice } from "@/components/ui/Notice";
 import { ActionDialog, type ActionDialogProps } from "@/components/staff/ActionDialog";
-import { EXCEPTION_LABEL, humanize, ORDER_STATE_LABEL } from "@/components/staff/labels";
+import { EXCEPTION_LABEL, humanize, ORDER_STATE_LABEL, smsDeliveryLabel } from "@/components/staff/labels";
 import { formatKigaliDateTime } from "@/messages";
 import { getStaffOrder, type StaffOrderView } from "@/modules/orders/staff-views";
 import { isDomainError } from "@/modules/shared/errors";
@@ -538,6 +538,7 @@ export default async function StaffOrderPage({ params }: { params: Promise<{ ord
               <li key={`${n.event}-${n.createdAt}`}>
                 {humanize(n.event)}: {humanize(n.state)}
                 {n.lastErrorCode && n.state !== "ACCEPTED" ? ` (${humanize(n.lastErrorCode)})` : ""}
+                {n.deliveryStatus ? `; ${smsDeliveryLabel(n.deliveryStatus, n.deliveryFailureReason)}` : ""}
               </li>
             ))}
           </ul>
