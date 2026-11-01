@@ -5,9 +5,11 @@ import { db } from "@/server/db";
 import { resetServerEnvForTests } from "@/server/env";
 import { setAdaptersForTests } from "@/adapters/registry";
 import { AfricasTalkingSmsAdapter } from "@/adapters/sms/africastalking";
-import { isGsm7 } from "@/adapters/sms/gsm7";
+import { isGsm7, smsLength } from "@/adapters/sms/gsm7";
 import { getStaffOrder } from "@/modules/orders/staff-views";
 import { opsSummary } from "@/modules/ops/summary";
+import { renderSms } from "@/modules/notifications/templates";
+import { formatRwf } from "@/modules/shared/money";
 import { routeForLog } from "@/server/http/api";
 import type { StaffIdentity } from "@/modules/staff/identity";
 import { POST as postDeliveryReport } from "@/app/api/v1/callbacks/africastalking/delivery-reports/[token]/route";
@@ -23,7 +25,7 @@ const RECIPIENT = "+250788555111"; // readyCheckout's contact number
 let shop: Shop;
 
 type Answer = { status: number; body: unknown };
-function simulatedAfricasTalking(answer: (call: number) => Answer) {
+function simulatedAfricasTalking(answer: (call: number) => Answer, senderId?: string) {
   const calls: URLSearchParams[] = [];
   const fetchImpl = (async (_url: string | URL | Request, init?: RequestInit) => {
     const form = new URLSearchParams(String(init?.body));
@@ -31,7 +33,7 @@ function simulatedAfricasTalking(answer: (call: number) => Answer) {
     const a = answer(calls.length);
     return new Response(JSON.stringify(a.body), { status: a.status, headers: { "Content-Type": "application/json" } });
   }) as typeof fetch;
-  const adapter = new AfricasTalkingSmsAdapter({ username: "sandbox", apiKey: "atsk_simulated_0123456789", fetchImpl });
+  const adapter = new AfricasTalkingSmsAdapter({ username: "sandbox", apiKey: "atsk_simulated_0123456789", fetchImpl, senderId });
   return { adapter, calls };
 }
 const recipientAnswer = (statusCode: number, messageId: string): Answer => ({
@@ -78,10 +80,49 @@ describe("sending through the Africa's Talking adapter", () => {
     expect(form.get("username")).toBe("sandbox");
     const message = form.get("message")!;
     const origin = process.env.APP_ORIGIN!.replace(/[.*+?^${}()|[\]\\/]/g, "\\$&");
-    expect(message).toMatch(new RegExp(`^BeautyBOX: Payment received for order ${order.reference}, RWF [0-9,]+\\. View your order: ${origin}/order-access#token=[A-Za-z0-9_-]{43}\\.$`));
+    // One part (DR-049): the short link comes last. The simulated account has no sender ID, so
+    // the "BeautyBOX: " prefix stays.
+    expect(message).toMatch(new RegExp(`^BeautyBOX: Order ${order.reference} is paid: RWF [0-9,]+\\. See your order: ${origin}/o#[A-Za-z0-9_-]{43}$`));
     expect(isGsm7(message)).toBe(true);
+    expect(smsLength(message).parts).toBe(1);
     const notification = await db().notification.findFirstOrThrow({ where: { orderId: order.id, event: "ORDER_CONFIRMED" } });
     expect(notification).toMatchObject({ state: "ACCEPTED", providerMessageId: "ATXid_confirm_0001", lastErrorCode: null });
+  });
+
+  it("sends from the approved sender ID and keeps the BeautyBOX prefix while it costs nothing", async () => {
+    const at = simulatedAfricasTalking(() => recipientAnswer(101, "ATXid_sender_0001"), "BeautyBOX");
+    setAdaptersForTests({ sms: at.adapter });
+    const order = await paidOrder();
+    const form = at.calls[0]!;
+    expect(form.get("from")).toBe("BeautyBOX");
+    // Without a support contact nothing is gained by dropping the prefix, so it stays.
+    expect(form.get("message")).toMatch(new RegExp(`^BeautyBOX: Order ${order.reference} is paid: `));
+  });
+
+  it("passes the approved sender to the wording: with the BeautyBOX sender the help contact takes the prefix's place", async () => {
+    const EMAIL = "help@beautyboxmarket.com";
+    const s = await db().settingsVersion.findFirstOrThrow({ orderBy: { version: "desc" } });
+    const { id: _id, version, createdAt: _c, supportContact: _sc, ...rest } = s;
+    await db().settingsVersion.create({ data: { ...rest, version: version + 1, supportContact: { email: EMAIL }, reason: "support e-mail for the SMS test" } });
+    const sent: Record<string, string> = {};
+    for (const senderId of [undefined, "BeautyBOX"]) {
+      const at = simulatedAfricasTalking(() => recipientAnswer(101, `ATXid_${senderId ?? "generic"}_0001`), senderId);
+      setAdaptersForTests({ sms: at.adapter });
+      const order = await paidOrder();
+      const message = at.calls[0]!.get("message")!;
+      const link = /https?:\/\/\S+$/.exec(message)![0];
+      const expected = (brandInSender: boolean) =>
+        renderSms("ORDER_CONFIRMED", { reference: order.reference, amount: formatRwf(Number(order.totalRwf)), link, contact: EMAIL, brandInSender })!;
+      // This contact makes the two senders read differently, so the test tells them apart.
+      expect(expected(true)).not.toBe(expected(false));
+      expect(message).toBe(expected(senderId !== undefined));
+      expect(smsLength(message).parts).toBe(1);
+      sent[senderId ?? "generic"] = message;
+    }
+    expect(sent.generic!.startsWith("BeautyBOX: ")).toBe(true);
+    expect(sent.generic).not.toContain("Help:");
+    expect(sent.BeautyBOX!.startsWith("BeautyBOX: ")).toBe(false);
+    expect(sent.BeautyBOX).toContain(`Help: ${EMAIL}.`);
   });
 
   it("retries a refusal (insufficient balance) three times, then flags it; the order stays paid", async () => {

@@ -167,7 +167,15 @@ export function SettingsEditor({ settings, canEdit }: { settings: SettingsView; 
         <legend className="u-w-600">Customer support and policies</legend>
         <div className={styles.row}>
           <TextField id="s-phone" label="Support phone" optional value={f.supportPhone} onChange={(e) => set("supportPhone", e.target.value)} error={errors.supportPhone} help="+2507XXXXXXXX" />
-          <TextField id="s-email" label="Support email" optional value={f.supportEmail} onChange={(e) => set("supportEmail", e.target.value)} error={errors.supportEmail} />
+          <TextField
+            id="s-email"
+            label="Support email"
+            optional
+            value={f.supportEmail}
+            onChange={(e) => set("supportEmail", e.target.value)}
+            error={errors.supportEmail}
+            help="Shown in customer SMS. Keep it to 60 characters or fewer so each SMS stays one part."
+          />
         </div>
         <TextField id="s-promise" label="Delivery promise shown to customers" optional value={f.deliveryPromise} onChange={(e) => set("deliveryPromise", e.target.value)} />
         {check("policiesApproved", "Delivery, returns, terms and privacy texts are approved and published (B09).")}

@@ -143,6 +143,7 @@ export function classifyAnswer(httpStatus: number, bodyText: string, recipientE1
 
 export class AfricasTalkingSmsAdapter implements SmsAdapter {
   readonly provider = "AFRICASTALKING" as const;
+  readonly senderName: string | null;
   private readonly url: string;
   private readonly fetchImpl: typeof fetch;
   private readonly timeoutMs: number;
@@ -151,6 +152,7 @@ export class AfricasTalkingSmsAdapter implements SmsAdapter {
     this.url = `${(config.baseUrl ?? africasTalkingBaseUrl(config.username)).replace(/\/+$/, "")}/version1/messaging`;
     this.fetchImpl = config.fetchImpl ?? fetch;
     this.timeoutMs = config.timeoutMs ?? AFRICASTALKING_TIMEOUT_MS;
+    this.senderName = config.senderId ?? null;
   }
 
   async sendTransactional(input: { messageIntentId: string; recipientE164: string; text: string }): Promise<SmsSendResult> {

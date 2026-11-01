@@ -58,7 +58,7 @@ npm run worker
 
 Nothing is sent to a phone locally. With `SMS_PROVIDER=fake`, every message lands in a simulated inbox at http://localhost:3000/dev/sms (this page returns 404 in any other configuration). Run `npm run worker` so messages go out promptly.
 
-1. After a verified payment, open `/dev/sms` in a private window and follow the link in the "Payment received" message. It opens the order once and removes the token from the address bar.
+1. After a verified payment, open `/dev/sms` in a private window and follow the link at the end of the "Order ... is paid" message (`/o#...`). It opens the order once and removes the token from the address bar.
 2. Open the same link in another private window: it is refused with a support path. Opening it again in the window that already used it simply continues to the order.
 3. On the buyer's order page, **Open this order on another device** creates a one-time link (shown once).
 4. A delivery phone ending in `0999` makes the simulated SMS provider reject messages (retried 3 times, then flagged to staff); `0998` simulates a lost response (never resent). The order stays paid and visible either way.

@@ -8,8 +8,10 @@ import { orderAccess, type OrderViewer } from "./access";
 
 // Private order links (Security-and-Operations "Private order access"; decisions: 7 days,
 // one-time exchange into an order-scoped session; T15).
-// - 32 random bytes in the URL FRAGMENT (/order-access#token=...): never in a request
-//   path, server log or referrer. The page posts it once and removes the fragment.
+// - 32 random bytes (the handoff's minimum) in the URL FRAGMENT: never in a request path,
+//   server log or referrer. The page posts it once and removes the fragment. Links shown in the
+//   browser use /order-access#token=<token>; links sent by SMS use the short page /o#<token>
+//   (17 characters shorter) so a message fits one SMS part (DR-049).
 // - Only a keyed hash is stored. Exchange consumes the token atomically and creates an
 //   order-scoped HttpOnly session.
 // - Raw tokens are generated at the moment the message carrying them is sent (or shown
@@ -20,6 +22,11 @@ export const ORDER_SESSION_TTL_SECONDS = 7 * 24 * 60 * 60;
 
 export function privateLinkUrl(token: string): string {
   return `${serverEnv().APP_ORIGIN.replace(/\/$/, "")}/order-access#token=${token}`;
+}
+
+/** The short form for SMS (DR-049): the page at /o reads the bare token from the fragment. */
+export function smsPrivateLinkUrl(token: string): string {
+  return `${serverEnv().APP_ORIGIN.replace(/\/$/, "")}/o#${token}`;
 }
 
 /** Issues a new single-use link and returns its raw token (shown or sent once). */

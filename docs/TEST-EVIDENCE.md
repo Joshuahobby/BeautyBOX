@@ -22,6 +22,22 @@ All results below are from runs of the actual application code on this machine (
 | Live staging site (Vercel dub1 + Supabase eu-west-1), first deployment | curl against the three addresses; one scripted guest purchase through the public API | main domain and www: only the launch page, other paths 307 to /, APIs 401; staging: launch page without the access cookie, APIs 401, CSP/noindex/HSTS headers; wrong access code refused through the database rate limiter; staff sign-in page loads; Supabase Cron calls the job runner every minute (HTTP 200); order BB-J2JS-KAWB paid with MTN 250783456789 (sandbox): signed request accepted, signed callback verified, status check COMPLETED, one receipt | 2026-10-25 |
 | Live staging site, refund with signed requests and callbacks | refund requested and approved by the administrator on the staff order page; result read from the staging database | Order BB-J2JS-KAWB was refunded in full (RWF 5,100) from the staff order page on 2026-11-01: approved 10:20:33 UTC, sent signed at 10:21:00, pawaPay's refund callback arrived with a verified signature at 10:21:02 and only prompted the status check, which confirmed it; refund SUCCEEDED with no flag, payment REFUNDED, refund case closed | 2026-11-01 |
 
+## 2026-11-01 run: one-part SMS (DR-049)
+
+Same machine, after the short SMS link (`/o#<token>`, 32 random bytes), the new wording and the cost-aware renderer.
+
+| Suite | Command | Result |
+| --- | --- | --- |
+| Token and contract freshness | `npm run design:tokens:check`, `npm run contract:check` | pass; contract unchanged (CC-01..CC-21) |
+| Typecheck, lint | `npm run typecheck`, `npx eslint .` | 0 errors, 0 warnings |
+| Unit | `npm run test:unit` | **127/127 pass** (16 files; `sms-templates.test.ts` 12: every production combination one part, staging as documented, link last, brand and extra rules, a 60-character e-mail; `link-fragment.test.ts` 3; `site-gate.test.ts` covers `/o`) |
+| Integration (real PostgreSQL) | `npm run test:integration` | **170/170 pass**, 9 opt-in live tests skipped (`sms-africastalking.test.ts` 14, including the approved-sender wiring; mutation check: with the sender flag hard-coded to false that test fails; `orders-refunds-access.test.ts` exchanges the `/o#` link from the confirmation) |
+| Browser | `npx playwright test` | **34/35 pass** (8.7 min): T15 follows the `/o#` link from the simulated inbox, opens the order once, removes the token, and refuses it in a third browser; `csp.spec.ts` covers `/o`. "staff upload a product photo" failed again in the full run: the upload to the live Supabase dev bucket was still in progress after 30 s (no error). Run alone straight after: **1/1 pass** (20.5 s). Not related to SMS |
+| SMS lengths | `npm run sms:lengths` | production: every message one part for every sender and contact; worst case with the support phone 143 (confirmation), 149 (dispatch), 124 (hold), 140 (delivery problem), 142 (refund), 159 (new link); staging: the new-link message from a generic sender is two parts |
+| Africa's Talking sandbox (opt-in, live) | as above | **not run yet**: needs the sandbox key in `.env.local` |
+
+Wording: a panel of three drafts (lowest cost, clarity for second-language readers, trust) and a judge who recounted every length. Review: two rounds of three lenses with an adversarial check. Round one (on a 16-byte token) led to keeping the brand while it is free, the past-tense dispatch wording and the 60-character e-mail limit; round two found that a 16-byte token broke the handoff's 32-byte minimum (withdrawn: production fits one part with 32 bytes), an untested sender wiring (test added), stale docs and the length table's missing brand column (fixed).
+
 ## 2026-11-01 run: Africa's Talking SMS (I11, DR-048)
 
 On this machine (Windows 10, Node 22.23.1, the project-local PostgreSQL 16 with migrations up to 20261101000000). Africa's Talking was simulated with answers in its documented shapes; the real sandbox test is written but not yet run (it waits for the founder's sandbox API key in `.env.local`).

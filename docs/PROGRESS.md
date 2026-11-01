@@ -23,13 +23,13 @@ Updated 2026-11-01. Local build, plus the staging deployment live since 2026-10-
 
 ## API contract
 
-The handoff contract (v1.0.0) is implemented together with documented additions CC-01..CC-21 ([CONTRACT-CHANGES.md](CONTRACT-CHANGES.md)). The machine-readable result is [api/API-Contract-v1.1.openapi.json](api/API-Contract-v1.1.openapi.json). Every implemented operation's real responses are validated against it in `tests/integration/contract.test.ts`; the provider callback is tested separately. Decisions: [DECISION-LOG.md](DECISION-LOG.md) DR-001..DR-048.
+The handoff contract (v1.0.0) is implemented together with documented additions CC-01..CC-21 ([CONTRACT-CHANGES.md](CONTRACT-CHANGES.md)). The machine-readable result is [api/API-Contract-v1.1.openapi.json](api/API-Contract-v1.1.openapi.json). Every implemented operation's real responses are validated against it in `tests/integration/contract.test.ts`; the provider callback is tested separately. Decisions: [DECISION-LOG.md](DECISION-LOG.md) DR-001..DR-049.
 
 ## Done on 2026-11-01
 
 - **Africa's Talking SMS sender** (DR-048, `docs/integrations/AFRICASTALKING.md`): `SMS_PROVIDER=africastalking` now works. Definite refusals are retried (3 attempts in all), anything that may have gone out is never resent, and the provider's message id is kept. Outside production only the Africa's Talking sandbox is accepted. New settings `AFRICASTALKING_USERNAME`, `AFRICASTALKING_API_KEY`, `AFRICASTALKING_SENDER_ID` (optional until approved) and `AFRICASTALKING_CALLBACK_TOKEN`, in both example files and the Vercel push list.
 - **Delivery reports**: `/api/v1/callbacks/africastalking/delivery-reports/<token>` records what the network said about handset delivery, for staff only (order page, exception `SMS_NOT_DELIVERED_TO_PHONE`, overview count, ops alert). Africa's Talking does not sign callbacks, so the address carries a secret token (`npm run sms:callback-token`). Needs migration 20261101000000 on staging before this build is deployed.
-- **SMS length**: templates are plain GSM-7 (tested) and the sent text is cleaned to GSM-7. Order confirmation, dispatch and access-link messages are 2 parts; `npm run sms:lengths` prints the table. A shorter order link would make confirmation and dispatch 1 part (proposal in the integration note).
+- **Every SMS costs one part in production** (DR-049, founder's request): SMS links use the short page `/o#<token>` (73 characters instead of 90; still the handoff's 32 random bytes), the link always comes last, "BeautyBOX: " stays unless the sender shows BeautyBOX and keeping it would cost a part, and the help contact or PIN warning is added only when free. New wording from a three-draft panel and a judge, corrected after two review rounds; drafts until the B09 sign-off. Keep the support e-mail to 60 characters or fewer (the settings page says so). `npm run sms:lengths` prints every combination.
 
 ## Done on 2026-10-30
 
@@ -39,8 +39,7 @@ The handoff contract (v1.0.0) is implemented together with documented additions 
 - **Rate-limit tests no longer flake**: limits count in fixed 10-minute windows, and a test that crossed a window boundary saw its count reset. Those tests now start at the beginning of a window.
 
 ## Known gaps and follow-ups
-- **Access-reissue SMS wording** is not in the copy drafts; it needs approval with the other templates (B09).
-- **Shorter order link** (proposal, DR-048): `/o#` plus 16 random bytes would bring order confirmations and dispatch notices from 2 SMS parts to 1. Needs a decision.
+- **SMS wording** was rewritten for one-part messages (DR-049) and needs the B09 sign-off, including the access-reissue message, which is not in the copy drafts.
 - Africa's Talking may append opt-out instructions to the first message sent to each number from an alphanumeric sender ID; confirm for Rwanda when the sender ID is approved.
 - **No staff tool to value an unvalued supplier obligation** or to close a refund case that turns out not to be owed. Both need a finance procedure first.
 - Product weights do not exist yet, so a parcel weight limit can be recorded but is not enforced.

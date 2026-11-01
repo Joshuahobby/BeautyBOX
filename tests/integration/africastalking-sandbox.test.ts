@@ -5,6 +5,7 @@ import { db } from "@/server/db";
 import { setAdaptersForTests } from "@/adapters/registry";
 import { AfricasTalkingSmsAdapter } from "@/adapters/sms/africastalking";
 import { smsLength } from "@/adapters/sms/gsm7";
+import { renderSms } from "@/modules/notifications/templates";
 import { addToCart, drainJobs, newCustomer, pay, readyCheckout, resetDatabase, seedShop, settleAndDrain, type Shop } from "./harness";
 
 // DR-048: the Africa's Talking adapter, and the app's order confirmation through it, against the
@@ -44,10 +45,16 @@ describe.skipIf(!enabled)("SMS through the real Africa's Talking sandbox", () =>
   });
 
   it(
-    "accepts a two-part GSM-7 order message and returns a message id",
+    "accepts a one-part order confirmation as the app renders it, and returns a message id",
     async () => {
-      const text = `BeautyBOX: Payment received for order BB-TEST-SMS1, RWF 29,100. View your order: https://staging.beautyboxmarket.com/order-access#token=${"A".repeat(43)}.`;
-      expect(smsLength(text)).toMatchObject({ encoding: "GSM-7", parts: 2 });
+      const text = renderSms("ORDER_CONFIRMED", {
+        reference: "BB-TEST-SMS1",
+        amount: "RWF 29,100",
+        link: `https://staging.beautyboxmarket.com/o#${"A".repeat(43)}`,
+        contact: "+250788123456",
+        brandInSender: false,
+      })!;
+      expect(smsLength(text)).toMatchObject({ encoding: "GSM-7", parts: 1 });
       const result = await sandbox().sendTransactional({ messageIntentId: "sandbox-1", recipientE164: TEST_NUMBER, text });
       expect(result).toMatchObject({ kind: "ACCEPTED" });
       expect(result.kind === "ACCEPTED" && result.providerMessageId).toMatch(/^ATXid_/);

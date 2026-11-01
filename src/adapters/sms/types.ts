@@ -11,6 +11,8 @@ export type SmsSendResult =
 
 export interface SmsAdapter {
   readonly provider: "FAKE" | "AFRICASTALKING" | "DISABLED";
+  /** What the recipient's phone shows as the sender (an approved sender ID), when known. */
+  readonly senderName?: string | null;
   sendTransactional(input: {
     messageIntentId: string;
     recipientE164: string;

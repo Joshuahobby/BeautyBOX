@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { api, ApiError } from "@/lib/api-client";
 import { messages } from "@/messages";
+import { tokenFromFragment } from "@/modules/orders/link-fragment";
 
 type State = { kind: "opening" } | { kind: "expired" } | { kind: "invalid" } | { kind: "error"; message: string };
 
@@ -45,8 +46,9 @@ export function OrderAccess() {
   useEffect(() => {
     if (started.current) return;
     started.current = true;
-    token.current = new URLSearchParams(window.location.hash.slice(1)).get("token");
-    window.history.replaceState(null, "", "/order-access");
+    token.current = tokenFromFragment(window.location.hash);
+    // Same page (/order-access, or /o for SMS links), without the token.
+    window.history.replaceState(null, "", window.location.pathname);
     void exchange();
   }, [exchange]);
 

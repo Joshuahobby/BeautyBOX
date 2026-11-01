@@ -42,24 +42,28 @@ After accepting a message, Africa's Talking posts what the network said about ha
 - The secret is in the URL, so it appears in the hosting provider's request logs (Vercel's are access-controlled). The app's own error log replaces it with `:token`. Rotate it if it leaks (`npm run sms:callback-token -- --env-file <file> --rotate`, then update the dashboard, push and redeploy).
 - A report is written without moving the message's `updated_at`, so it never restarts the 7-day window in which a failed or unknown send keeps the `SMS_NOT_DELIVERED` alert on. A report never clears an alert or exception either: "delivered to the phone" for a message whose send outcome was unknown is shown next to the unknown flag, not instead of it.
 
-## Message length
+## Message length: one part each in production (DR-049)
 
-Every template is plain GSM-7 (checked by `tests/unit/sms-templates.test.ts`), so a part holds 160 characters, or 153 each when split. The staff-typed support contact is the one value that could bring in other characters; it is cleaned to GSM-7 before sending (curly quotes and dashes become plain ones), so one stray character cannot switch a message to UCS-2 (70 per part) and more than double its cost. Accented letters GSM-7 lacks lose their accent (also when typed as a letter plus a combining mark); anything else becomes "?".
+At the founder's request (2026-11-01) every message costs **one SMS part** (160 GSM-7 characters) in production, half what confirmations, dispatch notices and new-link messages cost before (2 parts each). How:
 
-Lengths on `https://beautyboxmarket.com` with a 12-character order reference and "RWF 129,100" (`npm run sms:lengths` prints this, for staging too; staging's address adds 8 characters):
+- **Short private-link page for SMS:** `https://beautyboxmarket.com/o#<token>` (73 characters instead of 90). The token keeps the handoff's minimum of 32 random bytes (43 characters; Security-and-Operations "Private order access"). The page `/o` does exactly what `/order-access` does (the token is read from the fragment, removed from the address bar and exchanged once) and has the same headers; links shown in the browser (CC-08) keep the `/order-access#token=` form. No contract change. (A 16-byte token was tried first and withdrawn: it broke the handoff's rule, and production fits one part without it.)
+- **The link always comes last,** with nothing after it. Some phones glue a trailing full stop onto a link; the page also ignores anything after the token, which protects links already sent in the old form.
+- **"BeautyBOX: " opens every message** (who is writing, even when the message is forwarded). It is left out only when the sender already shows BeautyBOX (the approved `AFRICASTALKING_SENDER_ID`, matched case-insensitively on "beautybox") **and** keeping it would cost a part. Messages without a link keep the brand ahead of the optional extra, because nothing else in them says who is writing; messages with a link (whose address names BeautyBOX) keep the help contact ahead of the brand.
+- **Optional extras only where they are free:** the help contact (link messages and refunds) and the line "We never ask for your PIN." (holds and delivery problems) are added only when they do not add a part. Until the sender ID is approved, link messages have no room for the help contact; the order page shows it.
+- **Plain GSM-7 only** (tested), and the sent text is cleaned to GSM-7, so a staff-typed support contact cannot switch a message to UCS-2 (70 per part). Accented letters GSM-7 lacks lose their accent (also when typed as a letter plus a combining mark); anything else becomes "?".
 
-| Template | No help contact | With the support phone | With the proposed short link: none / phone |
-| --- | --- | --- | --- |
-| ORDER_CONFIRMED | 173 (2 parts) | 194 (2 parts) | 135 (1) / 156 (1) |
-| ORDER_DISPATCHED | 175 (2 parts) | 196 (2 parts) | 137 (1) / 158 (1) |
-| ORDER_ON_HOLD | 59 (1 part) | 89 (1 part) | no link |
-| DELIVERY_PROBLEM | 59 (1 part) | 89 (1 part) | no link |
-| REFUND_CONFIRMED | 74 (1 part) | 95 (1 part) | no link |
-| ACCESS_LINK | 185 (2 parts) | 206 (2 parts) | 147 (1) / 168 (2) |
+Wording (drafts until the B09 sign-off). It was chosen by a panel of three drafts (lowest cost, clarity for second-language readers, trust) and a judge who re-counted every length, then corrected after review:
 
-The private link is most of the length: `https://beautyboxmarket.com/order-access#token=` plus 43 characters (32 random bytes) is 90 characters.
+| Message | Text (`{brand}` = "BeautyBOX: ", left out only as described above; `[...]` = added only when free) |
+| --- | --- |
+| Order confirmed | `{brand}Order BB-J2JS-KAWB is paid: RWF 29,100.[ Help: +250788123456.] See your order: <link>` |
+| Order dispatched | `{brand}Order BB-J2JS-KAWB has been handed to our rider.[ Help: ...] See your order: <link>`. Past tense, so it stays true if staff record the handover late |
+| Order on hold | `{brand}We need to talk with you about order BB-J2JS-KAWB. Please contact us at +250788123456.[ We never ask for your PIN.]` (no contact set: "We will contact you.") |
+| Delivery problem | `{brand}We need to talk with you about the delivery of order BB-J2JS-KAWB. Please contact us at ...[ We never ask for your PIN.]`. Not "we could not deliver", the wording of a common fake-parcel scam |
+| Refund confirmed | `{brand}Your refund of RWF 5,100 for order BB-J2JS-KAWB is confirmed. It goes back to the number used for payment.[ Help: ...]`. The SMS goes to the order's contact, who may not be the payer |
+| New private link | `{brand}New link for order BB-J2JS-KAWB. Do not share it.[ Help: ...] Use once, within 7 days: <link>`. Forwarding the link before opening it would lock the customer out |
 
-**Proposal (not built):** `https://beautyboxmarket.com/o#<22 characters>` (52 characters): a one-letter page that does what `/order-access` does, and 16 random bytes (128 bits) instead of 32. The link stays single-use, expires in 7 days, is stored only as a keyed hash, and its exchange is rate-limited per address, so 128 bits is still far beyond guessing. Order confirmations and dispatch notices, sent for every order, would then fit one part even with the support phone, halving their cost. ACCESS_LINK with the phone would still need 8 fewer characters: for example "Works once, for 7 days." instead of "It works once and expires in 7 days." (155, one part), which is a wording change for the B09 review.
+Worst case in production (`npm run sms:lengths`; "RWF 1,250,000", generic sender, support phone): confirmation 143, dispatch 149, on hold 124, delivery problem 140, refund 142, new link 159. Every production combination of message, sender (generic or BeautyBOX) and contact (none, phone, e-mail) is one part. The table's "Brand" column shows the few cases where the prefix gives way (the sender shows BeautyBOX, to fit the help contact or one part) and its "Extra" column whether the help or PIN line fitted. On staging, whose address is 8 characters longer (sandbox messages are free), the new-link message from a generic sender is two parts. `tests/unit/sms-templates.test.ts` fails if any production combination needs a second part. **Keep the support e-mail to 60 characters or fewer:** the hold and delivery-problem messages must include the contact, and with a longer address (and no support phone) they take two parts. The staff settings page says so next to the field.
 
 Africa's Talking's documentation says opt-out instructions are "automatically appended to the first message you send" to a number from an alphanumeric sender ID (Bulk SMS Opt Out). If that applies to BeautyBOX's sender ID in Rwanda, the first message to each customer is longer than the table shows; confirm with Africa's Talking when the sender ID is approved.
 
@@ -81,7 +85,7 @@ Then:
 RUN_AFRICASTALKING_SANDBOX_TESTS=1 npx vitest run --project integration tests/integration/africastalking-sandbox.test.ts
 ```
 
-It sends a two-part order message, checks that a wrong key and an invalid number are read as "not sent", and sends the app's own order confirmation through the job handler. Restart `npm run dev` and `npm run worker` after changing `.env.local`. To see local messages in the dev SMS inbox again, set `SMS_PROVIDER=fake`.
+It sends an order confirmation as the app renders it (one part), checks that a wrong key and an invalid number are read as "not sent", and sends the app's own order confirmation through the job handler. Restart `npm run dev` and `npm run worker` after changing `.env.local`. To see local messages in the dev SMS inbox again, set `SMS_PROVIDER=fake`.
 
 Staging can use the sandbox too (`.env.staging.example`), which exercises the whole path on the hosted site including delivery reports from the sandbox.
 
@@ -90,4 +94,4 @@ Staging can use the sandbox too (`.env.staging.example`), which exercises the wh
 - Live Africa's Talking account, approved sender ID (founder input B07), and a top-up arrangement: an empty balance answers `INSUFFICIENT_BALANCE`, which retries three times and then waits for staff.
 - The SMS provider named in the privacy notice before any customer message (G2).
 - Delivery-report address set in the **live** account's dashboard with production's own token.
-- Approved wording for every template, including ACCESS_LINK (B09), and a decision on the short-link proposal above.
+- Sign-off of the wording above (B09), including the new-link message.

@@ -1,29 +1,35 @@
-// Prints each SMS template's length and number of parts (DR-048), for reviewing wording (B09)
-// and the cost per message. Uses realistic values: a 12-character order reference, a six-figure
-// amount, the private link as the app builds it today (32 random bytes in the fragment), and
-// with and without the support phone number. The last column shows the proposed shorter link
-// (16 random bytes on a one-letter path), which is not built.
+// Prints each SMS template's length and number of parts (DR-048, DR-049), for reviewing wording
+// (B09) and the cost per message. Uses realistic values: a 12-character order reference, the
+// longest likely amount ("RWF 1,250,000"), the SMS link as sent (32 random bytes on /o#), a
+// generic sender (before the sender ID is approved) or one that shows BeautyBOX, and no contact,
+// the support phone or an e-mail. "Brand" says whether the text still opens with "BeautyBOX: "
+// (it is left out only when the sender shows BeautyBOX and keeping it would cost a part);
+// "Extra" says whether the optional help contact or PIN warning fitted at no extra cost.
 //   npm run sms:lengths
-import { smsLength, type SmsLength } from "@/adapters/sms/gsm7";
-import { SMS_TEMPLATES, renderSms } from "@/modules/notifications/templates";
+import { smsLength } from "@/adapters/sms/gsm7";
+import { BRAND_PREFIX, renderSms, SMS_TEMPLATES } from "@/modules/notifications/templates";
 
 const ORIGINS = { production: "https://beautyboxmarket.com", staging: "https://staging.beautyboxmarket.com" } as const;
-const CURRENT_TOKEN = "x".repeat(43); // base64url of 32 bytes
-const SHORT_TOKEN = "x".repeat(22); // base64url of 16 bytes
-const currentLink = (origin: string) => `${origin}/order-access#token=${CURRENT_TOKEN}`;
-const shortLink = (origin: string) => `${origin}/o#${SHORT_TOKEN}`;
+const TOKEN = "x".repeat(43); // base64url of 32 bytes
+const CONTACTS = { none: null, phone: "+250788123456", "e-mail": "help@beautyboxmarket.com" } as const;
 
-const show = (l: SmsLength) => `${l.units} ${l.encoding === "GSM-7" ? "" : `${l.encoding} `}(${l.parts} part${l.parts === 1 ? "" : "s"})`;
-
-const rows: string[][] = [["Template", "Site", "Help contact", "Now", "Short link (proposal)"]];
+const rows: string[][] = [["Template", "Site", "Sender", "Contact", "Length", "Brand", "Extra"]];
 for (const event of Object.keys(SMS_TEMPLATES)) {
   for (const [site, origin] of Object.entries(ORIGINS)) {
-    for (const contact of [null, "+250788123456"]) {
-      const input = { reference: "BB-J2JS-KAWB", amount: "RWF 129,100", contact };
-      const now = renderSms(event, { ...input, link: currentLink(origin) })!;
-      const short = renderSms(event, { ...input, link: shortLink(origin) })!;
-      const needsLink = SMS_TEMPLATES[event as keyof typeof SMS_TEMPLATES].needsLink;
-      rows.push([event, site, contact ? "phone" : "none", show(smsLength(now)), needsLink ? show(smsLength(short)) : "(no link)"]);
+    for (const brandInSender of [false, true]) {
+      for (const [label, contact] of Object.entries(CONTACTS)) {
+        const text = renderSms(event, { reference: "BB-J2JS-KAWB", amount: "RWF 1,250,000", link: `${origin}/o#${TOKEN}`, contact, brandInSender })!;
+        const l = smsLength(text);
+        rows.push([
+          event,
+          site,
+          brandInSender ? "BeautyBOX" : "generic",
+          label,
+          `${l.units}${l.encoding === "GSM-7" ? "" : ` ${l.encoding}`} (${l.parts} part${l.parts === 1 ? "" : "s"})`,
+          text.startsWith(BRAND_PREFIX) ? "yes" : "dropped",
+          / Help: | We never ask for your PIN\./.test(text) ? "yes" : "-",
+        ]);
+      }
     }
   }
 }

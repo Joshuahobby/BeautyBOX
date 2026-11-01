@@ -5,7 +5,7 @@ import { formatRwf } from "@/modules/shared/money";
 import { serverEnv } from "@/server/env";
 import { backoffSeconds, type ClaimedJob, type JobOutcome } from "@/modules/jobs/outbox";
 import { currentSettings } from "@/modules/settings/settings";
-import { issuePrivateLink, privateLinkUrl } from "@/modules/orders/private-links";
+import { issuePrivateLink, smsPrivateLinkUrl } from "@/modules/orders/private-links";
 import { resolveOperations } from "@/modules/operations/operations";
 import { renderSms, smsTemplate } from "./templates";
 
@@ -68,13 +68,15 @@ export async function handleNotificationSend(job: ClaimedJob): Promise<JobOutcom
   }
   // The raw link token exists only in this message; only its hash is stored.
   const link = template.needsLink
-    ? privateLinkUrl((await transaction((tx) => issuePrivateLink(tx, notification.orderId, { reason: `Sent with SMS ${notification.event}` }))).token)
+    ? smsPrivateLinkUrl((await transaction((tx) => issuePrivateLink(tx, notification.orderId, { reason: `Sent with SMS ${notification.event}` }))).token)
     : null;
   const text = renderSms(notification.event, {
     reference: notification.order.reference,
     amount: formatRwf(amountRwf),
     link,
     contact: supportContactText(settings.supportContact),
+    // An approved sender ID shows BeautyBOX as the sender, so the prefix may go where it costs a part.
+    brandInSender: /beautybox/i.test(adapter.senderName ?? ""),
   })!;
 
   // Claim before the external call so a recovered lease can tell a possible send happened.

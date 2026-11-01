@@ -70,17 +70,19 @@ test("T15: the confirmation SMS link opens the order once, on another device", a
   const phone = await browser.newContext({ baseURL: env.APP_ORIGIN, viewport: { width: 360, height: 780 } });
   const handset = await phone.newPage();
   await handset.goto("/dev/sms");
-  const message = handset.getByRole("listitem").filter({ hasText: reference }).filter({ hasText: "Payment received" });
+  const message = handset.getByRole("listitem").filter({ hasText: reference }).filter({ hasText: "is paid" });
   await expect(message).toHaveCount(1);
   const link = message.getByRole("link");
   const href = (await link.getAttribute("href"))!;
-  expect(href).toMatch(/^\/order-access#token=/);
+  // The short SMS form (DR-049): 32 random bytes on the page /o.
+  expect(href).toMatch(/^\/o#[A-Za-z0-9_-]{43}$/);
+  const token = href.slice(3);
   await link.click();
   await expect(handset).toHaveURL(url, { timeout: 30_000 });
   await expect(handset.getByText(reference).first()).toBeVisible();
   // The token never stays in the address bar or history entry.
   await handset.goBack();
-  expect(handset.url()).not.toContain("token=");
+  expect(handset.url()).not.toContain(token);
   await phone.close();
 
   // The same link in a third browser is refused, with a support path.
@@ -89,7 +91,7 @@ test("T15: the confirmation SMS link opens the order once, on another device", a
   await other.goto(href);
   await expect(other.getByRole("heading", { name: "This order link can't be used" })).toBeVisible();
   await expect(other.getByRole("link", { name: "Contact support" })).toBeVisible();
-  expect(other.url()).not.toContain("token=");
+  expect(other.url()).not.toContain(token);
   const scan = await new AxeBuilder({ page: other }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
   expect(scan.violations).toEqual([]);
   await third.close();
