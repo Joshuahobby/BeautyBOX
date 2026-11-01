@@ -48,7 +48,7 @@ export function LaunchListForm({ removalNote }: { removalNote: string }) {
 
   if (done) {
     return (
-      <div ref={doneRef} tabIndex={-1}>
+      <div ref={doneRef} tabIndex={-1} className={styles.done}>
         <Notice tone="success" title={messages.launch.joined} role="status">
           {removalNote}
         </Notice>

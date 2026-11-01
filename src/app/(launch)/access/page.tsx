@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import lockup from "@/design/brand/BeautyBox_Platform_Hub_Lockup.svg";
 import { messages } from "@/messages";
 import { safeNextPath } from "@/server/site-gate";
+import { BrandStage, Eyebrow, Headline, LaunchFrame } from "../LaunchParts";
 import { AccessForm } from "./AccessForm";
 import styles from "../Launch.module.css";
 
@@ -15,19 +15,21 @@ type SearchParams = Promise<{ next?: string | string[] }>;
 // cookie for 30 days and returns the visitor to the page they asked for.
 export default async function AccessPage({ searchParams }: { searchParams: SearchParams }) {
   const next = (await searchParams).next;
+  const t = messages.access;
   return (
-    <div className={styles.column}>
-      <img src={lockup.src} alt={messages.brand.name} width={220} height={46} className={styles.lockup} decoding="async" />
-      <div className="stack-3">
-        <h1 className={styles.heading}>{messages.access.heading}</h1>
-        <p className={styles.lede}>{messages.access.intro}</p>
-      </div>
-      <section className={styles.panel} aria-label={messages.access.heading}>
-        <AccessForm next={safeNextPath(Array.isArray(next) ? next[0] : next)} />
+    <LaunchFrame linkHome footer={<a href="/launching-soon">{t.back}</a>}>
+      <section className={styles.hero} aria-labelledby="access-heading">
+        <div className={styles.copy}>
+          <Eyebrow>{t.eyebrow}</Eyebrow>
+          <Headline id="access-heading">{t.heading}</Headline>
+          <p className={styles.lede}>{t.intro}</p>
+          <div className={styles.card}>
+            <AccessForm next={safeNextPath(Array.isArray(next) ? next[0] : next)} />
+          </div>
+        </div>
+
+        <BrandStage />
       </section>
-      <footer className={styles.footer}>
-        <a href="/launching-soon">{messages.access.back}</a>
-      </footer>
-    </div>
+    </LaunchFrame>
   );
 }

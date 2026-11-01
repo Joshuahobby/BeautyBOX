@@ -15,6 +15,24 @@ async function axe(page: Page) {
 }
 
 for (const width of WIDTHS) {
+  test(`pre-launch pages fit and pass axe at ${width}px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    // The settled pages: no half-faded text for axe, no half-built stage in the screenshots.
+    // The animated opening is checked in its own test below.
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    for (const [name, path, heading] of [
+      ["launching-soon", "/launching-soon", "Everyday beauty essentials, coming soon."],
+      ["preview-access", "/access", "Preview access"],
+      ["launch-privacy", "/launch-privacy", "Launch list privacy notice"],
+    ] as const) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+      await expectNoHorizontalScroll(page);
+      await page.screenshot({ path: `${SCREENS}/${name}-${width}.png`, fullPage: true });
+      await axe(page);
+    }
+  });
+
   test(`storefront pages fit and pass axe at ${width}px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     for (const [name, path] of [
@@ -116,11 +134,25 @@ test("mobile filter sheet keeps applied filters until Apply and returns focus", 
   await expect(page.getByRole("heading", { name: "Makeup", level: 1 })).toBeVisible();
 });
 
+test("the launch page opening settles into a page that passes axe", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/launching-soon");
+  // Every one-off animation has finished; only the looping dot and rings keep going.
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState === "finished" || a.effect?.getComputedTiming().iterations === Infinity));
+  await axe(page);
+});
+
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   test("transitions are disabled", async ({ page }) => {
     await page.goto("/");
     const duration = await page.evaluate(() => getComputedStyle(document.querySelector("a[href='/shop']")!).transitionDuration);
     expect(duration.split(",").every((d) => d.trim() === "0s")).toBe(true);
+  });
+
+  test("the launch page holds still", async ({ page }) => {
+    await page.goto("/launching-soon");
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
   });
 });
