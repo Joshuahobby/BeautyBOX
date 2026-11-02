@@ -5,7 +5,8 @@ import { ReceiptText, ShoppingBag, Smartphone, Truck } from "lucide-react";
 import { format, messages } from "@/messages";
 import { serverEnv } from "@/server/env";
 import { normalizeHost, safeNextPath } from "@/server/site-gate";
-import { BrandStage, Eyebrow, Headline, LaunchFrame } from "../LaunchParts";
+import { Eyebrow, Headline, LaunchFrame } from "../LaunchParts";
+import { LaunchFilm } from "./LaunchFilm";
 import { LaunchListForm } from "./LaunchListForm";
 import styles from "../Launch.module.css";
 
@@ -69,7 +70,7 @@ export default async function LaunchingSoonPage() {
           </section>
         </div>
 
-        <BrandStage />
+        <LaunchFilm />
       </section>
 
       <section className={styles.expect} aria-labelledby="launch-points-heading">

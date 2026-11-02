@@ -327,6 +327,10 @@ export const en = {
       { id: "momo", title: "Pay with Mobile Money", text: "MTN MoMo or Airtel Money, confirmed on your phone." },
       { id: "total", title: "The full total first", text: "Products and delivery are added up before you pay." },
     ],
+    // The opening film (silent, 23 seconds). filmWords is what it shows, for screen readers.
+    filmWords: "A short silent film. The BeautyBOX logo opens like a box: Your beauty essentials, delivered in Kigali. No account needed. Pay with Mobile Money. Opening soon.",
+    filmPlay: "Play the film",
+    filmPause: "Pause the film",
     listHeading: "Be the first to know",
     listIntro: "Leave your e-mail address, your phone number or both, and we'll send you one message when BeautyBOX opens. Nothing else.",
     listClosedHeading: "Almost ready",

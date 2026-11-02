@@ -1,8 +1,9 @@
 /*
  * Pre-launch pages (DR-044): "Launching soon", preview access and the launch-list notice.
  * One calm frame on brand tokens: an ivory page, the coral rule beside the headline, a white
- * card for the form, and an aubergine stage where the supplied icon assembles from its four
- * cells. Depth comes from planes and occlusion, never gradients or shadows.
+ * card for the form, and beside it the opening film ("Launching soon") or an aubergine stage
+ * where the supplied icon assembles from its four cells (preview access). Depth comes from
+ * planes and occlusion, never gradients or shadows.
  *
  * Motion only plays for people who have not asked for less. Without it, every element simply
  * sits in its final place. On phones and tablets the stage and the "What to expect" items are
@@ -312,6 +313,54 @@
   clip-path: inset(50% 0 0 41.666%);
 }
 
+/* ---- Film: the opening film, in the stage's place on "Launching soon" ---- */
+
+/* Its first and last frames are the ivory page, so a rule-coloured edge marks the panel. */
+.film {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 560px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  background: var(--color-canvas);
+}
+
+.filmVideo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+/* Pause and play, in the bottom corner, which stays empty in every scene. The focus ring is
+   drawn inside the white button so it shows against ivory, coral and aubergine frames. */
+.filmToggle {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  width: var(--control-min-hit-target);
+  height: var(--control-min-hit-target);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.filmToggle:hover {
+  background: var(--color-canvas);
+}
+
+.filmToggle:focus-visible {
+  outline-offset: -6px;
+}
+
 /* ---- What to expect ---- */
 
 .expect {
@@ -515,6 +564,10 @@
     aspect-ratio: 1;
   }
 
+  .film {
+    max-width: none;
+  }
+
   .points {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: var(--space-6);
@@ -604,7 +657,8 @@
     animation: bb-rise 480ms var(--bb-ease) both;
   }
 
-  .stage {
+  .stage,
+  .film {
     animation: bb-stage 900ms var(--bb-ease) 120ms both;
   }
 
@@ -687,6 +741,13 @@
     .tile {
       animation-timeline: --bb-stage;
       animation-range: entry 10% entry 60%;
+      animation-delay: 0s;
+    }
+
+    .film {
+      view-timeline-name: --bb-film;
+      animation-timeline: --bb-film;
+      animation-range: entry 0% entry 45%;
       animation-delay: 0s;
     }
 

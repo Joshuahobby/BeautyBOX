@@ -142,6 +142,57 @@ test("the launch page opening settles into a page that passes axe", async ({ pag
   await axe(page);
 });
 
+const FILM_FILE = /\/_next\/static\/media\/beautybox-promo\.[^./]+\.(webm|mp4)$/;
+const POSTER_FILE = /\/_next\/static\/media\/poster\.[^./]+\.png$/;
+const POSTER_SECONDS = 96 / 30;
+// HTMLMediaElement readyState / networkState values (the test runner has no DOM).
+const HAVE_NOTHING = 0;
+const HAVE_FUTURE_DATA = 3;
+const NETWORK_LOADING = 2;
+
+const filmState = (page: Page) =>
+  page
+    .locator("figure video")
+    .evaluate((v: HTMLVideoElement) => ({ playing: !v.paused, muted: v.muted, time: v.currentTime, loaded: v.readyState, network: v.networkState, src: v.currentSrc, poster: v.poster }));
+
+/**
+ * The playback position once the film really plays (data loaded, "playing" fired): it starts on
+ * the poster's frame, not at 0. currentTime alone would not do: before anything loads it reports
+ * the requested start position.
+ */
+const firstPlayedSecond = (page: Page) =>
+  page.locator("figure video").evaluate(
+    (v: HTMLVideoElement, ready) =>
+      !v.paused && v.readyState >= ready ? v.currentTime : new Promise<number>((done) => v.addEventListener("playing", () => done(v.currentTime), { once: true })),
+    HAVE_FUTURE_DATA,
+  );
+
+test("the launch film plays muted from a hashed static file and pauses on request", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/launching-soon");
+  expect(await firstPlayedSecond(page)).toBeGreaterThanOrEqual(POSTER_SECONDS);
+  const playing = await filmState(page);
+  expect(playing).toMatchObject({ playing: true, muted: true });
+  // Served like images: hashed, and outside the access wall (which passes /_next/).
+  expect(playing.src).toMatch(FILM_FILE);
+  expect(playing.poster).toMatch(POSTER_FILE);
+  // Evidence: the coral "delivered in Kigali" scene, mid-film.
+  await page.locator("figure video").evaluate(
+    (v: HTMLVideoElement) =>
+      new Promise<void>((done) => {
+        v.addEventListener("seeked", () => done(), { once: true });
+        v.currentTime = 9.3;
+      }),
+  );
+  await page.screenshot({ path: `${SCREENS}/launching-soon-film-1440.png` });
+  await page.getByRole("button", { name: "Pause the film" }).click();
+  await expect(page.getByRole("button", { name: "Play the film" })).toBeFocused();
+  const paused = await filmState(page);
+  expect(paused.playing).toBe(false);
+  await page.waitForTimeout(600);
+  expect((await filmState(page)).time).toBe(paused.time);
+});
+
 test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   test("transitions are disabled", async ({ page }) => {
@@ -154,5 +205,27 @@ test.describe("reduced motion", () => {
     await page.goto("/launching-soon");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
+  });
+
+  test("the launch film shows its poster and loads nothing until Play", async ({ page }) => {
+    const filmRequests: string[] = [];
+    page.on("request", (request) => {
+      if (FILM_FILE.test(new URL(request.url()).pathname)) filmRequests.push(request.url());
+    });
+    const poster = page.waitForResponse((response) => POSTER_FILE.test(new URL(response.url()).pathname));
+    await page.goto("/launching-soon");
+    expect((await poster).status()).toBe(200);
+    const play = page.getByRole("button", { name: "Play the film" });
+    await expect(play).toBeVisible();
+    await page.waitForTimeout(800);
+    const still = await filmState(page);
+    expect(still).toMatchObject({ playing: false, loaded: HAVE_NOTHING });
+    expect(still.network).not.toBe(NETWORK_LOADING);
+    expect(filmRequests).toEqual([]);
+    const film = page.waitForResponse((response) => FILM_FILE.test(new URL(response.url()).pathname));
+    await play.click();
+    expect([200, 206]).toContain((await film).status());
+    expect(await firstPlayedSecond(page)).toBeGreaterThanOrEqual(POSTER_SECONDS);
+    await expect(page.getByRole("button", { name: "Pause the film" })).toBeVisible();
   });
 });
