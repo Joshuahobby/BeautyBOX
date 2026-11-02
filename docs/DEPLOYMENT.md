@@ -65,7 +65,7 @@ On this machine, in this folder:
 5. **Settings → Build and Deployment**: Framework Next.js, Node.js 22.x. **Settings → Deployment Protection**: keep Standard Protection.
 6. Deploy: **Deployments → Redeploy** (or push to `main`). Settings changes apply only to new deployments.
 
-Branch (preview) deployments get no settings and will not run; that is intended.
+Branch (preview) deployments get no settings and will not run; that is intended. They still build, because nothing reads server settings while building (the root layout reads `APP_ENV` per request), so the Vercel check on a pull request passes. Every page and API call on a preview then fails with "Invalid server configuration", naming the missing settings but never their values.
 
 ## 4. Domains and DNS
 
