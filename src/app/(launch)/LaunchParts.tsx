@@ -1,6 +1,8 @@
 import { Fragment, type ReactNode } from "react";
 import icon from "@/design/brand/BeautyBox_Platform_Hub_Icon.svg";
-import lockup from "@/design/brand/BeautyBox_Platform_Hub_Lockup.svg";
+// The supplied lockup with its wordmark as Inter outlines (scripts/design/outline-lockup.mjs):
+// an <img> cannot load web fonts, so the supplied file's live text fell back to system fonts.
+import lockup from "@/design/brand/BeautyBox_Platform_Hub_Lockup_Outlined.svg";
 import { messages } from "@/messages";
 import styles from "./Launch.module.css";
 
