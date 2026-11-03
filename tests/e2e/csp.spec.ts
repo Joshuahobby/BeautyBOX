@@ -21,6 +21,7 @@ const PUBLIC_PAGES = [
   "/payment/00000000-0000-0000-0000-000000000000",
   "/staff/sign-in",
   "/no-such-page",
+  "/launching-soon",
 ];
 
 function directive(csp: string, name: string): string {

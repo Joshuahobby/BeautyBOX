@@ -16,6 +16,14 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
   serverExternalPackages: ["@prisma/client", "@prisma/adapter-pg", "pg"],
+  turbopack: {
+    rules: {
+      // Imported films become hashed files under /_next/static/media, like images: cached for
+      // good, and reachable on every host because the access wall passes /_next/ (DR-044).
+      "*.mp4": { type: "asset" },
+      "*.webm": { type: "asset" },
+    },
+  },
   async headers() {
     return [
       { source: "/:path*", headers: securityHeaders },

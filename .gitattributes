@@ -8,3 +8,5 @@
 *.ico binary
 *.ttf binary
 *.otf binary
+*.mp4 binary
+*.webm binary

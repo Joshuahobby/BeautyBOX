@@ -1,70 +1,197 @@
-/* Pre-launch pages (DR-044): one calm column on the canvas colour, brand lockup on top. */
+/*
+ * Pre-launch pages (DR-044): "Launching soon", preview access and the launch-list notice.
+ * One calm frame on brand tokens: an ivory page, the coral rule beside the headline, a white
+ * card for the form, and beside it the opening film ("Launching soon") or an aubergine stage
+ * where the supplied icon assembles from its four cells (preview access). Depth comes from
+ * planes and occlusion, never gradients or shadows.
+ *
+ * Motion only plays for people who have not asked for less. Without it, every element simply
+ * sits in its final place. On phones and tablets the stage and the "What to expect" items are
+ * below the fold, so where the browser supports scroll-linked animation they build as they
+ * scroll into view instead of playing unseen on load.
+ */
 
 .shell {
+  --bb-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --bb-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   min-height: 100vh;
   background: var(--color-canvas);
   color: var(--color-text);
+  overflow-x: clip;
 }
 
 .main {
-  display: flex;
-  justify-content: center;
-  padding: var(--space-7) var(--layout-gutter-mobile);
+  min-height: 100vh;
 }
 
-.column {
+/* ---- Frame: lockup, page body, footer ---- */
+
+.page {
+  box-sizing: border-box;
   width: 100%;
-  max-width: 560px;
+  min-height: 100vh;
+  max-width: calc(var(--layout-max-content) + 2 * var(--layout-gutter-desktop));
+  margin-inline: auto;
+  padding-inline: var(--layout-gutter-mobile);
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  padding-top: var(--space-5);
+}
+
+.lockupLink {
+  display: inline-flex;
+  min-height: var(--control-min-hit-target);
+  align-items: center;
 }
 
 .lockup {
   display: block;
-  width: 220px;
-  max-width: 70%;
+  width: 168px;
   height: auto;
 }
 
-.eyebrow {
-  margin: 0;
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2) var(--space-5);
+  padding: var(--space-5) 0 var(--space-6);
+  border-top: 1px solid var(--color-rule);
   color: var(--color-muted);
   font-size: var(--type-label-size);
   line-height: var(--type-label-line);
-  font-weight: var(--font-weight-500);
-  letter-spacing: 0.02em;
 }
 
-.heading {
+.footer a {
+  color: var(--color-text);
+  text-underline-offset: 3px;
+}
+
+.footer a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.copyright {
+  margin: 0 auto 0 0;
+}
+
+/* ---- Hero: words on one side, the stage on the other ---- */
+
+.hero {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-7);
+  padding-block: var(--space-7);
+}
+
+.copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   margin: 0;
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-status);
+  background: var(--color-surface);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--font-weight-600);
+}
+
+.dot {
+  position: relative;
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+}
+
+/* Echo of the dot that pings outwards while motion is allowed. */
+.dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--color-accent);
+  opacity: 0;
+}
+
+/* The coral rule beside the headline is the brand signature (DESIGN.md). */
+.heading {
+  position: relative;
+  max-width: 14em;
+  margin: var(--space-5) 0 0;
+  padding-left: var(--space-5);
   font-size: var(--type-hero-mobile-size);
   line-height: var(--type-hero-mobile-line);
   font-weight: var(--font-weight-700);
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+
+.heading::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.14em;
+  bottom: 0.14em;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+/* Inline blocks so each word can move on its own; the spaces between them are real text. */
+.word {
+  display: inline-block;
 }
 
 .lede {
-  margin: 0;
+  max-width: 52ch;
+  margin: var(--space-4) 0 0;
+  padding-left: var(--space-5);
+  color: var(--color-muted);
   font-size: var(--type-body-size);
   line-height: var(--type-body-line);
-  color: var(--color-text);
+  text-wrap: pretty;
 }
 
-.panel {
-  background: var(--color-surface);
-  border: 1px solid var(--color-rule);
-  border-radius: var(--radius-panel);
-  padding: var(--space-5);
+/* ---- Card: launch list or access code ---- */
+
+.card {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 480px;
+  margin-top: var(--space-6);
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
+  padding: var(--space-5);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
 }
 
-.panelHeading {
+.cardHeading {
   margin: 0;
   font-size: var(--type-section-mobile-size);
   line-height: var(--type-section-mobile-line);
-  font-weight: var(--font-weight-600);
+  font-weight: var(--font-weight-700);
+  letter-spacing: -0.01em;
 }
 
 .muted {
@@ -73,6 +200,231 @@
   font-size: var(--type-label-size);
   line-height: var(--type-label-line);
 }
+
+.closedRule {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--color-accent);
+}
+
+/* ---- Stage: the icon assembling on its ivory tile ---- */
+
+.stage {
+  --tile: 40%;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  aspect-ratio: 5 / 4;
+  border-radius: var(--radius-panel);
+  background: var(--color-text);
+}
+
+.stage > * {
+  grid-area: 1 / 1;
+}
+
+/* Crop marks in two corners, like the corners of a die-cut box sheet. */
+.stage::before,
+.stage::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 0 solid color-mix(in srgb, var(--color-canvas) 40%, transparent);
+}
+
+.stage::before {
+  top: var(--space-5);
+  left: var(--space-5);
+  border-top-width: 2px;
+  border-left-width: 2px;
+}
+
+.stage::after {
+  right: var(--space-5);
+  bottom: var(--space-5);
+  border-right-width: 2px;
+  border-bottom-width: 2px;
+}
+
+.tile {
+  width: var(--tile);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 22%;
+  background: var(--color-canvas);
+}
+
+/* Outlines of the tile: still, they step outwards; with motion, they travel out and fade. */
+.ring {
+  box-sizing: border-box;
+  width: var(--tile);
+  aspect-ratio: 1;
+  border: 2px solid color-mix(in srgb, var(--color-canvas) 50%, transparent);
+  border-radius: 22%;
+}
+
+.ring:nth-child(1) {
+  transform: scale(1.3);
+  opacity: 0.4;
+}
+
+.ring:nth-child(2) {
+  transform: scale(1.65);
+  opacity: 0.22;
+}
+
+.ring:nth-child(3) {
+  transform: scale(2);
+  opacity: 0.1;
+}
+
+.mark {
+  width: 78%;
+  display: grid;
+}
+
+.mark > img {
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* The icon's quarters, split between its aubergine and coral cells (x = 75 of 180) and
+   through the gap between its rows (y = 90). */
+.tl {
+  clip-path: inset(0 58.334% 50% 0);
+}
+
+.tr {
+  clip-path: inset(0 0 50% 41.666%);
+}
+
+.bl {
+  clip-path: inset(50% 58.334% 0 0);
+}
+
+.br {
+  clip-path: inset(50% 0 0 41.666%);
+}
+
+/* ---- Film: the opening film, in the stage's place on "Launching soon" ---- */
+
+/* Its first and last frames are the ivory page, so a rule-coloured edge marks the panel. */
+.film {
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 560px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  background: var(--color-canvas);
+}
+
+.filmVideo {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1;
+}
+
+/* Pause and play, in the bottom corner, which stays empty in every scene. The focus ring is
+   drawn inside the white button so it shows against ivory, coral and aubergine frames. */
+.filmToggle {
+  position: absolute;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  width: var(--control-min-hit-target);
+  height: var(--control-min-hit-target);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-control);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.filmToggle:hover {
+  background: var(--color-canvas);
+}
+
+.filmToggle:focus-visible {
+  outline-offset: -6px;
+}
+
+/* ---- What to expect ---- */
+
+.expect {
+  padding-block: var(--space-6) var(--space-7);
+  border-top: 1px solid var(--color-rule);
+}
+
+.expectLabel {
+  margin: 0 0 var(--space-5);
+  color: var(--color-muted);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+  font-weight: var(--font-weight-600);
+}
+
+.points {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.point {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-content: start;
+  column-gap: var(--space-4);
+  row-gap: var(--space-1);
+}
+
+.pointIcon {
+  grid-row: 1 / span 2;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
+/* Alternating aubergine and coral, like the icon's cells. */
+.point:nth-child(even) .pointIcon {
+  color: var(--color-accent);
+}
+
+.pointTitle {
+  margin: 0;
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--font-weight-600);
+}
+
+.pointText {
+  margin: 0;
+  color: var(--color-muted);
+  font-size: var(--type-label-size);
+  line-height: var(--type-label-line);
+}
+
+/* ---- Forms (launch list, access code) ---- */
 
 .form {
   display: flex;
@@ -103,20 +455,37 @@
   line-height: var(--type-label-line);
 }
 
-.footer {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2) var(--space-5);
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--color-rule);
-  font-size: var(--type-label-size);
-  line-height: var(--type-label-line);
-}
+/* ---- Privacy notice ---- */
 
 .article {
+  flex: 1;
+  max-width: 68ch;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
+  gap: var(--space-6);
+  padding-block: var(--space-7) var(--space-8);
+}
+
+.articleHeading {
+  position: relative;
+  margin: 0;
+  padding-left: var(--space-5);
+  font-size: var(--type-page-mobile-size);
+  line-height: var(--type-page-mobile-line);
+  font-weight: var(--font-weight-700);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+.articleHeading::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.14em;
+  bottom: 0.14em;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--color-accent);
 }
 
 .article h2 {
@@ -130,19 +499,381 @@
   margin: 0;
 }
 
+.article section > * + * {
+  margin-top: var(--space-3);
+}
+
+/* ---- Tablet ---- */
+
 @media (min-width: 768px) {
-  .main {
-    padding: var(--space-8) var(--layout-gutter-desktop);
+  .page {
+    padding-inline: var(--layout-gutter-desktop);
+  }
+
+  .header {
+    padding-top: var(--space-6);
+  }
+
+  .lockup {
+    width: 192px;
   }
 
   .heading {
     font-size: var(--type-hero-desktop-size);
     line-height: var(--type-hero-desktop-line);
+    letter-spacing: -0.025em;
   }
 
-  .panelHeading,
+  .card {
+    padding: var(--space-6);
+  }
+
+  .cardHeading,
   .article h2 {
     font-size: var(--type-section-desktop-size);
     line-height: var(--type-section-desktop-line);
+  }
+
+  .articleHeading {
+    font-size: var(--type-page-desktop-size);
+    line-height: var(--type-page-desktop-line);
+  }
+
+  .stage {
+    --tile: 30%;
+    aspect-ratio: 16 / 9;
+  }
+
+  .points {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+}
+
+/* ---- Desktop: words on the left, a square stage on the right ---- */
+
+@media (min-width: 1024px) {
+  .hero {
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-8);
+    padding-block: var(--space-7) var(--space-8);
+  }
+
+  .stage {
+    --tile: 50%;
+    aspect-ratio: 1;
+  }
+
+  .film {
+    max-width: none;
+  }
+
+  .points {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .point {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: var(--space-2);
+  }
+
+  .pointIcon {
+    grid-row: auto;
+    margin-bottom: var(--space-2);
+  }
+}
+
+/* ---- Motion: one short opening sequence, then only the dot and the rings keep moving ---- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .lockup {
+    animation: bb-fade 600ms var(--bb-ease) both;
+  }
+
+  .eyebrow {
+    animation: bb-rise 640ms var(--bb-ease) 60ms both;
+  }
+
+  .dot::after {
+    animation: bb-ping 2.4s cubic-bezier(0, 0, 0.2, 1) 1.2s infinite;
+  }
+
+  .heading::before {
+    transform-origin: top;
+    animation: bb-draw-y 760ms var(--bb-ease) 200ms both;
+  }
+
+  .word {
+    animation: bb-word 820ms var(--bb-ease) both;
+  }
+
+  .word:nth-child(1) {
+    animation-delay: 180ms;
+  }
+
+  .word:nth-child(2) {
+    animation-delay: 250ms;
+  }
+
+  .word:nth-child(3) {
+    animation-delay: 320ms;
+  }
+
+  .word:nth-child(4) {
+    animation-delay: 390ms;
+  }
+
+  .word:nth-child(5) {
+    animation-delay: 460ms;
+  }
+
+  .word:nth-child(6) {
+    animation-delay: 530ms;
+  }
+
+  .word:nth-child(7) {
+    animation-delay: 600ms;
+  }
+
+  .word:nth-child(n + 8) {
+    animation-delay: 670ms;
+  }
+
+  .lede {
+    animation: bb-rise 720ms var(--bb-ease) 560ms both;
+  }
+
+  .card {
+    animation: bb-rise 780ms var(--bb-ease) 680ms both;
+  }
+
+  .closedRule {
+    transform-origin: left;
+    animation: bb-draw-x 640ms var(--bb-ease) 1150ms both;
+  }
+
+  .done {
+    animation: bb-rise 480ms var(--bb-ease) both;
+  }
+
+  .stage,
+  .film {
+    animation: bb-stage 900ms var(--bb-ease) 120ms both;
+  }
+
+  .tile {
+    animation: bb-tile 760ms var(--bb-spring) 380ms both;
+  }
+
+  .tl {
+    animation: bb-tl 900ms var(--bb-ease) 640ms both;
+  }
+
+  .tr {
+    animation: bb-tr 900ms var(--bb-ease) 710ms both;
+  }
+
+  .br {
+    animation: bb-br 900ms var(--bb-ease) 780ms both;
+  }
+
+  .bl {
+    animation: bb-bl 900ms var(--bb-ease) 850ms both;
+  }
+
+  .whole {
+    animation: bb-fade 240ms linear 1700ms both;
+  }
+
+  .ring {
+    animation: bb-ring 4.2s cubic-bezier(0.2, 0.6, 0.3, 1) infinite both;
+  }
+
+  .ring:nth-child(1) {
+    animation-delay: 1.8s;
+  }
+
+  .ring:nth-child(2) {
+    animation-delay: 3.2s;
+  }
+
+  .ring:nth-child(3) {
+    animation-delay: 4.6s;
+  }
+
+  .point {
+    animation: bb-rise 720ms var(--bb-ease) both;
+  }
+
+  .point:nth-child(1) {
+    animation-delay: 900ms;
+  }
+
+  .point:nth-child(2) {
+    animation-delay: 980ms;
+  }
+
+  .point:nth-child(3) {
+    animation-delay: 1060ms;
+  }
+
+  .point:nth-child(4) {
+    animation-delay: 1140ms;
+  }
+
+  .article {
+    animation: bb-rise 640ms var(--bb-ease) 80ms both;
+  }
+}
+
+/* Phones and tablets: build the stage and the points as they scroll into view. These rules
+   come after the timed ones so they replace the timeline the animation shorthand set. */
+@supports (animation-timeline: view()) {
+  @media (max-width: 1023px) and (prefers-reduced-motion: no-preference) {
+    .stage {
+      view-timeline-name: --bb-stage;
+      animation-timeline: --bb-stage;
+      animation-range: entry 0% entry 45%;
+      animation-delay: 0s;
+    }
+
+    .tile {
+      animation-timeline: --bb-stage;
+      animation-range: entry 10% entry 60%;
+      animation-delay: 0s;
+    }
+
+    .film {
+      view-timeline-name: --bb-film;
+      animation-timeline: --bb-film;
+      animation-range: entry 0% entry 45%;
+      animation-delay: 0s;
+    }
+
+    .tl,
+    .tr,
+    .bl,
+    .br {
+      animation-timeline: --bb-stage;
+      animation-range: entry 35% entry 95%;
+      animation-delay: 0s;
+    }
+
+    .whole {
+      animation-timeline: --bb-stage;
+      animation-range: entry 95% entry 100%;
+      animation-delay: 0s;
+    }
+
+    .point {
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+      animation-delay: 0s;
+    }
+  }
+}
+
+@keyframes bb-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes bb-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+}
+
+@keyframes bb-word {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+    filter: blur(8px);
+  }
+}
+
+@keyframes bb-draw-y {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes bb-draw-x {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes bb-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+
+  70%,
+  100% {
+    transform: scale(3);
+    opacity: 0;
+  }
+}
+
+@keyframes bb-stage {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+}
+
+@keyframes bb-tile {
+  from {
+    opacity: 0;
+    transform: scale(0.72);
+  }
+}
+
+@keyframes bb-tl {
+  from {
+    opacity: 0;
+    transform: translate(-30%, -30%);
+  }
+}
+
+@keyframes bb-tr {
+  from {
+    opacity: 0;
+    transform: translate(30%, -30%);
+  }
+}
+
+@keyframes bb-bl {
+  from {
+    opacity: 0;
+    transform: translate(-30%, 30%);
+  }
+}
+
+@keyframes bb-br {
+  from {
+    opacity: 0;
+    transform: translate(30%, 30%);
+  }
+}
+
+@keyframes bb-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.5;
+  }
+
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
   }
 }

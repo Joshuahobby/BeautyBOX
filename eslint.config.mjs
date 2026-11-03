@@ -11,7 +11,8 @@ const config = [
   ...nextCoreWebVitals,
   ...nextTypescript,
   {
-    ignores: [".next/**", ".next-e2e/**", "node_modules/**", "src/generated/**", ".local/**", "playwright-report/**", "test-results/**", "next-env.d.ts"],
+    // promo/ is the opening film's Remotion project, with its own lint (npm --prefix promo run lint).
+    ignores: [".next/**", ".next-e2e/**", "node_modules/**", "src/generated/**", ".local/**", "playwright-report/**", "test-results/**", "next-env.d.ts", "promo/**"],
   },
   {
     rules: {
