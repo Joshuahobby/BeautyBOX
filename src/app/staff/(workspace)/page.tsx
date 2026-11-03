@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { db } from "@/server/db";
+import { smsProblemWhere } from "@/modules/notifications/delivery-reports";
 import { Notice } from "@/components/ui/Notice";
 import { operatingContext, publicationBlocks } from "@/modules/settings/settings";
 import { can } from "@/modules/staff/capabilities";
@@ -36,7 +37,7 @@ export default async function StaffOverviewPage() {
     db().paymentAttempt.count({ where: { verificationFlag: { not: null } } }),
     db().refundCase.count({ where: { state: "OPEN" } }),
     db().operation.count({ where: { type: "CANCELLATION_REQUEST", state: "PENDING" } }),
-    db().notification.count({ where: { state: { in: ["FAILED", "UNKNOWN"] } } }),
+    db().notification.count({ where: smsProblemWhere }),
     operatingContext(),
   ]);
   const blocks = publicationBlocks(ctx);
@@ -73,7 +74,7 @@ export default async function StaffOverviewPage() {
           </>
         ) : null}
         <div className={styles.card}>
-          <span className="label-text muted">Customer SMS not confirmed sent</span>
+          <span className="label-text muted">Customer SMS not sent or not delivered</span>
           <span className={styles.metric}>{smsProblems}</span>
         </div>
       </div>

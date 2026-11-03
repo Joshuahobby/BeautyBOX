@@ -7,14 +7,15 @@ import { FakePaymentAdapter } from "./payments/fake";
 import { PAWAPAY_BASE_URLS, PawapayPaymentAdapter } from "./payments/pawapay";
 import { FakePlacesAdapter, FakeRoutingAdapter } from "./routing/fake";
 import { DisabledSmsAdapter, FakeSmsAdapter } from "./sms/fake";
+import { AfricasTalkingSmsAdapter } from "./sms/africastalking";
 import path from "node:path";
 import type { MediaStorage } from "./storage/types";
 import { LocalMediaStorage } from "./storage/local";
 import { SupabaseMediaStorage } from "./storage/supabase";
 
 // Adapter selection is server configuration only; no request can choose a provider.
-// Real adapters (pawaPay I07, Google I12, Africa's Talking I11) plug in here behind
-// their gates. Selecting one that is not implemented fails closed.
+// Real adapters (pawaPay I07, Africa's Talking I11, Google I12) plug in here behind their
+// gates. Selecting one that is not implemented fails closed.
 
 type Overrides = { payments?: PaymentAdapter; routing?: RoutingAdapter; places?: PlacesAdapter; sms?: SmsAdapter; media?: MediaStorage };
 let overrides: Overrides = {};
@@ -43,7 +44,12 @@ function build(): Required<Overrides> {
         ? new FakeSmsAdapter()
         : env.SMS_PROVIDER === "disabled"
           ? new DisabledSmsAdapter()
-          : notImplemented("Africa's Talking"),
+          : new AfricasTalkingSmsAdapter({
+              // env validation guarantees these, and the sandbox outside production (DR-048).
+              username: env.AFRICASTALKING_USERNAME!,
+              apiKey: env.AFRICASTALKING_API_KEY!,
+              senderId: env.AFRICASTALKING_SENDER_ID,
+            }),
     media:
       env.MEDIA_STORAGE === "local"
         ? new LocalMediaStorage(path.resolve(process.cwd(), ".local", "media", env.APP_ENV), env.APP_ORIGIN)

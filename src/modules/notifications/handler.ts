@@ -5,30 +5,19 @@ import { formatRwf } from "@/modules/shared/money";
 import { serverEnv } from "@/server/env";
 import { backoffSeconds, type ClaimedJob, type JobOutcome } from "@/modules/jobs/outbox";
 import { currentSettings } from "@/modules/settings/settings";
-import { issuePrivateLink, privateLinkUrl } from "@/modules/orders/private-links";
+import { issuePrivateLink, smsPrivateLinkUrl } from "@/modules/orders/private-links";
 import { resolveOperations } from "@/modules/operations/operations";
+import { renderSms, smsTemplate } from "./templates";
 
 // Transactional SMS delivery (I11). Failure is recorded and alerted; it never changes
 // order or payment state (T19), and the order stays visible on the site. A definite
 // provider failure is retried a few times (nothing was sent), then left for staff.
 // An unknown outcome is NOT retried: a duplicate message is worse than a follow-up.
-// Templates follow business/Policy-and-Copy-Drafts.md (drafts until approved, B09).
+// Wording lives in ./templates.ts (plain GSM-7; drafts until approved, B09).
 
 const SEND_IN_PROGRESS = "SEND_IN_PROGRESS";
 const UNKNOWN_OUTCOME = "We could not confirm the SMS was sent. Check with the customer before sending another link.";
 const MAX_SEND_ATTEMPTS = 3;
-
-type TemplateInput = { reference: string; amount: string; link: string | null; help: string; contact: string | null };
-
-const TEMPLATES: Record<string, { needsLink: boolean; text: (v: TemplateInput) => string }> = {
-  ORDER_CONFIRMED: { needsLink: true, text: (v) => `BeautyBOX: Payment received for order ${v.reference}, ${v.amount}. View your order: ${v.link}.${v.help}` },
-  ORDER_DISPATCHED: { needsLink: true, text: (v) => `BeautyBOX: Order ${v.reference} has been handed to our delivery partner. View status: ${v.link}.${v.help}` },
-  ORDER_ON_HOLD: { needsLink: false, text: (v) => `BeautyBOX: We need to contact you about order ${v.reference}.${v.contact ? ` Please contact ${v.contact}.` : ""}` },
-  DELIVERY_PROBLEM: { needsLink: false, text: (v) => `BeautyBOX: We need to contact you about order ${v.reference}.${v.contact ? ` Please contact ${v.contact}.` : ""}` },
-  REFUND_CONFIRMED: { needsLink: false, text: (v) => `BeautyBOX: Your refund of ${v.amount} for order ${v.reference} is confirmed.${v.help}` },
-  // Not in the copy drafts: a reviewed wording is needed before launch (see PROGRESS).
-  ACCESS_LINK: { needsLink: true, text: (v) => `BeautyBOX: Your new private link for order ${v.reference}: ${v.link}. It works once and expires in 7 days.${v.help}` },
-};
 
 function supportContactText(raw: unknown): string | null {
   if (!raw || typeof raw !== "object") return null;
@@ -51,7 +40,7 @@ export async function handleNotificationSend(job: ClaimedJob): Promise<JobOutcom
   if (notification.state !== "PENDING") return { kind: "DONE" };
 
   const adapter = smsAdapter();
-  const template = TEMPLATES[notification.event];
+  const template = smsTemplate(notification.event);
   const settings = await currentSettings();
   const suppressedBecause =
     adapter.provider === "DISABLED"
@@ -79,16 +68,16 @@ export async function handleNotificationSend(job: ClaimedJob): Promise<JobOutcom
   }
   // The raw link token exists only in this message; only its hash is stored.
   const link = template.needsLink
-    ? privateLinkUrl((await transaction((tx) => issuePrivateLink(tx, notification.orderId, { reason: `Sent with SMS ${notification.event}` }))).token)
+    ? smsPrivateLinkUrl((await transaction((tx) => issuePrivateLink(tx, notification.orderId, { reason: `Sent with SMS ${notification.event}` }))).token)
     : null;
-  const contact = supportContactText(settings.supportContact);
-  const text = template.text({
+  const text = renderSms(notification.event, {
     reference: notification.order.reference,
     amount: formatRwf(amountRwf),
     link,
-    contact,
-    help: contact ? ` Help: ${contact}.` : "",
-  });
+    contact: supportContactText(settings.supportContact),
+    // An approved sender ID shows BeautyBOX as the sender, so the prefix may go where it costs a part.
+    brandInSender: /beautybox/i.test(adapter.senderName ?? ""),
+  })!;
 
   // Claim before the external call so a recovered lease can tell a possible send happened.
   const claimed = await db().notification.updateMany({
@@ -118,7 +107,11 @@ export async function handleNotificationSend(job: ClaimedJob): Promise<JobOutcom
     }
     return { kind: "NEEDS_REVIEW", errorCode: `SMS_FAILED_${result.code}` };
   }
-  await db().notification.update({ where: { id: notification.id }, data: { state: "UNKNOWN", lastErrorCode: "SEND_OUTCOME_UNKNOWN" } });
+  // The provider's message id, when it gave one, lets a later delivery report say what happened.
+  await db().notification.update({
+    where: { id: notification.id },
+    data: { state: "UNKNOWN", lastErrorCode: "SEND_OUTCOME_UNKNOWN", providerMessageId: result.providerMessageId ?? null },
+  });
   if (notification.operationId) await resolveOperations(db(), { id: notification.operationId }, "FAILED", UNKNOWN_OUTCOME);
   return { kind: "NEEDS_REVIEW", errorCode: "SEND_OUTCOME_UNKNOWN" };
 }

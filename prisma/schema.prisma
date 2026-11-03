@@ -1141,20 +1141,24 @@ model Operation {
 }
 
 model Notification {
-  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  orderId           String            @map("order_id") @db.Uuid
-  event             String
-  templateId        String            @map("template_id")
-  templateVersion   Int               @map("template_version")
-  state             NotificationState @default(PENDING)
-  providerMessageId String?           @map("provider_message_id")
-  lastErrorCode     String?           @map("last_error_code")
+  id                    String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId               String            @map("order_id") @db.Uuid
+  event                 String
+  templateId            String            @map("template_id")
+  templateVersion       Int               @map("template_version")
+  state                 NotificationState @default(PENDING)
+  providerMessageId     String?           @map("provider_message_id")
+  lastErrorCode         String?           @map("last_error_code")
   // Distinguishes repeatable events of one order (each failed delivery attempt, each
   // refund, each access reissue). Empty for once-per-order events.
-  intentKey         String            @default("") @map("intent_key")
-  operationId       String?           @map("operation_id") @db.Uuid
-  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
-  updatedAt         DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
+  intentKey             String            @default("") @map("intent_key")
+  operationId           String?           @map("operation_id") @db.Uuid
+  /// Handset delivery as later reported by the SMS provider (DR-048); for staff only.
+  deliveryStatus        String?           @map("delivery_status")
+  deliveryFailureReason String?           @map("delivery_failure_reason")
+  deliveryReportedAt    DateTime?         @map("delivery_reported_at") @db.Timestamptz(3)
+  createdAt             DateTime          @default(now()) @map("created_at") @db.Timestamptz(3)
+  updatedAt             DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(3)
 
   order     Order      @relation(fields: [orderId], references: [id], onDelete: Restrict)
   operation Operation? @relation(fields: [operationId], references: [id], onDelete: Restrict)

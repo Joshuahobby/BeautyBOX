@@ -13,7 +13,7 @@ const decide = (pathname: string, opts: { host?: string; cookie?: string; config
 
 describe("access wall decisions", () => {
   it("shows the launch page for shop pages and refuses shop APIs without the code", () => {
-    for (const path of ["/", "/shop", "/products/gloss-clear", "/cart", "/checkout", "/orders/123", "/help/privacy", "/dev/sms", "/order-access"]) {
+    for (const path of ["/", "/shop", "/products/gloss-clear", "/cart", "/checkout", "/orders/123", "/help/privacy", "/dev/sms", "/order-access", "/o"]) {
       expect(decide(path), path).toEqual({ kind: "launch-page" });
     }
     for (const path of ["/api/v1/cart", "/api/v1/checkouts", "/api/v1/payments", "/api/v1/products", "/api/v1/places"]) {

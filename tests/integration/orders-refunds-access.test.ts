@@ -81,7 +81,13 @@ function req(method: string, path: string, opts: { staff?: string; cookies?: Rec
 
 const params = <P extends Record<string, string>>(p: P) => ({ params: Promise.resolve(p) });
 const json = async (res: Response) => ({ status: res.status, body: (await res.json()) as Record<string, unknown> });
-const tokenIn = (text: string) => /#token=([A-Za-z0-9_-]+)/.exec(text)?.[1] ?? null;
+// Both link forms: SMS (/o#<token>, DR-049) and browser (/order-access#token=<token>).
+const tokenIn = (text: string) => /(?:#token=|\/o#)([A-Za-z0-9_-]+)/.exec(text)?.[1] ?? null;
+/** The order confirmation the fake SMS adapter "sent", found by its notification (not its wording). */
+const confirmationSms = async (orderId: string) => {
+  const n = await db().notification.findFirstOrThrow({ where: { orderId, event: "ORDER_CONFIRMED" } });
+  return sms.sent.find((m) => m.messageIntentId === n.id);
+};
 
 async function paidOrder(qty = 1) {
   const customer = await newCustomer();
@@ -391,10 +397,12 @@ const viewOrder = (orderId: string, cookies: Record<string, string>) => getOrder
 describe("I11 private order access", () => {
   it("T15: the confirmation SMS carries a one-time link that becomes an order session", async () => {
     const { order } = await paidOrder();
-    const message = sms.sent.find((m) => m.text.includes("Payment received"));
+    const message = await confirmationSms(order.id);
     expect(message?.recipientE164).toBe("+250788555111"); // the order contact, not the payer number
+    // The short SMS form, last in the message: 32 random bytes on the page /o (DR-049).
+    expect(message!.text.endsWith(`${process.env.APP_ORIGIN}/o#${tokenIn(message!.text)}`)).toBe(true);
     const token = tokenIn(message!.text)!;
-    expect(token.length).toBeGreaterThanOrEqual(43);
+    expect(token).toHaveLength(43);
     // Only a hash is stored.
     expect(await db().privateOrderLink.count({ where: { tokenHash: token } })).toBe(0);
 
@@ -443,7 +451,7 @@ describe("I11 private order access", () => {
   it("T15: a support reissue revokes earlier links and sessions and sends a fresh link to the order contact", async () => {
     const support = await staff("SUPPORT");
     const { order, customer } = await paidOrder();
-    const session = await exchange(tokenIn(sms.sent.find((m) => m.text.includes("Payment received"))!.text)!);
+    const session = await exchange(tokenIn((await confirmationSms(order.id))!.text)!);
     const spare = await json(await postOwnerLink(req("POST", `/api/v1/orders/${order.id}/access-link`, { cookies: { [GUEST_COOKIE]: customer.token } }), params({ orderId: order.id })));
     const spareToken = tokenIn(String(spare.body.url))!;
 

@@ -4,7 +4,7 @@ Draft runbooks for the Phase 1 build (I13). They describe what the software does
 
 ## Daily checks
 
-1. **Staff overview** (`/staff`): paid orders to prepare, holds, cancellation requests, payments still being checked, payment exceptions, open refund cases, SMS not confirmed sent.
+1. **Staff overview** (`/staff`): paid orders to prepare, holds, cancellation requests, payments still being checked, payment exceptions, open refund cases, customer SMS not sent or not delivered.
 2. **Monitoring probe**: `GET /api/v1/internal/ops-summary` with `Authorization: Bearer <WORKER_SECRET>`. It returns counts and ages only, with no personal data. Alert when `alerts` is non-empty or the probe is not 200. Failures and flags stay on their records, but they alert only for 7 days after they happen, so a handled incident clears and a new one alerts again.
 3. **Reconciliation sweep**, daily: `GET /api/v1/internal/reconciliation` (same secret), or `npm run ops:sweep -- --env-file <path>`. These are read-only integrity checks covering stock against the ledger, reservations, commitments, receipts against order payment state, collections without a refund path, and money or messages without an active job. Any non-zero count is a defect to investigate; the sweep never repairs anything.
 
@@ -20,7 +20,7 @@ Draft runbooks for the Phase 1 build (I13). They describe what the software does
 | `REFUNDS_NEED_REVIEW` | The provider's records for a refund differ from ours (refused although within the amount collected, another refund in progress that the app did not send, or a failed refund reported as completed). Alerts until finance closes the review | Refunds |
 | `REFUNDS_STUCK` | An approved refund has not finished for over 24 hours | Refunds |
 | `STOCK_LEDGER_DRIFT` | A stock lot no longer matches its movement ledger | Stock drift |
-| `SMS_NOT_DELIVERED` | A message failed or its outcome is unknown | SMS failure |
+| `SMS_NOT_DELIVERED` | A message failed, its outcome is unknown, or the network reported it did not reach the phone (`notifications.notDeliveredToPhone`) | SMS failure |
 | `CANCELLATION_REQUESTS_WAITING` | A customer asked to cancel | Cancellation request |
 
 ## Payment still unresolved / "I was debited but the site says pending"
@@ -64,6 +64,8 @@ Draft runbooks for the Phase 1 build (I13). They describe what the software does
 ## SMS failure, or a customer lost their link
 
 - A definite provider failure is retried 3 times, then left FAILED and flagged. An unknown outcome is never resent. The order stays valid and visible.
+- **Not delivered to the phone** (order exception `SMS_NOT_DELIVERED_TO_PHONE`; the order page says, for example, "not delivered to the phone (user does not exist)"): Africa's Talking accepted the message and later reported that it did not reach the handset (DR-048). There is no job to review and the app never resends on its own. Check the contact number with the customer, then send a new private link if they need one. "Phone unreachable" (AbsentSubscriber) can still turn into delivered later.
+- Delivery reports also arrive for messages whose send outcome was unknown; "delivered to the phone" there means the message did go out, but the unknown flag stays until staff have checked. Details: `docs/integrations/AFRICASTALKING.md`.
 - Verify the customer outside the system: match the order reference and the contact details on the order. Never reveal order details first. Record a case reference.
 - **Send a new private link** revokes every earlier link and order session, then texts a fresh one-time link to the order's contact number. Staff never see the link.
 - If the contact number itself is wrong, there is no edit tool yet. Escalate to an admin.
@@ -131,6 +133,7 @@ Pausing stops new payment starts at once. Carts stay, and unresolved payments ke
 | Database runtime password (`DATABASE_URL`, role `beautybox_app`) | Delete `STAGING_RUNTIME_DB_PASSWORD` and `DATABASE_URL` from the settings file, run `npm run staging:bootstrap` (sets a new password), push the settings, redeploy. The site cannot reach the database between the password change and the redeploy. |
 | `DATA_ENCRYPTION_KEY` | Encrypts payer numbers and callback evidence. No re-encryption tool exists yet: do not rotate without one (I13 follow-up). |
 | Provider keys (pawaPay, SMS, Google) | Rotate in the provider console and the deployment environment together. Callbacks with an unknown key are stored as unverified and never mark anything paid. |
+| `AFRICASTALKING_CALLBACK_TOKEN` (secret part of the SMS delivery-report address, DR-048) | `npm run sms:callback-token -- --env-file <file> --rotate` writes a new token and copies the new address; paste it in the Africa's Talking dashboard (SMS → SMS Callback URLs → Delivery Reports), push the settings and redeploy. Reports sent to the old address are refused (404) from then on; nothing else is affected. |
 | pawaPay request-signing key (`PAWAPAY_SIGNING_PRIVATE_KEY`, `PAWAPAY_SIGNING_KEY_ID`) | Add the new public key in the pawaPay dashboard first, deploy the new private key and id, then remove the old key. (Sandbox on a developer machine: `scripts/ops/pawapay-signing-key.ts generate`, upload `public.pem`, then `install --key-id <id>`.) With "Only accept signed requests" on, a mismatch makes every payment start fail as refused (`HTTP_SIGNATURE_ERROR`). pawaPay's own callback keys rotate on their side; the app refreshes them automatically (at most once a minute). |
 
 ## Pre-launch wall and launch list (DR-044, DR-045)

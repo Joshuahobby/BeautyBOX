@@ -17,6 +17,7 @@ const PUBLIC_PAGES = [
   "/cart",
   "/checkout",
   "/order-access",
+  "/o",
   "/orders/00000000-0000-0000-0000-000000000000",
   "/payment/00000000-0000-0000-0000-000000000000",
   "/staff/sign-in",

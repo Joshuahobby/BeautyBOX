@@ -43,6 +43,15 @@ const nextConfig: NextConfig = {
         ],
       },
       {
+        // The short private-link page for SMS (DR-049): the same protection.
+        source: "/o",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
+      {
         source: "/orders/:path*",
         headers: [
           { key: "Referrer-Policy", value: "no-referrer" },
