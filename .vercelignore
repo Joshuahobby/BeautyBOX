@@ -16,3 +16,5 @@ blob-report/
 src/generated/
 *.tsbuildinfo
 *.log
+# The opening film's Remotion source: the site only serves its exports (src/design/promo).
+promo/

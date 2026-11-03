@@ -19,20 +19,21 @@ already gives 40–45 dB, so most of the difference is colour sampling, not comp
 
 ## Source
 
-A Remotion 4.0.539 project, composition `BeautyBoxPromo`. For now it lives only on the machine it
-was made on, at `E:\Joshua Backup\BeautyBOX\beautybox-promo`, with no commits or remote yet. Words are
-Manrope (the site's own file); the lockup is the supplied `BeautyBox_Platform_Hub_Lockup.svg`,
-with its wordmark drawn in Inter 700 as that file asks. Its `remotion.config.ts` already sets
-PNG frames, BT.709, yuv420p and no audio.
+The Remotion project in [`promo/`](../../../promo) at the root of this repository (see its README).
+Words are Manrope (the site's own file); the lockup is the supplied
+`BeautyBox_Platform_Hub_Lockup.svg`, with its wordmark drawn in Inter 700 as that file asks.
+Both are read from this design folder, so the film always uses the site's files.
 
-To change the film, edit it there and export again from that folder:
+To change the film, edit it there and export again; the files land here directly:
 
 ```bash
-npx remotion still BeautyBoxPromo out/web/poster.png --frame=96
-npx remotion render BeautyBoxPromo out/web/beautybox-promo.mp4 --codec=h264 --crf=20 --x264-preset=veryslow
-npx remotion render BeautyBoxPromo out/web/beautybox-promo.webm --codec=vp9 --crf=30
+npm --prefix promo ci
 ```
 
-Then copy the three files here. If the still hold moves, update the poster frame and
-`POSTER_SECONDS` in `LaunchFilm.tsx` together. The build hashes the file names
-(`next.config.ts`, `turbopack.rules`), so a new export never meets an old cached copy.
+```bash
+npm --prefix promo run export
+```
+
+If the still hold moves, update the poster frame (`promo/package.json`) and `POSTER_SECONDS` in
+`LaunchFilm.tsx` together. The build hashes the file names (`next.config.ts`, `turbopack.rules`),
+so a new export never meets an old cached copy.
