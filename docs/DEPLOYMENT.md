@@ -4,7 +4,7 @@ What this sets up, at no cost until launch:
 
 | Address | What visitors see |
 | --- | --- |
-| `beautyboxmarket.com`, `www.beautyboxmarket.com` | Only "BeautyBOX is launching soon", its privacy notice and (once opened) the launch-list sign-up. Every other path goes back to `/`. |
+| `beautyboxmarket.com`, `www.beautyboxmarket.com` | Only the "Launching soon" page, its privacy notice and (once opened) the launch-list sign-up. Every other path goes back to `/`. |
 | `staging.beautyboxmarket.com` | "Launching soon" until the access code is entered at `/access`; then the whole shop in staging mode: pawaPay **sandbox** (no real money), simulated delivery distances, no SMS, the synthetic demo catalogue. Staff sign in at `/staff` with their password and authenticator app. |
 | `*.vercel.app` addresses of the project | Vercel's own sign-in (Standard Protection), then the same as staging. |
 

@@ -35,6 +35,19 @@ Run in a fresh clone on Linux (Node 22.22.0, PostgreSQL 16 server binaries) rath
 | Integration (real PostgreSQL) | `npm run test:integration` | **156/156 pass**, 6 opt-in live tests skipped (15 files; adds "raw upload clean-up" (3) in `media-publication.test.ts`; migration 20261030000000 applied, so the invariant triggers ran with `search_path = ''`) |
 | Browser (Playwright 1.64 + axe, fresh production build, CSP guard on every test) | `npx playwright test`, pointed at the container's pre-installed Chromium | **32/32 pass** (3.8 min) |
 
+## 2026-11-05 run (Linux cloud container)
+
+After the review fixes to the pre-launch pages and the opening film's source. Same kind of container as above (Node 22.23.4, PostgreSQL 16 server binaries); contract freshness not run for the same reason.
+
+| Suite | Command | Result |
+| --- | --- | --- |
+| Token freshness, typecheck, lint | `npm run design:tokens:check`, `npm run typecheck`, `npm run lint` | pass, 0 errors, 0 warnings |
+| Unit | `npm run test:unit` | **87/87 pass** (13 files; adds the poster frame shared by the page and the film's export, and the Kigali year in the launch pages' footer) |
+| Integration (real PostgreSQL) | `npm run test:integration` | **156/156 pass**, 6 opt-in live tests skipped |
+| Browser (Playwright 1.64 + axe, fresh production build, CSP guard on every test) | `npx playwright test`, pointed at the container's pre-installed Chromium | **40/40 pass** (3.1 min), including: the launch film pauses with less than a quarter of it on screen and plays again when scrolled back; "Launching soon" and preview access come to rest within five seconds |
+| Opening film source (`promo/`) | `npm --prefix promo run lint`; every frame rendered before and after the source changes and compared | lint and types pass; **696/696 frames pixel-identical**, so the committed exports still match their source |
+| Lockup outlines | `node scripts/design/outline-lockup.mjs <Inter v20 latin WOFF2>` | regenerates `BeautyBox_Platform_Hub_Lockup_Outlined.svg` byte for byte |
+
 Before the set-up fix, a fresh `setup:local` produced a `.env.test` without `STAFF_AUTH_PROVIDER=test` and 35 integration tests failed with 401; the developer machine's `.env.test` had the setting added by hand. One run also failed "slows down guessing per address" when the test crossed a 10-minute rate-limit window boundary; rate-limit tests now start at the beginning of a window.
 
 ## Acceptance scenarios covered by automated tests
