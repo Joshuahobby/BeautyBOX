@@ -24,6 +24,13 @@ const kigaliDateTime = new Intl.DateTimeFormat("en-GB", {
   minute: "2-digit",
 });
 
+const kigaliYear = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Kigali", year: "numeric" });
+
+/** The year in Kigali at that moment (now by default), whatever time zone the server runs in. */
+export function currentKigaliYear(at: Date = new Date()): string {
+  return kigaliYear.format(at);
+}
+
 /** Operational times display in Africa/Kigali; records stay UTC. */
 export function formatKigaliTime(iso: string | Date): string {
   return kigaliTime.format(new Date(iso));

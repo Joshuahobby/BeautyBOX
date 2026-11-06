@@ -34,6 +34,7 @@ npm --prefix promo ci
 npm --prefix promo run export
 ```
 
-If the still hold moves, update the poster frame (`promo/package.json`) and `POSTER_SECONDS` in
-`LaunchFilm.tsx` together. The build hashes the file names (`next.config.ts`, `turbopack.rules`),
-so a new export never meets an old cached copy.
+If the still hold moves, update the poster frame (`promo/package.json`, `--frame=`) and
+`POSTER_FRAME` in `film.ts` (beside this README) together; the page and its tests read it
+from there, and a unit test fails while the two differ. The build hashes the file names
+(`next.config.ts`, `turbopack.rules`), so a new export never meets an old cached copy.

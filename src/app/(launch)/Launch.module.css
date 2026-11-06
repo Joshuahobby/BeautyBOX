@@ -5,10 +5,11 @@
  * where the supplied icon assembles from its four cells (preview access). Depth comes from
  * planes and occlusion, never gradients or shadows.
  *
- * Motion only plays for people who have not asked for less. Without it, every element simply
- * sits in its final place. On phones and tablets the stage and the "What to expect" items are
- * below the fold, so where the browser supports scroll-linked animation they build as they
- * scroll into view instead of playing unseen on load.
+ * Motion only plays for people who have not asked for less, and only once: everything is at
+ * rest within five seconds. Without it, every element simply sits in its final place. On
+ * phones and tablets the stage and the "What to expect" items are below the fold, so where the
+ * browser supports scroll-linked animation they build as they scroll into view instead of
+ * playing unseen on load.
  */
 
 .shell {
@@ -121,7 +122,7 @@
   background: var(--color-accent);
 }
 
-/* Echo of the dot that pings outwards while motion is allowed. */
+/* Echo of the dot: with motion, it pings outwards twice as the page opens, then rests. */
 .dot::after {
   content: "";
   position: absolute;
@@ -144,7 +145,9 @@
   text-wrap: balance;
 }
 
-.heading::before {
+/* The rule itself, beside the page headline and the privacy notice's title alike. */
+.heading::before,
+.articleHeading::before {
   content: "";
   position: absolute;
   left: 0;
@@ -259,7 +262,8 @@
   background: var(--color-canvas);
 }
 
-/* Outlines of the tile: still, they step outwards; with motion, they travel out and fade. */
+/* Outlines of the tile, stepping outwards. With motion they spread out from it once and
+   settle here. */
 .ring {
   box-sizing: border-box;
   width: var(--tile);
@@ -477,17 +481,6 @@
   text-wrap: balance;
 }
 
-.articleHeading::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0.14em;
-  bottom: 0.14em;
-  width: 4px;
-  border-radius: 2px;
-  background: var(--color-accent);
-}
-
 .article h2 {
   margin: 0;
   font-size: var(--type-section-mobile-size);
@@ -584,7 +577,9 @@
   }
 }
 
-/* ---- Motion: one short opening sequence, then only the dot and the rings keep moving ---- */
+/* ---- Motion: one short opening sequence, at rest within five seconds ---- */
+/* Nothing loops: anything moving on its own for longer would need a pause control (WCAG 2.2.2),
+   as the film has. */
 
 @media (prefers-reduced-motion: no-preference) {
   .lockup {
@@ -596,7 +591,7 @@
   }
 
   .dot::after {
-    animation: bb-ping 2.4s cubic-bezier(0, 0, 0.2, 1) 1.2s infinite;
+    animation: bb-ping 1.8s cubic-bezier(0, 0, 0.2, 1) 1.2s 2;
   }
 
   .heading::before {
@@ -687,19 +682,19 @@
   }
 
   .ring {
-    animation: bb-ring 4.2s cubic-bezier(0.2, 0.6, 0.3, 1) infinite both;
+    animation: bb-ring 1.6s cubic-bezier(0.2, 0.6, 0.3, 1) both;
   }
 
   .ring:nth-child(1) {
-    animation-delay: 1.8s;
+    animation-delay: 1.9s;
   }
 
   .ring:nth-child(2) {
-    animation-delay: 3.2s;
+    animation-delay: 2.2s;
   }
 
   .ring:nth-child(3) {
-    animation-delay: 4.6s;
+    animation-delay: 2.5s;
   }
 
   .point {
@@ -763,6 +758,25 @@
     .whole {
       animation-timeline: --bb-stage;
       animation-range: entry 95% entry 100%;
+      animation-delay: 0s;
+    }
+
+    .ring {
+      animation-timeline: --bb-stage;
+    }
+
+    .ring:nth-child(1) {
+      animation-range: entry 70% entry 90%;
+      animation-delay: 0s;
+    }
+
+    .ring:nth-child(2) {
+      animation-range: entry 75% entry 95%;
+      animation-delay: 0s;
+    }
+
+    .ring:nth-child(3) {
+      animation-range: entry 80% entry 100%;
       animation-delay: 0s;
     }
 
@@ -862,18 +876,10 @@
   }
 }
 
+/* From the tile's own outline to each ring's resting step (its transform and opacity above). */
 @keyframes bb-ring {
-  0% {
+  from {
     transform: scale(1);
-    opacity: 0;
-  }
-
-  15% {
-    opacity: 0.5;
-  }
-
-  100% {
-    transform: scale(2.2);
     opacity: 0;
   }
 }

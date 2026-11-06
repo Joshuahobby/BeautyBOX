@@ -5,8 +5,10 @@ exports, in `../src/design/promo` (see the README there). This folder is not par
 the app's ESLint skips it and Vercel does not upload it.
 
 Composition `BeautyBoxPromo`: 1080 × 1080, 30 fps, 696 frames (23.2 s), six scenes on one track
-in `src/scenes`, 15 words. Its last frame equals its first, so it loops without a seam; frames
-87–105 are a still hold of the supplied icon, and frame 96 is the poster.
+in `src/scenes`, 15 words. Scene lengths are set in one place, `src/timeline.ts`; each scene's
+start and the total follow from them. Its last frame equals its first, so it loops without a
+seam; frames 87–105 are a still hold of the supplied icon, and frame 96 is the poster. The end
+card the film starts and ends on is placed from `src/brand/endCard.ts`, used by both S1 and S6.
 
 Brand files are read from the app's own design folder (`remotion.config.ts` sets the public
 folder to `../src/design`): the supplied lockup from `brand/` and the site's Manrope from
@@ -15,7 +17,8 @@ time (`src/fonts.ts`), so rendering needs a network connection.
 
 ## Commands
 
-Run from this folder (Node 22, like the app):
+Run from this folder with Node 22.13 or later on Node 22 (this project's ESLint 10 needs
+22.13; the app itself accepts 22.12):
 
 ```bash
 npm ci
@@ -41,5 +44,6 @@ npm run lint
 
 checks the film's code (ESLint with Remotion's rules, then TypeScript).
 
-If the still hold moves, change the poster frame in `package.json` and `POSTER_SECONDS` in
-`src/app/(launch)/launching-soon/LaunchFilm.tsx` together.
+If the still hold moves, change the poster frame in `package.json` (`--frame=`) and
+`POSTER_FRAME` in `../src/design/promo/film.ts` together. The app's unit tests fail while the
+two differ.

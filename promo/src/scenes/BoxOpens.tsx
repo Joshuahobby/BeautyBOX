@@ -1,35 +1,41 @@
 import { Easing, Interactive, interpolate, useCurrentFrame } from "remotion";
 import { BIcon } from "../brand/BIcon";
+import {
+  BIG_B,
+  HEADLINE_TYPE,
+  HEADLINE_WINDOW,
+  ICON_IN_LOCKUP,
+  iconBetween,
+  LOCKUP_BOX,
+  RULE_BOX,
+  WORDMARK_ONLY,
+} from "../brand/endCard";
 import { Lockup } from "../brand/Lockup";
 
 /**
- * S1, 125 frames. The end card (also the poster and the last frame) holds still for 50 frames,
- * then the B lifts out of the lockup, grows to the centre, holds, and its quarters part like doors.
+ * S1, 125 frames. The end card (the film's first and last frame) holds still for 50 frames, then
+ * the B lifts out of the lockup, grows to the centre, holds (frames 87 to 105, where frame 96 is
+ * the poster), and its quarters part like doors.
  */
 const BoxOpensInner = () => {
   const frame = useCurrentFrame();
 
-  // The B travels from its place in the lockup to the centre. The scale moves in log space, so
-  // every frame grows by the same ratio, and the hub centre follows the same eased curve.
+  // The B travels from its place in the lockup to the centre (iconBetween).
   const travel = interpolate(frame, [63, 87], [0, 1], {
     easing: Easing.bezier(0.83, 0, 0.17, 1),
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  const icon = iconBetween(ICON_IN_LOCKUP, BIG_B, travel);
 
   return (
     <>
-      {/* From frame 50 the icon comes from the split overlay, so the lockup is clipped to its
-          wordmark. The clip edge falls in the empty gap between icon and wordmark, never on ink. */}
+      {/* From frame 50 the icon comes from the split overlay, so the lockup is clipped to its wordmark. */}
       <Lockup
         name="BeautyBOX lockup"
         style={{
-          position: "absolute",
-          left: 78,
-          top: 344,
-          width: 774,
-          height: 162,
-          clipPath: frame < 50 ? "none" : "inset(0px 0px 0px 166px)",
+          ...LOCKUP_BOX,
+          clipPath: frame < 50 ? "none" : WORDMARK_ONLY,
           opacity: interpolate(frame, [51, 63], [1, 0], {
             easing: Easing.bezier(0.33, 0, 0.67, 1),
             extrapolateLeft: "clamp",
@@ -41,9 +47,9 @@ const BoxOpensInner = () => {
       {frame >= 50 && frame < 123 ? (
         <BIcon
           name="BeautyBOX icon, split"
-          hubX={153.6 + (540 - 153.6) * travel}
-          hubY={425 + (540 - 425) * travel}
-          size={Math.exp(Math.log(0.9) + (Math.log(3) - Math.log(0.9)) * travel)}
+          hubX={icon.hubX}
+          hubY={icon.hubY}
+          size={icon.size}
           topLeft={interpolate(frame, [105, 119], [0, -660], {
             easing: Easing.bezier(0.7, 0, 0.84, 0),
             extrapolateLeft: "clamp",
@@ -70,13 +76,7 @@ const BoxOpensInner = () => {
       <Interactive.Div
         name="Coral rule"
         style={{
-          position: "absolute",
-          left: 96,
-          top: 642,
-          width: 126,
-          height: 14,
-          backgroundColor: "#D85F58",
-          transformOrigin: "0px 7px",
+          ...RULE_BOX,
           scale: interpolate(frame, [50, 62], ["1 1", "0 1"], {
             easing: Easing.bezier(0.7, 0, 0.84, 0),
             extrapolateLeft: "clamp",
@@ -85,29 +85,11 @@ const BoxOpensInner = () => {
         }}
       />
 
-      <div
-        style={{
-          position: "absolute",
-          left: 240,
-          top: 569,
-          width: 800,
-          height: 144,
-          overflow: "hidden",
-        }}
-      >
+      <div style={HEADLINE_WINDOW}>
         <Interactive.Div
           name="Headline"
           style={{
-            position: "absolute",
-            left: 26,
-            top: 16,
-            fontFamily: "Manrope",
-            fontWeight: 700,
-            fontSize: 104,
-            lineHeight: "104px",
-            letterSpacing: "-0.025em",
-            color: "#221720",
-            whiteSpace: "nowrap",
+            ...HEADLINE_TYPE,
             translate: interpolate(frame, [50, 62], ["0px 0px", "0px -144px"], {
               easing: Easing.bezier(0.7, 0, 0.84, 0),
               extrapolateLeft: "clamp",

@@ -1,5 +1,15 @@
 import { Easing, Interactive, interpolate, useCurrentFrame } from "remotion";
 import { BIcon } from "../brand/BIcon";
+import {
+  BIG_B,
+  HEADLINE_TYPE,
+  HEADLINE_WINDOW,
+  ICON_IN_LOCKUP,
+  iconBetween,
+  LOCKUP_BOX,
+  RULE_BOX,
+  WORDMARK_ONLY,
+} from "../brand/endCard";
 import { Lockup } from "../brand/Lockup";
 
 /**
@@ -10,12 +20,13 @@ import { Lockup } from "../brand/Lockup";
 const HomeInner = () => {
   const frame = useCurrentFrame();
 
-  // The reverse of S1: from the big B at the centre back to the lockup, in log space.
+  // The reverse of S1: from the big B at the centre back to the lockup (iconBetween).
   const travel = interpolate(frame, [87, 111], [0, 1], {
     easing: Easing.bezier(0.83, 0, 0.17, 1),
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
+  const icon = iconBetween(BIG_B, ICON_IN_LOCKUP, travel);
 
   return (
     <>
@@ -47,9 +58,9 @@ const HomeInner = () => {
       {frame >= 38 && frame < 123 ? (
         <BIcon
           name="BeautyBOX icon, split"
-          hubX={540 + (153.6 - 540) * travel}
-          hubY={540 + (425 - 540) * travel}
-          size={Math.exp(Math.log(3) + (Math.log(0.9) - Math.log(3)) * travel)}
+          hubX={icon.hubX}
+          hubY={icon.hubY}
+          size={icon.size}
           topLeft={interpolate(frame, [38, 60], [-660, 0], {
             easing: Easing.bezier(0.16, 1, 0.3, 1),
             extrapolateLeft: "clamp",
@@ -78,12 +89,8 @@ const HomeInner = () => {
       <Lockup
         name="BeautyBOX lockup"
         style={{
-          position: "absolute",
-          left: 78,
-          top: 344,
-          width: 774,
-          height: 162,
-          clipPath: frame < 123 ? "inset(0px 0px 0px 166px)" : "none",
+          ...LOCKUP_BOX,
+          clipPath: frame < 123 ? WORDMARK_ONLY : "none",
           opacity: interpolate(frame, [111, 123], [0, 1], {
             easing: Easing.bezier(0.33, 0, 0.67, 1),
             extrapolateLeft: "clamp",
@@ -95,13 +102,7 @@ const HomeInner = () => {
       <Interactive.Div
         name="Coral rule"
         style={{
-          position: "absolute",
-          left: 96,
-          top: 642,
-          width: 126,
-          height: 14,
-          backgroundColor: "#D85F58",
-          transformOrigin: "0px 7px",
+          ...RULE_BOX,
           scale: interpolate(frame, [117, 129], ["0 1", "1 1"], {
             easing: Easing.bezier(0.65, 0, 0.35, 1),
             extrapolateLeft: "clamp",
@@ -110,29 +111,11 @@ const HomeInner = () => {
         }}
       />
 
-      <div
-        style={{
-          position: "absolute",
-          left: 240,
-          top: 569,
-          width: 800,
-          height: 144,
-          overflow: "hidden",
-        }}
-      >
+      <div style={HEADLINE_WINDOW}>
         <Interactive.Div
           name="Headline"
           style={{
-            position: "absolute",
-            left: 26,
-            top: 16,
-            fontFamily: "Manrope",
-            fontWeight: 700,
-            fontSize: 104,
-            lineHeight: "104px",
-            letterSpacing: "-0.025em",
-            color: "#221720",
-            whiteSpace: "nowrap",
+            ...HEADLINE_TYPE,
             translate: interpolate(frame, [121, 139], ["0px 144px", "0px 0px"], {
               easing: Easing.bezier(0.16, 1, 0.3, 1),
               extrapolateLeft: "clamp",

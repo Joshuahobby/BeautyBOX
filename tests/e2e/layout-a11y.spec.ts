@@ -1,4 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
+import { POSTER_SECONDS } from "../../src/design/promo/film";
 import { expect, test, type Page } from "./fixtures";
 import { addShadeToCart, expectNoHorizontalScroll } from "./helpers";
 
@@ -134,17 +135,21 @@ test("mobile filter sheet keeps applied filters until Apply and returns focus", 
   await expect(page.getByRole("heading", { name: "Makeup", level: 1 })).toBeVisible();
 });
 
-test("the launch page opening settles into a page that passes axe", async ({ page }) => {
+test("the pre-launch openings come to rest within five seconds and pass axe", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/launching-soon");
-  // Every one-off animation has finished; only the looping dot and rings keep going.
-  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState === "finished" || a.effect?.getComputedTiming().iterations === Infinity));
-  await axe(page);
+  for (const path of ["/launching-soon", "/access"]) {
+    await page.goto(path);
+    // Nothing on the page may move on its own for more than five seconds (WCAG 2.2.2): only the
+    // film does, and it has its own Pause button. So every animation finishes, none loops.
+    const loaded = Date.now();
+    await page.waitForFunction(() => document.getAnimations().every((a) => a.playState === "finished"), undefined, { timeout: 10_000 });
+    expect(Date.now() - loaded, `${path} settles`).toBeLessThan(5_500);
+    await axe(page);
+  }
 });
 
 const FILM_FILE = /\/_next\/static\/media\/beautybox-promo\.[^./]+\.(webm|mp4)$/;
 const POSTER_FILE = /\/_next\/static\/media\/poster\.[^./]+\.png$/;
-const POSTER_SECONDS = 96 / 30;
 // HTMLMediaElement readyState / networkState values (the test runner has no DOM).
 const HAVE_NOTHING = 0;
 const HAVE_FUTURE_DATA = 3;
@@ -191,6 +196,32 @@ test("the launch film plays muted from a hashed static file and pauses on reques
   expect(paused.playing).toBe(false);
   await page.waitForTimeout(600);
   expect((await filmState(page)).time).toBe(paused.time);
+});
+
+test("the launch film pauses once less than a quarter of it is on screen", async ({ page }) => {
+  // A small phone: the film starts below the fold, so it can also be left half-scrolled-to.
+  await page.setViewportSize({ width: 360, height: 640 });
+  await page.goto("/launching-soon");
+  const film = page.locator("figure video");
+  const isPlaying = () => film.evaluate((v: HTMLVideoElement) => !v.paused);
+  await film.evaluate((v: HTMLVideoElement) => v.scrollIntoView({ block: "center", behavior: "instant" }));
+  await expect.poll(isPlaying).toBe(true);
+
+  // Scroll back up until only the top tenth of the film shows at the bottom of the screen.
+  // Measured while it is fully in view, so its scroll-in entrance is not moving it.
+  const shown = await film.evaluate((v: HTMLVideoElement) => {
+    const box = v.getBoundingClientRect();
+    window.scrollTo({ top: box.top + window.scrollY - window.innerHeight + box.height * 0.1, behavior: "instant" });
+    const now = v.getBoundingClientRect();
+    return (Math.min(now.bottom, window.innerHeight) - Math.max(now.top, 0)) / now.height;
+  });
+  expect(shown, "share of the film on screen").toBeGreaterThan(0);
+  expect(shown, "share of the film on screen").toBeLessThan(0.25);
+  await expect.poll(isPlaying).toBe(false);
+
+  // Back in view, it plays again: scrolling decides while the visitor has not chosen.
+  await film.evaluate((v: HTMLVideoElement) => v.scrollIntoView({ block: "center", behavior: "instant" }));
+  await expect.poll(isPlaying).toBe(true);
 });
 
 test.describe("reduced motion", () => {

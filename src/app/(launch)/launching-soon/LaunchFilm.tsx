@@ -4,13 +4,12 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { Pause, Play } from "lucide-react";
 import mp4 from "@/design/promo/beautybox-promo.mp4";
 import webm from "@/design/promo/beautybox-promo.webm";
+import { POSTER_SECONDS } from "@/design/promo/film";
 import poster from "@/design/promo/poster.png";
 import { messages } from "@/messages";
 import styles from "../Launch.module.css";
 
 const LOOK_AT_IT = 0.25;
-/** The poster is frame 96: the supplied icon alone, large, in the still hold before it opens. */
-const POSTER_SECONDS = 96 / 30;
 const noChanges = () => () => {};
 
 /** Plays the film, the first time from the poster's frame. */
@@ -65,6 +64,7 @@ export function LaunchFilm() {
     const observer = new IntersectionObserver(
       (entries) => {
         // Several crossings can arrive at once (a quick fling); the last one is where it is now.
+        // With a non-zero threshold, browsers report isIntersecting only at or above it.
         visible.current = entries[entries.length - 1]?.isIntersecting ?? false;
         sync();
       },
