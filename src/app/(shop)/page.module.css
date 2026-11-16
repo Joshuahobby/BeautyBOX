@@ -1,79 +1,293 @@
-.hero {
-  padding: var(--space-6) 0 var(--space-5);
+.section {
+  padding-block: 42px;
 }
-
-.heroInner {
-  display: grid;
-  gap: var(--space-4);
-}
-
-/* Signature: a short coral rule beside the discovery headline (DESIGN.md). */
-.heroTitle {
-  font-size: var(--type-hero-mobile-size);
-  line-height: var(--type-hero-mobile-line);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  border-left: 6px solid var(--color-accent);
-  padding-left: var(--space-4);
-  max-width: 14ch;
-}
-
-.heroBody {
-  color: var(--color-muted);
-  max-width: 46ch;
-}
-
-.heroActions {
+.sectionHead {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
 }
-
+.eyebrow {
+  font-size: 10px;
+  line-height: 16px;
+  letter-spacing: 0.14em;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.display {
+  font-family: var(--font-editorial), Georgia, serif;
+  font-size: clamp(36px, 5.6vw, 66px);
+  line-height: 1.1;
+  font-weight: 500;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.shopLink {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: none;
+  border-bottom: 3px solid var(--color-accent);
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.sectionBody {
+  color: var(--color-muted);
+  font-size: 14px;
+  margin-top: 14px;
+}
 .categories {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-2);
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 20px;
 }
-
-.categoryLink {
+.categories a {
+  text-decoration: none;
+}
+.categoryImage {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 50%;
+  background: #f4e4da;
+}
+.categoryImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 200ms;
+}
+.categories a:hover img {
+  transform: scale(1.04);
+}
+.categories span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  min-height: 52px;
+  gap: 4px;
+}
+.ritual {
+  position: relative;
+  background: #301023;
+  height: 330px;
+  margin-block: 40px;
+  overflow: hidden;
+  color: white;
+}
+.ritual > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.ritualInner {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+.ritualInner > div {
+  width: 40%;
+}
+.ritual h2 {
+  font-size: clamp(36px, 4.8vw, 60px);
+  line-height: 1.06;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  margin-bottom: 24px;
+}
+.ritual a {
+  color: white;
   display: inline-flex;
   align-items: center;
-  min-height: var(--control-min-hit-target);
-  padding: 0 var(--space-4);
-  border: 1px solid var(--color-input-border);
-  border-radius: var(--radius-control);
-  background: var(--color-surface);
+  gap: 16px;
+  font-weight: 600;
   text-decoration: none;
+  border-bottom: 3px solid #f3a09c;
+  min-height: 44px;
+}
+.brands {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.brands a {
+  display: block;
+  position: relative;
+  padding: 32px;
+  background: #f0e4df;
+  text-decoration: none;
+  min-height: 160px;
+}
+.brands li:nth-child(even) a {
+  background: #e4e9dd;
+}
+.brands span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.brands h3 {
+  font-family: var(--font-editorial), Georgia, serif;
+  font-size: 32px;
+  line-height: 1.2;
+  margin-top: 20px;
   font-weight: 500;
 }
-
-.categoryLink:hover {
-  border-color: var(--color-text);
+.brands svg {
+  position: absolute;
+  right: 24px;
+  top: 28px;
 }
-
-.sectionHead {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-  margin-bottom: var(--space-5);
+.assurances {
+  margin-top: 40px;
+  padding-block: 36px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-top: 1px solid var(--color-rule);
+  gap: 48px;
 }
-
-.section {
-  padding-block: var(--space-5);
+.assurances h3 {
+  font-size: 14px;
+  margin-block: 14px 8px;
 }
-
-@media (min-width: 1024px) {
-  .hero {
-    padding: var(--space-8) 0 var(--space-7);
+.assurances p,
+.assurances a {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-muted);
+}
+.assurances a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+@media (max-width: 767px) {
+  .section {
+    padding-block: 28px;
   }
-  .heroTitle {
-    font-size: var(--type-hero-desktop-size);
-    line-height: var(--type-hero-desktop-line);
-    padding-left: var(--space-5);
+  .sectionHead {
+    gap: 14px;
+    align-items: flex-start;
+    margin-bottom: 22px;
+  }
+  .display {
+    font-size: 38px;
+  }
+  .shopLink {
+    font-size: 12px;
+    white-space: normal;
+    min-width: 64px;
+  }
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+  }
+  .categories {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px 14px;
+  }
+  .categories span {
+    font-size: 11px;
+    min-height: 44px;
+  }
+  .ritual {
+    height: 300px;
+    margin-block: 24px;
+  }
+  .ritual > img {
+    object-position: 44% center;
+  }
+  .ritualInner > div {
+    width: 50%;
+  }
+  .ritual h2 {
+    font-size: 36px;
+  }
+  .ritual .eyebrow {
+    font-size: 8px;
+  }
+  .ritual a {
+    font-size: 12px;
+    gap: 6px;
+  }
+  .brands {
+    gap: 14px;
+  }
+  .brands a {
+    padding: 20px;
+    min-height: 152px;
+  }
+  .brands h3 {
+    font-size: 26px;
+    overflow-wrap: anywhere;
+  }
+  .brands span {
+    font-size: 9px;
+    display: block;
+    max-width: 10ch;
+  }
+  .brands svg {
+    right: 12px;
+    top: 20px;
+    width: 18px;
+  }
+  .assurances {
+    gap: 24px;
+    grid-template-columns: 1fr;
+    padding-block: 28px;
+  }
+  .assurances > div {
+    display: grid;
+    grid-template-columns: 32px 1fr;
+    column-gap: 16px;
+  }
+  .assurances h3 {
+    margin-block: 0 8px;
+  }
+  .assurances p,
+  .assurances a {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 650px) {
+  .brands {
+    grid-template-columns: 1fr;
+  }
+  .brands a {
+    min-height: 124px;
+  }
+  .brands h3 {
+    overflow-wrap: normal;
+    font-size: 28px;
+  }
+  .brands span {
+    max-width: none;
+  }
+}
+
+.ritual > img {
+  width: 60%;
+  object-position: left center;
+}
+@media (max-width: 767px) {
+  .ritual > img {
+    width: 50%;
+    object-position: left center;
   }
 }

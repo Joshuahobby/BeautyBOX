@@ -160,9 +160,9 @@
   font-weight: 500;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   .layout {
-    grid-template-columns: 56fr 44fr;
+    grid-template-columns: minmax(0, 56fr) minmax(0, 44fr);
     gap: var(--space-7);
     align-items: start;
   }
@@ -170,4 +170,100 @@
     font-size: var(--type-price-desktop-size);
     line-height: var(--type-price-desktop-line);
   }
+}
+
+.title {
+  font-size: 38px;
+  line-height: 1.15;
+  letter-spacing: -0.04em;
+}
+.price {
+  font-size: 30px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+}
+.productInfo {
+  display: grid;
+  gap: 24px;
+  align-content: start;
+}
+.optionSection {
+  border-block: 1px solid var(--color-rule);
+  padding-block: 20px;
+  display: grid;
+  gap: 10px;
+}
+.optionHeading {
+  font-size: 16px;
+}
+.chooseButton {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  background: transparent;
+  border: 1px solid var(--color-primary);
+  border-radius: 7px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.deliveryHelp {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+  border-top: 1px solid var(--color-rule);
+  padding-top: 18px;
+}
+.deliveryHelp p,
+.deliveryHelp a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
+.demoNote {
+  font-size: 11px;
+  line-height: 17px;
+  color: var(--color-muted);
+}
+.productDetails {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 64px;
+  border-top: 1px solid var(--color-rule);
+  margin-top: 40px;
+  padding-top: 24px;
+}
+.productDetails h2 {
+  font-family: var(--font-editorial), Georgia, serif;
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  margin-bottom: 18px;
+}
+.productDetails p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+@media (max-width: 767px) {
+  .title {
+    font-size: 30px;
+  }
+  .productDetails {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  .productInfo {
+    gap: 20px;
+  }
+  .layout {
+    gap: 28px;
+  }
+}
+
+.details summary {
+  justify-content: space-between;
+  gap: 16px;
 }

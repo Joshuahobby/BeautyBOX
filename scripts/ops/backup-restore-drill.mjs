@@ -17,33 +17,84 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const creds = JSON.parse(fs.readFileSync(path.join(root, ".local", "postgres", "credentials.json"), "utf8"));
+const root = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+  "..",
+);
+const creds = JSON.parse(
+  fs.readFileSync(
+    path.join(root, ".local", "postgres", "credentials.json"),
+    "utf8",
+  ),
+);
 const host = "127.0.0.1";
 const port = Number(process.env.LOCAL_PG_PORT ?? 54329);
 const args = process.argv.slice(2);
-const source = args.includes("--source") ? args[args.indexOf("--source") + 1] : "beautybox_dev";
+const source = args.includes("--source")
+  ? args[args.indexOf("--source") + 1]
+  : "beautybox_dev";
 const keep = args.includes("--keep");
 const TARGET = "beautybox_restore_drill";
-if (!["beautybox_dev", "beautybox_test"].includes(source)) throw new Error("--source must be beautybox_dev or beautybox_test");
+if (!["beautybox_dev", "beautybox_test"].includes(source))
+  throw new Error("--source must be beautybox_dev or beautybox_test");
 
 function binDir() {
-  for (const dir of [process.env.PG_BIN, "C:\\Program Files\\PostgreSQL\\17\\bin", "C:\\Program Files\\PostgreSQL\\16\\bin", "/usr/lib/postgresql/17/bin", "/usr/lib/postgresql/16/bin", "/opt/homebrew/opt/postgresql@16/bin"].filter(Boolean)) {
-    if (fs.existsSync(path.join(dir, process.platform === "win32" ? "pg_dump.exe" : "pg_dump"))) return dir;
+  for (const dir of [
+    process.env.PG_BIN,
+    "C:\\Program Files\\PostgreSQL\\17\\bin",
+    "C:\\Program Files\\PostgreSQL\\16\\bin",
+    "/usr/lib/postgresql/17/bin",
+    "/usr/lib/postgresql/16/bin",
+    "/opt/homebrew/opt/postgresql@16/bin",
+  ].filter(Boolean)) {
+    if (
+      fs.existsSync(
+        path.join(
+          dir,
+          process.platform === "win32" ? "pg_dump.exe" : "pg_dump",
+        ),
+      )
+    )
+      return dir;
   }
   throw new Error("pg_dump not found; set PG_BIN");
 }
-const bin = (name) => path.join(binDir(), process.platform === "win32" ? `${name}.exe` : name);
+const bin = (name) =>
+  path.join(binDir(), process.platform === "win32" ? `${name}.exe` : name);
 const superEnv = { ...process.env, PGPASSWORD: creds.superuser.password };
 
 function run(name, argv, opts = {}) {
-  const r = spawnSync(bin(name), argv, { encoding: "utf8", env: superEnv, maxBuffer: 64 * 1024 * 1024, ...opts });
-  if (r.status !== 0) throw new Error(`${name} failed: ${r.stderr || r.stdout}`);
+  const r = spawnSync(bin(name), argv, {
+    encoding: "utf8",
+    env: superEnv,
+    maxBuffer: 64 * 1024 * 1024,
+    ...opts,
+  });
+  if (r.status !== 0)
+    throw new Error(`${name} failed: ${r.stderr || r.stdout}`);
   return r.stdout;
 }
 
-const conn = (db) => ["-h", host, "-p", String(port), "-U", creds.superuser.user, "-d", db];
-const sql = (db, query) => run("psql", [...conn(db), "-tA", "-v", "ON_ERROR_STOP=1", "-c", query]).trim();
+const conn = (db) => [
+  "-h",
+  host,
+  "-p",
+  String(port),
+  "-U",
+  creds.superuser.user,
+  "-d",
+  db,
+];
+const sql = (db, query) =>
+  run("psql", [
+    ...conn(db),
+    "-tA",
+    "-v",
+    "ON_ERROR_STOP=1",
+    "-c",
+    query,
+  ]).trim();
 const timed = (fn) => {
   const t = process.hrtime.bigint();
   const value = fn();
@@ -51,21 +102,45 @@ const timed = (fn) => {
 };
 
 function snapshot(db) {
-  const tables = sql(db, `SELECT schemaname || '.' || tablename FROM pg_tables WHERE schemaname IN ('commerce','devsim') ORDER BY 1`)
+  const tables = sql(
+    db,
+    `SELECT schemaname || '.' || tablename FROM pg_tables WHERE schemaname IN ('commerce','devsim') ORDER BY 1`,
+  )
     .split(/\r?\n/)
     .map((t) => t.trim())
     .filter(Boolean);
-  const counts = Object.fromEntries(tables.map((t) => {
-    if (!/^[a-z_]+\.[a-z_]+$/.test(t)) throw new Error(`unexpected table name ${t}`);
-    return [t, Number(sql(db, `SELECT count(*) FROM ${t}`))];
-  }));
+  const counts = Object.fromEntries(
+    tables.map((t) => {
+      if (!/^[a-z_]+\.[a-z_]+$/.test(t))
+        throw new Error(`unexpected table name ${t}`);
+      return [t, Number(sql(db, `SELECT count(*) FROM ${t}`))];
+    }),
+  );
   return {
     counts,
-    migrations: sql(db, `SELECT string_agg(migration_name || ':' || checksum, ',' ORDER BY migration_name) FROM public._prisma_migrations WHERE finished_at IS NOT NULL`),
-    constraints: Number(sql(db, `SELECT count(*) FROM pg_constraint c JOIN pg_namespace n ON n.oid = c.connamespace WHERE n.nspname = 'commerce'`)),
-    indexes: Number(sql(db, `SELECT count(*) FROM pg_indexes WHERE schemaname = 'commerce'`)),
-    triggers: Number(sql(db, `SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'commerce' AND NOT t.tgisinternal`)),
-    pendingJobs: sql(db, `SELECT coalesce(string_agg(state || '=' || n, ',' ORDER BY state), '') FROM (SELECT state, count(*) n FROM commerce.outbox_jobs WHERE state <> 'SUCCEEDED' GROUP BY state) s`),
+    migrations: sql(
+      db,
+      `SELECT string_agg(migration_name || ':' || checksum, ',' ORDER BY migration_name) FROM public._prisma_migrations WHERE finished_at IS NOT NULL`,
+    ),
+    constraints: Number(
+      sql(
+        db,
+        `SELECT count(*) FROM pg_constraint c JOIN pg_namespace n ON n.oid = c.connamespace WHERE n.nspname = 'commerce'`,
+      ),
+    ),
+    indexes: Number(
+      sql(db, `SELECT count(*) FROM pg_indexes WHERE schemaname = 'commerce'`),
+    ),
+    triggers: Number(
+      sql(
+        db,
+        `SELECT count(*) FROM pg_trigger t JOIN pg_class c ON c.oid = t.tgrelid JOIN pg_namespace n ON n.oid = c.relnamespace WHERE n.nspname = 'commerce' AND NOT t.tgisinternal`,
+      ),
+    ),
+    pendingJobs: sql(
+      db,
+      `SELECT coalesce(string_agg(state || '=' || n, ',' ORDER BY state), '') FROM (SELECT state, count(*) n FROM commerce.outbox_jobs WHERE state <> 'SUCCEEDED' GROUP BY state) s`,
+    ),
     ledgerMismatches: Number(
       sql(
         db,
@@ -73,13 +148,21 @@ function snapshot(db) {
           WHERE l.quantity_on_hand <> coalesce(m.oh,0) OR l.reserved_qty <> coalesce(m.rs,0) OR l.committed_qty <> coalesce(m.cm,0)`,
       ),
     ),
-    runtimeGrants: Number(sql(db, `SELECT count(*) FROM information_schema.role_table_grants WHERE grantee = 'beautybox_runtime' AND table_schema = 'commerce'`)),
+    runtimeGrants: Number(
+      sql(
+        db,
+        `SELECT count(*) FROM information_schema.role_table_grants WHERE grantee = 'beautybox_runtime' AND table_schema = 'commerce'`,
+      ),
+    ),
   };
 }
 
 function listFiles(dir) {
   if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir, { recursive: true, withFileTypes: true }).filter((e) => e.isFile()).map((e) => path.relative(dir, path.join(e.parentPath ?? e.path, e.name)));
+  return fs
+    .readdirSync(dir, { recursive: true, withFileTypes: true })
+    .filter((e) => e.isFile())
+    .map((e) => path.relative(dir, path.join(e.parentPath ?? e.path, e.name)));
 }
 
 const stamp = new Date().toISOString().replace(/[:.]/g, "-");
@@ -87,44 +170,89 @@ const backupDir = path.join(root, ".local", "backups", `${source}-${stamp}`);
 fs.mkdirSync(backupDir, { recursive: true });
 const dumpFile = path.join(backupDir, "database.dump");
 
-console.log(`[drill] source ${source} → backup ${path.relative(root, backupDir)}`);
+console.log(
+  `[drill] source ${source} → backup ${path.relative(root, backupDir)}`,
+);
 const before = snapshot(source);
-const backup = timed(() => run("pg_dump", [...conn(source), "-Fc", "--no-password", "-f", dumpFile]));
-const sha256 = createHash("sha256").update(fs.readFileSync(dumpFile)).digest("hex");
+const backup = timed(() =>
+  run("pg_dump", [...conn(source), "-Fc", "--no-password", "-f", dumpFile]),
+);
+const sha256 = createHash("sha256")
+  .update(fs.readFileSync(dumpFile))
+  .digest("hex");
 
 const mediaEnv = source === "beautybox_test" ? "test" : "local";
 const mediaSource = path.join(root, ".local", "media", mediaEnv);
+// Compare bytes as well as file counts. A scratch media restore never overwrites the app's originals.
+const manifest = (directory) =>
+  Object.fromEntries(
+    listFiles(directory)
+      .sort()
+      .map((file) => [
+        file,
+        createHash("sha256")
+          .update(fs.readFileSync(path.join(directory, file)))
+          .digest("hex"),
+      ]),
+  );
+const sourceMedia = manifest(mediaSource);
 const media = timed(() => {
-  if (fs.existsSync(mediaSource)) fs.cpSync(mediaSource, path.join(backupDir, "media"), { recursive: true });
-  return listFiles(path.join(backupDir, "media")).length;
+  if (fs.existsSync(mediaSource))
+    fs.cpSync(mediaSource, path.join(backupDir, "media"), { recursive: true });
+  return manifest(path.join(backupDir, "media"));
 });
+const mediaRestoreDir = path.join(backupDir, "restored-media");
+if (fs.existsSync(path.join(backupDir, "media")))
+  fs.cpSync(path.join(backupDir, "media"), mediaRestoreDir, {
+    recursive: true,
+  });
+const restoredMedia = manifest(mediaRestoreDir);
 
 sql("postgres", `DROP DATABASE IF EXISTS ${TARGET} WITH (FORCE)`);
-sql("postgres", `CREATE DATABASE ${TARGET} OWNER ${creds.owner.user} ENCODING 'UTF8' TEMPLATE template0`);
-const restore = timed(() => run("pg_restore", [...conn(TARGET), "--exit-on-error", "--no-password", dumpFile]));
+sql(
+  "postgres",
+  `CREATE DATABASE ${TARGET} OWNER ${creds.owner.user} ENCODING 'UTF8' TEMPLATE template0`,
+);
+const restore = timed(() =>
+  run("pg_restore", [
+    ...conn(TARGET),
+    "--exit-on-error",
+    "--no-password",
+    dumpFile,
+  ]),
+);
 const after = snapshot(TARGET);
 
 const ownerUrl = `postgresql://${creds.owner.user}:${encodeURIComponent(creds.owner.password)}@${host}:${port}/${TARGET}`;
-const status = spawnSync(process.platform === "win32" ? "npx.cmd" : "npx", ["prisma", "migrate", "status"], {
-  cwd: root,
-  encoding: "utf8",
-  shell: process.platform === "win32",
-  env: { ...process.env, MIGRATION_DATABASE_URL: ownerUrl },
-});
+const status = spawnSync(
+  process.platform === "win32" ? "npx.cmd" : "npx",
+  ["prisma", "migrate", "status"],
+  {
+    cwd: root,
+    encoding: "utf8",
+    shell: process.platform === "win32",
+    env: { ...process.env, MIGRATION_DATABASE_URL: ownerUrl },
+  },
+);
 const schemaUpToDate = status.status === 0 && /up to date/i.test(status.stdout);
 
-const tableDiffs = Object.keys({ ...before.counts, ...after.counts }).filter((t) => before.counts[t] !== after.counts[t]);
+const tableDiffs = Object.keys({ ...before.counts, ...after.counts }).filter(
+  (t) => before.counts[t] !== after.counts[t],
+);
 const checks = {
   rowCountsMatch: tableDiffs.length === 0,
-  migrationsMatch: before.migrations === after.migrations && after.migrations.length > 0,
+  migrationsMatch:
+    before.migrations === after.migrations && after.migrations.length > 0,
   constraintsMatch: before.constraints === after.constraints,
   indexesMatch: before.indexes === after.indexes,
   triggersMatch: before.triggers === after.triggers && after.triggers > 0,
   pendingJobsRetained: before.pendingJobs === after.pendingJobs,
   ledgerReconciles: after.ledgerMismatches === 0,
-  runtimeGrantsRestored: before.runtimeGrants === after.runtimeGrants && after.runtimeGrants > 0,
+  runtimeGrantsRestored:
+    before.runtimeGrants === after.runtimeGrants && after.runtimeGrants > 0,
   schemaCompatibleWithBuild: schemaUpToDate,
-  mediaCopied: media.value === listFiles(mediaSource).length,
+  mediaCopied: JSON.stringify(media.value) === JSON.stringify(sourceMedia),
+  mediaRestored: JSON.stringify(restoredMedia) === JSON.stringify(sourceMedia),
 };
 const report = {
   drillAt: new Date().toISOString(),
@@ -132,7 +260,8 @@ const report = {
   dumpBytes: fs.statSync(dumpFile).size,
   dumpSha256: sha256,
   backupSeconds: Number(backup.seconds.toFixed(2)),
-  mediaFiles: media.value,
+  mediaFiles: Object.keys(media.value).length,
+  mediaVerification: "SHA-256 per file, backup copy and scratch media restore",
   restoreSeconds: Number(restore.seconds.toFixed(2)),
   tables: Object.keys(after.counts).length,
   rows: Object.values(after.counts).reduce((a, b) => a + b, 0),
@@ -141,7 +270,10 @@ const report = {
   checks,
   passed: Object.values(checks).every(Boolean),
 };
-fs.writeFileSync(path.join(backupDir, "drill-report.json"), JSON.stringify(report, null, 2));
+fs.writeFileSync(
+  path.join(backupDir, "drill-report.json"),
+  JSON.stringify(report, null, 2),
+);
 if (!keep) sql("postgres", `DROP DATABASE IF EXISTS ${TARGET} WITH (FORCE)`);
 console.log(JSON.stringify(report, null, 2));
 process.exit(report.passed ? 0 : 1);

@@ -2,7 +2,7 @@
 
 import { forwardRef } from "react";
 import { Money } from "@/components/ui/Money";
-import { format, messages } from "@/messages";
+import { messages } from "@/messages";
 import type { Cart } from "@/lib/types";
 import styles from "./checkout.module.css";
 
@@ -24,7 +24,12 @@ export function StepProgress({ current }: { current: StepKey }) {
             >
               <span>
                 {i + 1}. {messages.checkout.steps[step]}
-                {state === "done" ? <span className="visually-hidden"> ({messages.checkout.steps.done})</span> : null}
+                {state === "done" ? (
+                  <span className="visually-hidden">
+                    {" "}
+                    ({messages.checkout.steps.done})
+                  </span>
+                ) : null}
               </span>
             </li>
           );
@@ -37,10 +42,19 @@ export function StepProgress({ current }: { current: StepKey }) {
 export type FieldIssue = { fieldId: string; message: string };
 
 /** Focusable summary after an invalid submit, linking to each field (UX-CONTRACT). */
-export const ErrorSummary = forwardRef<HTMLDivElement, { issues: FieldIssue[] }>(function ErrorSummary({ issues }, ref) {
+export const ErrorSummary = forwardRef<
+  HTMLDivElement,
+  { issues: FieldIssue[] }
+>(function ErrorSummary({ issues }, ref) {
   if (issues.length === 0) return null;
   return (
-    <div ref={ref} className={styles.errorSummary} tabIndex={-1} role="alert" aria-labelledby="error-summary-title">
+    <div
+      ref={ref}
+      className={styles.errorSummary}
+      tabIndex={-1}
+      role="alert"
+      aria-labelledby="error-summary-title"
+    >
       <p id="error-summary-title" className="u-w-600">
         {messages.checkout.errorSummary}
       </p>
@@ -55,7 +69,13 @@ export const ErrorSummary = forwardRef<HTMLDivElement, { issues: FieldIssue[] }>
   );
 });
 
-export function CheckoutSummary({ cart, deliveryRwf }: { cart: Cart | null; deliveryRwf: number | null }) {
+export function CheckoutSummary({
+  cart,
+  deliveryRwf,
+}: {
+  cart: Cart | null;
+  deliveryRwf: number | null;
+}) {
   if (!cart) return null;
   const total = deliveryRwf === null ? null : cart.subtotalRwf + deliveryRwf;
   return (
@@ -68,7 +88,8 @@ export function CheckoutSummary({ cart, deliveryRwf }: { cart: Cart | null; deli
           <li key={l.variantId} className={styles.row}>
             <span>
               {l.title}
-              {l.attributes.shade ? ` / ${l.attributes.shade}` : ""} × {l.quantity}
+              {l.attributes.shade ? ` / ${l.attributes.shade}` : ""} ×{" "}
+              {l.quantity}
             </span>
             <Money amount={l.lineTotalRwf} />
           </li>
@@ -80,7 +101,11 @@ export function CheckoutSummary({ cart, deliveryRwf }: { cart: Cart | null; deli
       </div>
       <div className={styles.row}>
         <span>{messages.checkout.delivery}</span>
-        {deliveryRwf === null ? <span className="muted label-text">{messages.cart.deliveryNote}</span> : <Money amount={deliveryRwf} />}
+        {deliveryRwf === null ? (
+          <span className="muted label-text">{messages.cart.deliveryNote}</span>
+        ) : (
+          <Money amount={deliveryRwf} />
+        )}
       </div>
       {total !== null ? (
         <div className={`${styles.row} ${styles.totalRow}`}>
@@ -88,7 +113,12 @@ export function CheckoutSummary({ cart, deliveryRwf }: { cart: Cart | null; deli
           <Money amount={total} />
         </div>
       ) : null}
-      <p className="label-text muted">{format("{count} items", { count: cart.lines.reduce((n, l) => n + l.quantity, 0) })}</p>
+      <p className="label-text muted">
+        {cart.lines.reduce((n, l) => n + l.quantity, 0)}{" "}
+        {cart.lines.reduce((n, l) => n + l.quantity, 0) === 1
+          ? "item"
+          : "items"}
+      </p>
     </aside>
   );
 }

@@ -1,7 +1,21 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { api, ApiError, ensureGuestSession, newIdempotencyKey } from "@/lib/api-client";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  api,
+  ApiError,
+  ensureGuestSession,
+  newIdempotencyKey,
+} from "@/lib/api-client";
 import type { Cart } from "@/lib/types";
 
 // Client cart state. The server cart is authoritative: every change goes through the
@@ -15,6 +29,10 @@ type CartContextValue = {
   refresh: () => Promise<Cart | null>;
   setLine: (variantId: string, quantity: number) => Promise<Cart>;
   removeLine: (variantId: string) => Promise<Cart>;
+  replaceLine: (
+    variantId: string,
+    replacementVariantId: string,
+  ) => Promise<Cart>;
   announce: (message: string) => void;
 };
 
@@ -26,14 +44,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState("");
   const cartRef = useRef<Cart | null>(null);
 
-  useEffect(() => {
-    cartRef.current = cart;
-  }, [cart]);
-
   const refresh = useCallback(async () => {
     try {
       await ensureGuestSession();
       const next = await api<Cart>("/cart");
+      cartRef.current = next;
       setCart(next);
       setStatus("ready");
       return next;
@@ -53,10 +68,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const mutate = useCallback(
-    async (run: (current: Cart, key: string) => Promise<Cart>) => {
+    async (
+      run: (current: Cart, key: string) => Promise<Cart>,
+      confirms?: (before: Cart, after: Cart) => boolean,
+    ) => {
       await ensureGuestSession();
       const current = cartRef.current ?? (await refresh());
-      if (!current) throw new ApiError(0, "NETWORK", "We couldn't load your cart. Please try again.");
+      if (!current)
+        throw new ApiError(
+          0,
+          "NETWORK",
+          "We couldn't load your cart. Please try again.",
+        );
       const key = newIdempotencyKey();
       try {
         const next = await run(current, key);
@@ -64,8 +87,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setCart(next);
         return next;
       } catch (error) {
-        // A stale version means another tab changed the cart: reload, let the shopper retry.
-        if (error instanceof ApiError && (error.code === "VERSION_CONFLICT" || error.status === 0)) await refresh();
+        const uncertain =
+          error instanceof ApiError &&
+          (error.status === 0 ||
+            error.code === "UNCERTAIN" ||
+            error.status >= 500);
+        if (
+          error instanceof ApiError &&
+          (uncertain ||
+            error.code === "VERSION_CONFLICT" ||
+            error.code === "PAYMENT_UNRESOLVED")
+        ) {
+          const latest = await refresh();
+          // Read the authoritative cart after a lost response. Accept only the exact
+          // intended quantity/option, never send a second mutation automatically.
+          if (
+            uncertain &&
+            latest &&
+            latest.id === current.id &&
+            latest.version >= current.version &&
+            !latest.paymentPending &&
+            confirms?.(current, latest)
+          )
+            return latest;
+        }
+        if (uncertain)
+          throw new ApiError(
+            0,
+            "UNCERTAIN",
+            "We couldn't confirm that cart change. Review your cart before trying again.",
+          );
         throw error;
       }
     },
@@ -74,16 +125,63 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const setLine = useCallback(
     (variantId: string, quantity: number) =>
-      mutate((current, key) =>
-        api<Cart>("/cart/lines", { method: "POST", idempotencyKey: key, body: { variantId, quantity, expectedVersion: current.version } }),
+      mutate(
+        (current, key) =>
+          api<Cart>("/cart/lines", {
+            method: "POST",
+            idempotencyKey: key,
+            body: { variantId, quantity, expectedVersion: current.version },
+          }),
+        (_before, after) =>
+          (after.lines.find((line) => line.variantId === variantId)?.quantity ??
+            0) === quantity,
       ),
     [mutate],
   );
 
   const removeLine = useCallback(
     (variantId: string) =>
-      mutate((current, key) =>
-        api<Cart>(`/cart/lines/${variantId}`, { method: "DELETE", idempotencyKey: key, body: { expectedVersion: current.version } }),
+      mutate(
+        (current, key) =>
+          api<Cart>(`/cart/lines/${variantId}`, {
+            method: "DELETE",
+            idempotencyKey: key,
+            body: { expectedVersion: current.version },
+          }),
+        (_before, after) =>
+          !after.lines.some((line) => line.variantId === variantId),
+      ),
+    [mutate],
+  );
+
+  const replaceLine = useCallback(
+    (variantId: string, replacementVariantId: string) =>
+      mutate(
+        (current, key) =>
+          api<Cart>("/cart/lines/" + variantId, {
+            method: "PATCH",
+            idempotencyKey: key,
+            body: { replacementVariantId, expectedVersion: current.version },
+          }),
+        (before, after) => {
+          const source = before.lines.find(
+            (line) => line.variantId === variantId,
+          );
+          if (!source) return false;
+          const previousTarget = before.lines.find(
+            (line) => line.variantId === replacementVariantId,
+          );
+          const expected =
+            variantId === replacementVariantId
+              ? source.quantity
+              : source.quantity + (previousTarget?.quantity ?? 0);
+          return (
+            (variantId === replacementVariantId ||
+              !after.lines.some((line) => line.variantId === variantId)) &&
+            after.lines.find((line) => line.variantId === replacementVariantId)
+              ?.quantity === expected
+          );
+        },
       ),
     [mutate],
   );
@@ -101,15 +199,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
       refresh,
       setLine,
       removeLine,
+      replaceLine,
       announce,
     }),
-    [cart, status, refresh, setLine, removeLine, announce],
+    [cart, status, refresh, setLine, removeLine, replaceLine, announce],
   );
 
   return (
     <CartContext.Provider value={value}>
       {children}
-      <div className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+      <div
+        className="visually-hidden"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {message}
       </div>
     </CartContext.Provider>

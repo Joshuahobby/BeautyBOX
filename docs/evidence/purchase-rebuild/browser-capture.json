@@ -1,0 +1,52 @@
+{
+  "capturedAt": "2026-11-16T06:21:28.970Z",
+  "mode": "local production build; TEST demo data; fake providers",
+  "captures": [
+    {
+      "name": "product-desktop",
+      "viewport": {
+        "width": 1003,
+        "height": 900
+      },
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "name": "product-mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "name": "shade-mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "name": "cart-mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0
+    },
+    {
+      "name": "checkout-mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0
+    }
+  ],
+  "browserErrors": []
+}

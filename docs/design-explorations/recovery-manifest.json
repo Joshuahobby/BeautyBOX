@@ -1,0 +1,147 @@
+{
+  "checkedAt": "2026-11-16T05:02:04.596172+00:00",
+  "baseCommit": "197e926c56dab50f0218ffdd017e40aeb039d79f",
+  "kind": "RECOVERED_VISUAL_ASSETS_AND_HANDOFF",
+  "imageCount": 14,
+  "applicationImplementationIncluded": false,
+  "archivedSourceCodeFound": false,
+  "gitStashFound": false,
+  "unreachableGitCommitFound": false,
+  "siteDeploymentPerformed": false,
+  "notes": "Image mockups are reference material. This checkpoint does not contain the missing storefront, checkout or delivery implementation previously discussed in chat.",
+  "images": [
+    {
+      "file": "images/01-Rive-Gallery.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "7896a007f497d4ef4488aadc337006b1b60574fcac0ba455c81574367151493f",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/02-BOTANEA-Journal.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "6ad4f9ffa816f2a8aa1e6139be7b365935a7b0d9ac71d897005a84305e83d93c",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/03-Beauties-Colour.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "a086d99b25e4fff34eaf6a52cbcba74ca161f021c5ff94977eeb9c42f704cf62",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/04-MyShop-Night.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "07dc2ac897794fad8e1a8e111f88241f8524995e505fce8410112720db74b12b",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/05-SORA-Graphic.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "f703e76c5ae800700a47d9dd80bc6274bcc03647e2e61146e8043956eec708a5",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/06-Rare-Boutique.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "0a0781a590f28ce087dd73847f659484295f0681118e093daf959322c4642a6a",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/07-Soft-Glow.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "c542e3f7163b8769ad01ed5b628300d89a1b6df98c8739b0fdfa2b1dc97f9795",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/08-Coral-Discovery.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "d3468712818db3c8fcbe7581c0f0bc433b365e007102267d8de179c7cb37ed87",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/09-Graphic-Ritual.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "fdb29518996552bdf8f29abe05c49de3121dad85a272e567949b1322ebe27a0e",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/10-Colour-Boutique.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "711d2c95792ba42780d3ab672cf7442d4ebb724d58aef831536a2ebc85891052",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/11-BeautyBOX-Signature.png",
+      "source": "recovered eleven-concept archive",
+      "sha256": "658072152f0c66243547aa8040995b9161dad4a82a2c92b7d310493c413d1151",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/12-Everyday-Essentials.png",
+      "source": "recovered generated preview: exec-a06449d9-6db3-4c8c-bf1e-254b7feb271f.png",
+      "sha256": "b7430bcecfaf50f112fc93767d9d4f3d73e00a864fbbbbb7871f0dbb95001bd4",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/13-Compact-Catalog.png",
+      "source": "recovered generated preview: exec-a7e00e81-2d53-4176-bd00-ab7a9d19367b.png",
+      "sha256": "d4c7f65c88a8afba413654ab0f328a5712391b8233ce42bddfeb41570cd3110f",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    },
+    {
+      "file": "images/14-Editorial-Collection.png",
+      "source": "recovered generated preview: exec-f19bde9d-fe21-49d2-a18e-8e8814491d5b.png",
+      "sha256": "d02b998922aef985bc75311abd072edd9fcde28fa6eb7def3bdfbd6c377e5fef",
+      "dimensions": [
+        1003,
+        1568
+      ]
+    }
+  ],
+  "remoteBranchesInspected": [
+    "origin/ccr-5b6ae101-qf9k7m",
+    "origin/claude/gallant-tesla-5lyyg4",
+    "origin/i11-africastalking-sms",
+    "origin/launch-page-redesign",
+    "origin/main"
+  ]
+}

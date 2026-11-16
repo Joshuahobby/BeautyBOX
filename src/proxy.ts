@@ -1,7 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { publicMediaBase } from "@/modules/catalog/media";
-import { accessCookieValue, gateDecision, SITE_ACCESS_COOKIE, type GateDecision } from "@/server/site-gate";
+import {
+  accessCookieValue,
+  gateDecision,
+  SITE_ACCESS_COOKIE,
+  type GateDecision,
+} from "@/server/site-gate";
 
 // Per-request Content-Security-Policy with a nonce for framework scripts and styles, plus
 // Supabase staff-session refresh on /staff pages. No third-party scripts are loaded in
@@ -39,26 +44,54 @@ function mediaOrigin(appOrigin: string): string | null {
  */
 function siteGate(request: NextRequest): GateDecision {
   const gate = process.env.SITE_GATE === "on" ? "on" : "off";
-  const holdingHosts = (process.env.HOLDING_HOSTS ?? "").split(",").map((h) => h.trim().toLowerCase()).filter(Boolean);
+  const holdingHosts = (process.env.HOLDING_HOSTS ?? "")
+    .split(",")
+    .map((h) => h.trim().toLowerCase())
+    .filter(Boolean);
   if (gate === "off" && holdingHosts.length === 0) return { kind: "pass" };
   const codeHash = process.env.SITE_ACCESS_CODE_HASH;
   const key = process.env.TOKEN_HASH_SECRET;
   return gateDecision(
-    { host: request.headers.get("host") ?? request.nextUrl.host, pathname: request.nextUrl.pathname, cookie: request.cookies.get(SITE_ACCESS_COOKIE)?.value },
-    { gate, holdingHosts, expectedCookie: codeHash && key && key.length >= 32 ? accessCookieValue(codeHash, key) : null },
+    {
+      host: request.headers.get("host") ?? request.nextUrl.host,
+      pathname: request.nextUrl.pathname,
+      cookie: request.cookies.get(SITE_ACCESS_COOKIE)?.value,
+    },
+    {
+      gate,
+      holdingHosts,
+      expectedCookie:
+        codeHash && key && key.length >= 32
+          ? accessCookieValue(codeHash, key)
+          : null,
+    },
   );
 }
 
-const PRIVATE_HEADERS = { "Cache-Control": "private, no-store", "X-Robots-Tag": "noindex, nofollow" };
+const PRIVATE_HEADERS = {
+  "Cache-Control": "private, no-store",
+  "X-Robots-Tag": "noindex, nofollow",
+};
 
 export async function proxy(request: NextRequest) {
   const gate = siteGate(request);
   // API routes keep their own deny-all CSP (next.config.ts); the wall only answers for them.
   if (request.nextUrl.pathname.startsWith("/api/")) {
     if (gate.kind === "pass") return NextResponse.next();
-    return NextResponse.json({ code: "UNAUTHORIZED", message: "BeautyBOX is not open yet.", requestId: crypto.randomUUID() }, { status: 401, headers: PRIVATE_HEADERS });
+    return NextResponse.json(
+      {
+        code: "UNAUTHORIZED",
+        message: "BeautyBOX is not open yet.",
+        requestId: crypto.randomUUID(),
+      },
+      { status: 401, headers: PRIVATE_HEADERS },
+    );
   }
-  if (gate.kind === "redirect") return NextResponse.redirect(new URL(gate.location, request.url), { status: 307, headers: PRIVATE_HEADERS });
+  if (gate.kind === "redirect")
+    return NextResponse.redirect(new URL(gate.location, request.url), {
+      status: 307,
+      headers: PRIVATE_HEADERS,
+    });
   // No shortcut for prefetches: a browser can display a prefetched document, so it needs the
   // same nonce, CSP and staff-session handling as any page (Next strips its own router
   // prefetch headers before the proxy runs, so they could not be recognised here anyway).
@@ -77,6 +110,7 @@ export async function proxy(request: NextRequest) {
     "font-src 'self'",
     `connect-src 'self'${staffPage && supabase ? ` ${supabase}` : ""}${dev ? " ws:" : ""}`,
     "object-src 'none'",
+    "frame-src https://www.google.com",
     "base-uri 'self'",
     "form-action 'self'",
     "frame-ancestors 'none'",
@@ -89,26 +123,44 @@ export async function proxy(request: NextRequest) {
   requestHeaders.set("Content-Security-Policy", csp);
   if (gate.kind === "launch-page") {
     // Show "Launching soon" at the requested address; the page links back here after the code.
-    requestHeaders.set("x-bb-requested-path", `${request.nextUrl.pathname}${request.nextUrl.search}`.slice(0, 512));
-    const rewritten = NextResponse.rewrite(new URL("/launching-soon", request.url), { request: { headers: requestHeaders } });
-    for (const [name, value] of Object.entries(PRIVATE_HEADERS)) rewritten.headers.set(name, value);
+    requestHeaders.set(
+      "x-bb-requested-path",
+      `${request.nextUrl.pathname}${request.nextUrl.search}`.slice(0, 512),
+    );
+    const rewritten = NextResponse.rewrite(
+      new URL("/launching-soon", request.url),
+      { request: { headers: requestHeaders } },
+    );
+    for (const [name, value] of Object.entries(PRIVATE_HEADERS))
+      rewritten.headers.set(name, value);
     rewritten.headers.set("Content-Security-Policy", csp);
     return rewritten;
   }
   let response = NextResponse.next({ request: { headers: requestHeaders } });
 
   // Keep the staff Supabase session fresh (rotated cookies are written to the response).
-  if (staffPage && supabase && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
-    const client = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, {
-      cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll: (cookies) => {
-          for (const c of cookies) request.cookies.set(c.name, c.value);
-          response = NextResponse.next({ request: { headers: requestHeaders } });
-          for (const c of cookies) response.cookies.set(c.name, c.value, c.options);
+  if (
+    staffPage &&
+    supabase &&
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+  ) {
+    const client = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+      {
+        cookies: {
+          getAll: () => request.cookies.getAll(),
+          setAll: (cookies) => {
+            for (const c of cookies) request.cookies.set(c.name, c.value);
+            response = NextResponse.next({
+              request: { headers: requestHeaders },
+            });
+            for (const c of cookies)
+              response.cookies.set(c.name, c.value, c.options);
+          },
         },
       },
-    });
+    );
     await client.auth.getClaims().catch(() => null);
     response.headers.set("Cache-Control", "private, no-store");
     response.headers.set("X-Robots-Tag", "noindex, nofollow");

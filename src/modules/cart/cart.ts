@@ -4,7 +4,11 @@ import { now } from "@/modules/shared/clock";
 import { DomainError, notFound } from "@/modules/shared/errors";
 import { serverEnv } from "@/server/env";
 import { sellableLotCondition } from "@/modules/inventory/eligibility";
-import { claimIdempotencyKey, completeIdempotencyKey, requestHash } from "@/modules/idempotency/idempotency";
+import {
+  claimIdempotencyKey,
+  completeIdempotencyKey,
+  requestHash,
+} from "@/modules/idempotency/idempotency";
 import { kigaliToday, currentSettings } from "@/modules/settings/settings";
 import { evaluateBasket, type LineIssue } from "./basket";
 import type { GuestSession } from "@/modules/session/guest-session";
@@ -40,11 +44,19 @@ export type CartView = {
 
 async function scopeFor(tx: Tx | ReturnType<typeof db>) {
   const settings = await currentSettings(tx);
-  return { locationId: settings.activeLocationId, todayKigali: kigaliToday(now()) };
+  return {
+    locationId: settings.activeLocationId,
+    todayKigali: kigaliToday(now()),
+  };
 }
 
-async function activeCartFor(client: Tx | ReturnType<typeof db>, sessionId: string) {
-  return client.cart.findFirst({ where: { guestSessionId: sessionId, state: "ACTIVE" } });
+async function activeCartFor(
+  client: Tx | ReturnType<typeof db>,
+  sessionId: string,
+) {
+  return client.cart.findFirst({
+    where: { guestSessionId: sessionId, state: "ACTIVE" },
+  });
 }
 
 export async function getCartView(session: GuestSession): Promise<CartView> {
@@ -54,11 +66,17 @@ export async function getCartView(session: GuestSession): Promise<CartView> {
   return buildView(client, cart.id);
 }
 
-async function buildView(client: Tx | ReturnType<typeof db>, cartId: string): Promise<CartView> {
+async function buildView(
+  client: Tx | ReturnType<typeof db>,
+  cartId: string,
+): Promise<CartView> {
   const cart = await client.cart.findUniqueOrThrow({ where: { id: cartId } });
   const basket = await evaluateBasket(client, cartId, await scopeFor(client));
   const checkout = await client.checkout.findFirst({
-    where: { cartId, state: { in: ["EDITING", "REVIEWED", "PAYMENT_PENDING"] } },
+    where: {
+      cartId,
+      state: { in: ["EDITING", "REVIEWED", "PAYMENT_PENDING"] },
+    },
     orderBy: { createdAt: "desc" },
   });
   const paymentPending = checkout?.state === "PAYMENT_PENDING";
@@ -79,7 +97,9 @@ async function buildView(client: Tx | ReturnType<typeof db>, cartId: string): Pr
       attributes: l.attributes,
       quantity: l.quantity,
       unitPriceRwf: l.unitPriceRwf,
-      previousUnitPriceRwf: l.issues.includes("PRICE_CHANGED") ? l.seenPriceRwf : null,
+      previousUnitPriceRwf: l.issues.includes("PRICE_CHANGED")
+        ? l.seenPriceRwf
+        : null,
       lineTotalRwf: l.lineTotalRwf,
       availableQuantity: l.availableQuantity,
       issues: l.issues,
@@ -87,10 +107,17 @@ async function buildView(client: Tx | ReturnType<typeof db>, cartId: string): Pr
   };
 }
 
-async function lockActiveCart(tx: Tx, sessionId: string, expectedVersion: number) {
+async function lockActiveCart(
+  tx: Tx,
+  sessionId: string,
+  expectedVersion: number,
+) {
   // Global lock order is checkout -> cart (same as start-payment), so lock the
   // cart's open checkouts first, then the cart itself.
-  const candidate = await tx.cart.findFirst({ where: { guestSessionId: sessionId, state: "ACTIVE" }, select: { id: true } });
+  const candidate = await tx.cart.findFirst({
+    where: { guestSessionId: sessionId, state: "ACTIVE" },
+    select: { id: true },
+  });
   if (!candidate) throw notFound();
   await tx.$queryRaw`
     SELECT id FROM commerce.checkouts
@@ -103,9 +130,14 @@ async function lockActiveCart(tx: Tx, sessionId: string, expectedVersion: number
   const cart = rows[0];
   if (!cart) throw notFound();
   if (cart.version !== expectedVersion) {
-    throw new DomainError("VERSION_CONFLICT", "Your cart changed in another window. We've loaded the latest version.");
+    throw new DomainError(
+      "VERSION_CONFLICT",
+      "Your cart changed in another window. We've loaded the latest version.",
+    );
   }
-  const pending = await tx.checkout.findFirst({ where: { cartId: cart.id, state: "PAYMENT_PENDING" } });
+  const pending = await tx.checkout.findFirst({
+    where: { cartId: cart.id, state: "PAYMENT_PENDING" },
+  });
   if (pending) {
     throw new DomainError(
       "PAYMENT_UNRESOLVED",
@@ -116,7 +148,10 @@ async function lockActiveCart(tx: Tx, sessionId: string, expectedVersion: number
 }
 
 async function bumpCart(tx: Tx, cartId: string) {
-  await tx.cart.update({ where: { id: cartId }, data: { version: { increment: 1 }, updatedAt: now() } });
+  await tx.cart.update({
+    where: { id: cartId },
+    data: { version: { increment: 1 }, updatedAt: now() },
+  });
   await invalidateEditableCheckout(tx, cartId);
 }
 
@@ -125,10 +160,20 @@ export async function setCartLine(
   input: { variantId: string; quantity: number; expectedVersion: number },
   idempotencyKey: string,
 ): Promise<CartView> {
-  if (!Number.isSafeInteger(input.quantity) || input.quantity < 1 || input.quantity > MAX_LINE_QUANTITY) {
-    throw new DomainError("VALIDATION_ERROR", "Choose a quantity between 1 and 99.", {
-      fieldErrors: [{ field: "quantity", message: "Choose a quantity between 1 and 99." }],
-    });
+  if (
+    !Number.isSafeInteger(input.quantity) ||
+    input.quantity < 1 ||
+    input.quantity > MAX_LINE_QUANTITY
+  ) {
+    throw new DomainError(
+      "VALIDATION_ERROR",
+      "Choose a quantity between 1 and 99.",
+      {
+        fieldErrors: [
+          { field: "quantity", message: "Choose a quantity between 1 and 99." },
+        ],
+      },
+    );
   }
   const cartId = await transaction(async (tx) => {
     const claim = await claimIdempotencyKey(tx, {
@@ -140,16 +185,33 @@ export async function setCartLine(
 
     const cart = await lockActiveCart(tx, session.id, input.expectedVersion);
     const scope = await scopeFor(tx);
-    const variant = await tx.variant.findUnique({ where: { id: input.variantId }, include: { product: true } });
-    if (!variant) throw new DomainError("VALIDATION_ERROR", "This item is unavailable.", { httpStatus: 422 });
+    const variant = await tx.variant.findUnique({
+      where: { id: input.variantId },
+      include: { product: true },
+    });
+    if (!variant)
+      throw new DomainError("VALIDATION_ERROR", "This item is unavailable.", {
+        httpStatus: 422,
+      });
 
-    const existing = await tx.cartLine.findUnique({ where: { cartId_variantId: { cartId: cart.id, variantId: variant.id } } });
+    const existing = await tx.cartLine.findUnique({
+      where: { cartId_variantId: { cartId: cart.id, variantId: variant.id } },
+    });
     // Evaluate availability through the same rules as the basket.
     const probe = await evaluateProbe(tx, variant.id, scope);
     if (!probe.visible) {
-      throw new DomainError("STOCK_CHANGED", "This item is no longer available.", {
-        fieldErrors: [{ field: "variantId", message: "This item is no longer available." }],
-      });
+      throw new DomainError(
+        "STOCK_CHANGED",
+        "This item is no longer available.",
+        {
+          fieldErrors: [
+            {
+              field: "variantId",
+              message: "This item is no longer available.",
+            },
+          ],
+        },
+      );
     }
     const reducing = existing !== null && input.quantity < existing.quantity;
     if (!reducing && input.quantity > probe.available) {
@@ -157,16 +219,119 @@ export async function setCartLine(
         probe.available === 0
           ? "This item is out of stock."
           : `The available quantity changed. Only ${probe.available} can be added right now.`;
-      throw new DomainError("STOCK_CHANGED", message, { fieldErrors: [{ field: "quantity", message }] });
+      throw new DomainError("STOCK_CHANGED", message, {
+        fieldErrors: [{ field: "quantity", message }],
+      });
     }
 
     await tx.cartLine.upsert({
       where: { cartId_variantId: { cartId: cart.id, variantId: variant.id } },
-      create: { cartId: cart.id, variantId: variant.id, quantity: input.quantity, seenPriceRwf: variant.priceRwf },
-      update: { quantity: input.quantity, seenPriceRwf: variant.priceRwf, updatedAt: now() },
+      create: {
+        cartId: cart.id,
+        variantId: variant.id,
+        quantity: input.quantity,
+        seenPriceRwf: variant.priceRwf,
+      },
+      update: {
+        quantity: input.quantity,
+        seenPriceRwf: variant.priceRwf,
+        updatedAt: now(),
+      },
     });
     await bumpCart(tx, cart.id);
-    await completeIdempotencyKey(tx, claim.recordId, { resourceType: "cart", resourceId: cart.id, responseStatus: 200 });
+    await completeIdempotencyKey(tx, claim.recordId, {
+      resourceType: "cart",
+      resourceId: cart.id,
+      responseStatus: 200,
+    });
+    return cart.id;
+  });
+  return buildView(db(), cartId);
+}
+
+/** Replace a shade atomically. The old line remains intact on every failure. */
+export async function replaceCartLine(
+  session: GuestSession,
+  input: {
+    variantId: string;
+    replacementVariantId: string;
+    expectedVersion: number;
+  },
+  idempotencyKey: string,
+): Promise<CartView> {
+  const cartId = await transaction(async (tx) => {
+    const claim = await claimIdempotencyKey(tx, {
+      scope: `guest:${session.id}:cart-line-replace`,
+      key: idempotencyKey,
+      requestHash: requestHash("replaceCartLine", input),
+    });
+    if (claim.kind === "REPLAY") return claim.resourceId;
+    const cart = await lockActiveCart(tx, session.id, input.expectedVersion);
+    const source = await tx.cartLine.findUnique({
+      where: {
+        cartId_variantId: { cartId: cart.id, variantId: input.variantId },
+      },
+      include: { variant: true },
+    });
+    if (!source)
+      throw new DomainError(
+        "VERSION_CONFLICT",
+        "This cart item changed. Reload your cart and try again.",
+      );
+    if (input.variantId !== input.replacementVariantId) {
+      const replacement = await tx.variant.findUnique({
+        where: { id: input.replacementVariantId },
+      });
+      if (!replacement || replacement.productId !== source.variant.productId)
+        throw new DomainError(
+          "VALIDATION_ERROR",
+          "Choose an option of the same product.",
+          { httpStatus: 422 },
+        );
+      const existing = await tx.cartLine.findUnique({
+        where: {
+          cartId_variantId: { cartId: cart.id, variantId: replacement.id },
+        },
+      });
+      const quantity = source.quantity + (existing?.quantity ?? 0);
+      const probe = await evaluateProbe(tx, replacement.id, await scopeFor(tx));
+      if (
+        !probe.visible ||
+        quantity > probe.available ||
+        quantity > MAX_LINE_QUANTITY
+      )
+        throw new DomainError(
+          "STOCK_CHANGED",
+          "That option cannot hold this quantity. Your original item is still in your cart.",
+        );
+      await tx.cartLine.upsert({
+        where: {
+          cartId_variantId: { cartId: cart.id, variantId: replacement.id },
+        },
+        create: {
+          cartId: cart.id,
+          variantId: replacement.id,
+          quantity,
+          seenPriceRwf: replacement.priceRwf,
+        },
+        update: {
+          quantity,
+          seenPriceRwf: replacement.priceRwf,
+          updatedAt: now(),
+        },
+      });
+      await tx.cartLine.delete({
+        where: {
+          cartId_variantId: { cartId: cart.id, variantId: source.variantId },
+        },
+      });
+      await bumpCart(tx, cart.id);
+    }
+    await completeIdempotencyKey(tx, claim.recordId, {
+      resourceType: "cart",
+      resourceId: cart.id,
+      responseStatus: 200,
+    });
     return cart.id;
   });
   return buildView(db(), cartId);
@@ -185,17 +350,30 @@ export async function removeCartLine(
     });
     if (claim.kind === "REPLAY") return claim.resourceId;
     const cart = await lockActiveCart(tx, session.id, input.expectedVersion);
-    const deleted = await tx.cartLine.deleteMany({ where: { cartId: cart.id, variantId: input.variantId } });
+    const deleted = await tx.cartLine.deleteMany({
+      where: { cartId: cart.id, variantId: input.variantId },
+    });
     if (deleted.count > 0) await bumpCart(tx, cart.id);
-    await completeIdempotencyKey(tx, claim.recordId, { resourceType: "cart", resourceId: cart.id, responseStatus: 200 });
+    await completeIdempotencyKey(tx, claim.recordId, {
+      resourceType: "cart",
+      resourceId: cart.id,
+      responseStatus: 200,
+    });
     return cart.id;
   });
   return buildView(db(), cartId);
 }
 
-async function evaluateProbe(tx: Tx, variantId: string, scope: { locationId: string; todayKigali: string }) {
+async function evaluateProbe(
+  tx: Tx,
+  variantId: string,
+  scope: { locationId: string; todayKigali: string },
+) {
   const demoVisible = serverEnv().DEMO_CATALOG_VISIBLE;
-  const variant = await tx.variant.findUniqueOrThrow({ where: { id: variantId }, include: { product: true } });
+  const variant = await tx.variant.findUniqueOrThrow({
+    where: { id: variantId },
+    include: { product: true },
+  });
   const visible =
     variant.isActive &&
     variant.product.publishState === "PUBLISHED" &&
@@ -205,6 +383,8 @@ async function evaluateProbe(tx: Tx, variantId: string, scope: { locationId: str
     SELECT SUM(l.quantity_on_hand - l.reserved_qty - l.committed_qty) AS available
       FROM commerce.inventory_lots l
      WHERE l.variant_id = ${variantId}::uuid AND ${sellableLotCondition("l", scope)}`;
-  return { visible: true, available: Math.max(0, Number(rows[0]?.available ?? 0)) };
+  return {
+    visible: true,
+    available: Math.max(0, Number(rows[0]?.available ?? 0)),
+  };
 }
-

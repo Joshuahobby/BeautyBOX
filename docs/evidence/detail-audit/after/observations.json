@@ -1,0 +1,219 @@
+{
+  "capturedAt": "2026-11-16T07:41:53.156Z",
+  "mode": "local TEST production build, synthetic data, fake providers",
+  "steps": [
+    {
+      "name": "01-home-desktop",
+      "path": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "02-mega-menu",
+      "path": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "03-home-mobile",
+      "path": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "04-catalog-filtered",
+      "path": "/shop",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "05-product",
+      "path": "/products/lip-hue",
+      "viewport": {
+        "width": 1003,
+        "height": 900
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "06-shade",
+      "path": "/products/lip-hue",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "07-cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "08-location-denied-and-search-unavailable",
+      "path": "/checkout",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "09-delivery-review",
+      "path": "/checkout",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "10-payment-review",
+      "path": "/checkout",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "11-payment-pending",
+      "path": "/payment/6d4127d5-33bd-421f-8739-b6cec02bc2f0",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "12-confirmed-order",
+      "path": "/orders/a7086627-7968-4143-8fde-cb3266c28953",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "13-empty-cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "14-no-results",
+      "path": "/shop",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "15-staff-settings-mobile",
+      "path": "/staff/settings",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "16-staff-catalog-mobile",
+      "path": "/staff/catalog",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "17-delivery-help",
+      "path": "/help/delivery-returns",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "18-lost-add-response-recovered",
+      "path": "/products/makeup-bag",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "19-staff-order-cards",
+      "path": "/staff/orders",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    }
+  ],
+  "errors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)",
+    "Failed to load resource: net::ERR_FAILED"
+  ]
+}

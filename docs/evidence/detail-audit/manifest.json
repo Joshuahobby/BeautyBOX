@@ -1,0 +1,218 @@
+{
+  "format": 1,
+  "description": "Fresh local TEST audit evidence; simulated providers. SHA-256 for artifact integrity.",
+  "files": {
+    "after/01-home-desktop.png": {
+      "bytes": 2363059,
+      "sha256": "0705eaafc7d43e0a18893894276b8bee458673831b9cbcb87883a233e04644fe"
+    },
+    "after/02-mega-menu.png": {
+      "bytes": 466337,
+      "sha256": "91f6c4300ff96eb4f31f91bee1da378316c9f3418cb2d27e9d39aadc24ea4950"
+    },
+    "after/03-home-mobile.png": {
+      "bytes": 945811,
+      "sha256": "2912b2a63bc3fcabe8073edb862c32c2c9aa00d546e7025313bbe1fc9faf219b"
+    },
+    "after/04-catalog-filtered.png": {
+      "bytes": 298019,
+      "sha256": "730314a516d9e9f2bb18b70bb7d890931b427656900276422c70ee1241921ff3"
+    },
+    "after/05-product.png": {
+      "bytes": 348627,
+      "sha256": "d37f167b3e1bf479306e53767c60d5c280615d63b45ce2bb8e731b20d9767ed0"
+    },
+    "after/06-shade.png": {
+      "bytes": 61925,
+      "sha256": "b229f10adefa3a228c7a806c4dc7ff96cb150be8e64ccad41c2b18fd1ba04995"
+    },
+    "after/07-cart.png": {
+      "bytes": 61539,
+      "sha256": "ca4bae3a00ac867a4ab4d711f7bbd7ae6adb359530c8fd8962b7ee4c10ab23b1"
+    },
+    "after/08-location-denied-and-search-unavailable.png": {
+      "bytes": 123145,
+      "sha256": "51b3002ceab03f395e2c31caae40557de6359cd3520f0246eac471887e451e38"
+    },
+    "after/09-delivery-review.png": {
+      "bytes": 82278,
+      "sha256": "97cacf2cec5026d417c4771c762f4711e833d686c1e2b4b200d10e70ae0729f7"
+    },
+    "after/10-payment-review.png": {
+      "bytes": 117441,
+      "sha256": "7e93e722788fa1928b0cd7ccab46dc44639132784f829309ee099a8dbb810821"
+    },
+    "after/11-payment-pending.png": {
+      "bytes": 56012,
+      "sha256": "220ff9a473297a9d7f710f492d5fab42900d0f37f756bc38fbc241d4d3c8799f"
+    },
+    "after/12-confirmed-order.png": {
+      "bytes": 91878,
+      "sha256": "1255797832b0911a6c37b40db025458e610090a3574dd7ce6b01908ce5f32d20"
+    },
+    "after/13-empty-cart.png": {
+      "bytes": 31735,
+      "sha256": "2ba6708811645ced3668179f26b5d510bdd7d8023f0eb6dae1a29469426d4421"
+    },
+    "after/14-no-results.png": {
+      "bytes": 63903,
+      "sha256": "12d933cd5b9254294c11a7ea9f7a00844800a86916b42081989fb74660032c38"
+    },
+    "after/15-staff-settings-mobile.png": {
+      "bytes": 163916,
+      "sha256": "fe9e5da0c8b452e692fd7d17aab456276608b4421fce7729e8d47aaba198cf7e"
+    },
+    "after/16-staff-catalog-mobile.png": {
+      "bytes": 179897,
+      "sha256": "8c63678eda20bef6c35431290be332761ba565c3a28d88bf970811e6026ae17f"
+    },
+    "after/17-delivery-help.png": {
+      "bytes": 167314,
+      "sha256": "fea6e41d74621f87ca36d1582f8ac0974cb991b5a72451fe5f542489179c1ffb"
+    },
+    "after/18-lost-add-response-recovered.png": {
+      "bytes": 258994,
+      "sha256": "20639bbc81088f32bb1a02f39f768bbe377c634a5fb258db785884c60404412e"
+    },
+    "after/19-staff-order-cards.png": {
+      "bytes": 31940,
+      "sha256": "8a46e109f13bf366b4122fa0421900b174da43b5f7aec3ac48967801ae00671b"
+    },
+    "after/discovery-sheet.png": {
+      "bytes": 2015111,
+      "sha256": "9f179d0d3bcd8d74f928bc26fb6f83f8b3ba99e947126c0cdf3b351467087ca0"
+    },
+    "after/observations.json": {
+      "bytes": 4391,
+      "sha256": "9bb6c2c5d079573e93edc9ad3c74025f38e7c8d0569a7174a09534ba9acb1703"
+    },
+    "after/other-sheet.png": {
+      "bytes": 1418986,
+      "sha256": "2528f79fca959522fb35d533846c93f3cbc22a1e32c2be3f36e99b0fdf3ba997"
+    },
+    "after/payment-sheet.png": {
+      "bytes": 648227,
+      "sha256": "beb00b477dbb6a1e1785e6b6d966161ea89efa1d7b5a582b72405d36d129026c"
+    },
+    "after/purchase-sheet.png": {
+      "bytes": 585589,
+      "sha256": "ad36afda1658162a435f0f1bc0e7712f04d3a7aa2eada16596759e2976aec7a1"
+    },
+    "after/recovery-sheet.png": {
+      "bytes": 441593,
+      "sha256": "df992522bc7a28ac0b68d1f04d489ebf518ccb9731375fb166a7d3bd401184ac"
+    },
+    "audit-preview.png": {
+      "bytes": 327464,
+      "sha256": "7215f96930dbd8dba322283623dd37b7fb4c2ff42df8cfe8ec02c9fb4768cf6b"
+    },
+    "before/01-home-desktop.png": {
+      "bytes": 2358866,
+      "sha256": "0784bf14a38a64fc11d01e6f508b5471e9ecc73ed00d54b5919e0e4316f421c3"
+    },
+    "before/02-mega-menu.png": {
+      "bytes": 470054,
+      "sha256": "1879188f22af3a09930200152d93c92220fd1ae1282ec86d90621be5d007deee"
+    },
+    "before/03-home-mobile.png": {
+      "bytes": 944148,
+      "sha256": "aca6bea2a5f640c2b671147adf354cd439c605415e9a0deeead7c94c66d3072f"
+    },
+    "before/04-catalog-filtered.png": {
+      "bytes": 298054,
+      "sha256": "04a85eadf94975cfc7db95ff44c95dd2c86d58bdc5fd1ca42ad3a62071c96dfc"
+    },
+    "before/05-product.png": {
+      "bytes": 348627,
+      "sha256": "d37f167b3e1bf479306e53767c60d5c280615d63b45ce2bb8e731b20d9767ed0"
+    },
+    "before/06-shade.png": {
+      "bytes": 61925,
+      "sha256": "b229f10adefa3a228c7a806c4dc7ff96cb150be8e64ccad41c2b18fd1ba04995"
+    },
+    "before/07-cart.png": {
+      "bytes": 61563,
+      "sha256": "1a3fd0389f310e995397c99d9b0ad87075749da72d77f0d8b50e5cc93f0a1564"
+    },
+    "before/08-location-denied-and-search-unavailable.png": {
+      "bytes": 89151,
+      "sha256": "1259f8c0ca3925af27ec626dc2630c8ab71f3281de3ca40cc4fb2b539b176c66"
+    },
+    "before/09-delivery-review.png": {
+      "bytes": 71849,
+      "sha256": "0e58c64cebf52343f8c873bb1c53fadefa538f3f8dc0db5c42e94813ddf4b194"
+    },
+    "before/10-payment-review.png": {
+      "bytes": 107056,
+      "sha256": "16bcdb82001bdd6e58084fc3c564c34f8301a85d55787bba16315861f412f649"
+    },
+    "before/11-payment-pending.png": {
+      "bytes": 56031,
+      "sha256": "c7e9c6323a7f4232e11fb89aea325e10d0d3e4b63098c95b8532dbcf8041ee15"
+    },
+    "before/12-confirmed-order.png": {
+      "bytes": 91915,
+      "sha256": "15e9442b86150dd0da1c1e883af6efca99a98160922072041cae5b6424fdb4cf"
+    },
+    "before/13-empty-cart.png": {
+      "bytes": 31735,
+      "sha256": "2ba6708811645ced3668179f26b5d510bdd7d8023f0eb6dae1a29469426d4421"
+    },
+    "before/14-no-results.png": {
+      "bytes": 63927,
+      "sha256": "a1f85c2d6f54ed7ed1f998365f18d0720ecd5e70e9770aee0536d592c1f58e72"
+    },
+    "before/15-staff-settings-mobile.png": {
+      "bytes": 160407,
+      "sha256": "b8b162a93c222b7f2b05876d3ae504ce6b73670595d7d9a0bb9764320966a24c"
+    },
+    "before/16-staff-catalog-mobile.png": {
+      "bytes": 179897,
+      "sha256": "8c63678eda20bef6c35431290be332761ba565c3a28d88bf970811e6026ae17f"
+    },
+    "before/17-delivery-help.png": {
+      "bytes": 167314,
+      "sha256": "fea6e41d74621f87ca36d1582f8ac0974cb991b5a72451fe5f542489179c1ffb"
+    },
+    "before/18-lost-add-response.png": {
+      "bytes": 241334,
+      "sha256": "c197cbc8b098c17dee30d65a10e80e482295acc3c63b26611580d9c409669469"
+    },
+    "before/discovery-sheet.png": {
+      "bytes": 2053765,
+      "sha256": "5c065d11343e83af0b29bf800d4b6b593f519db24ae0e3115127b9f524bab9c2"
+    },
+    "before/observations.json": {
+      "bytes": 3892,
+      "sha256": "44b6d9d2d489efa391359e2283d9f35d1cfba28679848323dd6fe6cfbda7d3d7"
+    },
+    "before/other-sheet.png": {
+      "bytes": 1409103,
+      "sha256": "03ce75c4b2b07d0b4583c2273de89faf3f48071d7647f0531e025bacace686ff"
+    },
+    "before/payment-sheet.png": {
+      "bytes": 612738,
+      "sha256": "965532c3745ea826d42a565e5d183ef9575374c58b0d183f5489f8cebb5905c9"
+    },
+    "before/purchase-sheet.png": {
+      "bytes": 499361,
+      "sha256": "71cb7f0963396668c7f14108078cd5a4fc6a77a7f429a80111f8f0a843d37135"
+    },
+    "database-and-media-restore.json": {
+      "bytes": 773,
+      "sha256": "2e501447b1ae9f613b96bd291a1fdce433859a598001ce6e676135853d441b7a"
+    },
+    "database-restore.json": {
+      "bytes": 668,
+      "sha256": "1b3101f4b4f17b1aae55d8f930a7263d9b002b73df89ecedc7015b2da4999ddf"
+    },
+    "optional-preflight.json": {
+      "bytes": 1532,
+      "sha256": "91773e8634f0e47c646e7c5ad246b136fec8e78c2794fe905a43ead4f25ee6ba"
+    },
+    "verification.json": {
+      "bytes": 1478,
+      "sha256": "adae88b0ff77fd659f5fc9b017eb2fcb92ee101d8065bd7a39693d0289479729"
+    }
+  }
+}

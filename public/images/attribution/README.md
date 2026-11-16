@@ -1,0 +1,1 @@
+Official Google Maps attribution logo, unchanged. Source: https://developers.google.com/static/maps/documentation/images/Google_Maps_Attribution_Assets.zip (retrieved 2026-11-16). Used only with Google results. Google brand guidelines: https://developers.google.com/maps/documentation/places/web-service/policies . Google trademarks remain their property.

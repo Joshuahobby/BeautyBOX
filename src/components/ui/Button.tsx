@@ -4,10 +4,30 @@ import styles from "./Button.module.css";
 
 type Variant = "primary" | "secondary" | "accent" | "quiet";
 
-type Common = { variant?: Variant; full?: boolean; busy?: boolean; busyLabel?: string; children: ReactNode; className?: string };
+type Common = {
+  variant?: Variant;
+  full?: boolean;
+  busy?: boolean;
+  busyLabel?: string;
+  children: ReactNode;
+  className?: string;
+};
 
-function classes({ variant = "primary", full, busy, className }: Omit<Common, "children">) {
-  return [styles.button, styles[variant], full ? styles.full : "", busy ? styles.busy : "", className ?? ""].filter(Boolean).join(" ");
+function classes({
+  variant = "primary",
+  full,
+  busy,
+  className,
+}: Omit<Common, "children">) {
+  return [
+    styles.button,
+    styles[variant],
+    full ? styles.full : "",
+    busy ? styles.busy : "",
+    className ?? "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 /** 48 px control; a busy button keeps its size and announces what is happening. */
@@ -31,12 +51,20 @@ export function Button({
       {...rest}
     >
       {busy ? <span className={styles.spinner} aria-hidden="true" /> : null}
-      <span>{busy && busyLabel ? busyLabel : children}</span>
+      <span className={styles.content}>
+        {busy && busyLabel ? busyLabel : children}
+      </span>
     </button>
   );
 }
 
-export function ButtonLink({ href, variant, full, children, className }: Common & { href: string }) {
+export function ButtonLink({
+  href,
+  variant,
+  full,
+  children,
+  className,
+}: Common & { href: string }) {
   return (
     <Link href={href} className={classes({ variant, full, className })}>
       {children}

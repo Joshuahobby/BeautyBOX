@@ -1,0 +1,196 @@
+{
+  "capturedAt": "2026-11-16T06:59:30.367Z",
+  "mode": "local TEST production build, synthetic data, fake providers",
+  "steps": [
+    {
+      "name": "01-home-desktop",
+      "path": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "02-mega-menu",
+      "path": "/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "03-home-mobile",
+      "path": "/",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "04-catalog-filtered",
+      "path": "/shop",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "05-product",
+      "path": "/products/lip-hue",
+      "viewport": {
+        "width": 1003,
+        "height": 900
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "06-shade",
+      "path": "/products/lip-hue",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "07-cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "08-location-denied-and-search-unavailable",
+      "path": "/checkout",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "09-delivery-review",
+      "path": "/checkout",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "10-payment-review",
+      "path": "/checkout",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "11-payment-pending",
+      "path": "/payment/34b84ee4-54be-4075-965f-c9f75d2dfd4f",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "12-confirmed-order",
+      "path": "/orders/c866294c-0287-439c-bcfe-428a926e341a",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "13-empty-cart",
+      "path": "/cart",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "14-no-results",
+      "path": "/shop",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "15-staff-settings-mobile",
+      "path": "/staff/settings",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "16-staff-catalog-mobile",
+      "path": "/staff/catalog",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    },
+    {
+      "name": "17-delivery-help",
+      "path": "/help/delivery-returns",
+      "viewport": {
+        "width": 360,
+        "height": 800
+      },
+      "overflow": 0,
+      "brokenImages": 0,
+      "axe": []
+    }
+  ],
+  "errors": [
+    "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+  ]
+}

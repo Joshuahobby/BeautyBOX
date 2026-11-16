@@ -7,19 +7,24 @@ One BeautyBOX storefront that sells only stock held at the BeautyBOX shop:
 - one dispatch origin with distance-quoted delivery
 - MTN MoMo and Airtel Money through pawaPay
 
-The specification is the handoff package in `../BeautyBOX-Handoff-v1.0`; start with its `00-START-HERE.md`.
+The original handoff is not present in this checkout. The reproducible API baseline is pinned under `docs/api/baseline`; the active additive contract is `docs/api/API-Contract-v1.2.openapi.json`. Current decisions and recovery scope are recorded in `docs/CONTINUATION-PLAN.md`.
 
 **Status:** local implementation with synthetic data and simulated providers; a staging deployment behind a pre-launch access code is prepared (`docs/DEPLOYMENT.md`). Public checkout is closed by design until every release gate (G1–G5) passes. See `docs/RELEASE-CHECKLIST.md`.
 
-| Read | For |
-| --- | --- |
-| `docs/SETUP.md` | Local setup, review path, test commands |
-| `docs/DEPLOYMENT.md` | Staging on beautyboxmarket.com behind the pre-launch wall (Vercel, Supabase, Cloudflare) |
-| `docs/PROGRESS.md` | What is done, what is next, open founder inputs |
-| `docs/DECISION-LOG.md` | Implementation decisions (DR-001…) |
-| `docs/COMPATIBILITY.md` | Pinned versions and why |
-| `docs/CONTRACT-CHANGES.md` | Additive API changes against the handoff OpenAPI |
-| `docs/TEST-EVIDENCE.md` | Tests actually run, with results |
+| Read                                   | For                                                                                          |
+| -------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `docs/STAGING-MERGE.md`                | PR #6, staging merge/deployment handoff and preserved hosted data/settings                   |
+| `docs/DETAIL-AUDIT.md`                 | Fresh detailed review, fixes, screenshots and remaining blockers                             |
+| `docs/SCOPE-COVERAGE.md`               | Every reviewed feature and optional item, including explicit deferrals                       |
+| `docs/integrations/GOOGLE-DELIVERY.md` | Silverback Mall, Kigali boundary/tariff, local configuration and billing-blocked live checks |
+| `docs/design-explorations/README.md`   | Individual recovered visual references and design index                                      |
+| `docs/SETUP.md`                        | Local setup, review path, test commands                                                      |
+| `docs/DEPLOYMENT.md`                   | Staging on beautyboxmarket.com behind the pre-launch wall (Vercel, Supabase, Cloudflare)     |
+| `docs/PROGRESS.md`                     | What is done, what is next, open founder inputs                                              |
+| `docs/DECISION-LOG.md`                 | Implementation decisions (DR-001…)                                                           |
+| `docs/COMPATIBILITY.md`                | Pinned versions and why                                                                      |
+| `docs/CONTRACT-CHANGES.md`             | Additive API changes against the handoff OpenAPI                                             |
+| `docs/TEST-EVIDENCE.md`                | Tests actually run, with results                                                             |
 
 ## Layout
 

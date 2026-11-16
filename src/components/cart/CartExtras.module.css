@@ -1,0 +1,30 @@
+.photo {
+  min-width: 0;
+}
+.photo p {
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--color-muted);
+  margin-top: 8px;
+}
+.change {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--color-accent);
+  font-size: 12px;
+  text-decoration: none;
+  cursor: pointer;
+}
+.change:disabled {
+  color: var(--color-muted);
+  cursor: not-allowed;
+}
+.error {
+  font-size: 12px;
+  color: var(--color-danger-text);
+  margin-top: 8px;
+}

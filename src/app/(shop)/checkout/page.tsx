@@ -3,7 +3,10 @@ import { serverEnv } from "@/server/env";
 import { FAKE_SCENARIOS } from "@/adapters/payments/fake";
 import { CheckoutFlow } from "./CheckoutFlow";
 
-export const metadata: Metadata = { title: "Checkout", robots: { index: false, follow: false } };
+export const metadata: Metadata = {
+  title: "Checkout",
+  robots: { index: false, follow: false },
+};
 export const dynamic = "force-dynamic";
 
 export default function CheckoutPage() {
@@ -13,12 +16,19 @@ export default function CheckoutPage() {
     env.PAYMENT_PROVIDER === "fake"
       ? [
           { suffix: "any other", label: "Succeeds after a few seconds" },
-          ...Object.entries(FAKE_SCENARIOS).map(([suffix, s]) => ({ suffix, label: s.label })),
+          ...Object.entries(FAKE_SCENARIOS).map(([suffix, s]) => ({
+            suffix,
+            label: s.label,
+          })),
         ]
       : null;
   return (
     <div className="container page">
-      <CheckoutFlow demoScenarios={demoScenarios} />
+      <CheckoutFlow
+        demoScenarios={demoScenarios}
+        googlePlaces={env.ROUTING_PROVIDER === "google"}
+        mapEmbedKey={env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY}
+      />
     </div>
   );
 }
