@@ -99,6 +99,9 @@
 }
 
 .tableRegion {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--color-rule);
   border-radius: var(--radius-panel);
@@ -296,5 +299,45 @@
   }
   .content {
     padding: var(--space-6) var(--space-6) var(--space-8);
+  }
+}
+
+.mobileOrderList {
+  display: none;
+}
+@media (max-width: 767px) {
+  .orderTable {
+    display: none;
+  }
+  .mobileOrderList {
+    display: grid;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .mobileOrderList > li {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-rule);
+    border-radius: 6px;
+    min-width: 0;
+  }
+  .mobileOrderList a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+  .mobileOrderList dl {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px 16px;
+    font-size: 13px;
+  }
+  .mobileOrderList dd {
+    margin: 0;
+    overflow-wrap: anywhere;
   }
 }

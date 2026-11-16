@@ -86,6 +86,7 @@ const schema = z
     // Google routing (I12): required only when ROUTING_PROVIDER=google
     GOOGLE_ROUTES_API_KEY: unsetIfEmpty(z.string()),
     GOOGLE_PLACES_API_KEY: unsetIfEmpty(z.string()),
+    NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY: unsetIfEmpty(z.string()),
     GOOGLE_TWO_WHEELER_COVERAGE_APPROVED: bool.default(false),
     // Staff identity (I08): Supabase Auth with TOTP MFA; "test" exists only for automated tests.
     STAFF_AUTH_PROVIDER: z
@@ -175,6 +176,16 @@ const schema = z
     }
     if (env.ROUTING_PROVIDER === "google" && !env.GOOGLE_ROUTES_API_KEY) {
       problem("GOOGLE_ROUTES_API_KEY", "required when ROUTING_PROVIDER=google");
+    }
+    if (
+      env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY &&
+      env.GOOGLE_ROUTES_API_KEY &&
+      env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY === env.GOOGLE_ROUTES_API_KEY
+    ) {
+      problem(
+        "NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY",
+        "use a separate browser-restricted Embed key, not the server Routes key",
+      );
     }
     if (env.STAFF_AUTH_PROVIDER === "test" && env.APP_ENV !== "test") {
       problem(

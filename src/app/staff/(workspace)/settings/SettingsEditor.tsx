@@ -150,7 +150,7 @@ export function SettingsEditor({ settings, canEdit }: { settings: SettingsView; 
           value={f.coverage}
           onChange={(e) => set("coverage", e.target.value)}
           error={errors.coverage}
-          help="One boundary without holes, inside Rwanda. A map editor arrives with live routing (I12)."
+          help="One GeoJSON boundary without holes, inside Rwanda; up to 2,048 points. The complete Kigali boundary is available through the local configuration command."
         />
       </fieldset>
 

@@ -93,6 +93,20 @@ describe("staging configuration", () => {
     );
   });
 
+  it("refuses a server Routes key reused as the public Embed key", () => {
+    staging({
+      GOOGLE_ROUTES_API_KEY: "same-test-key",
+      NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY: "same-test-key",
+    });
+    expect(problems()).toMatch(/use a separate browser-restricted Embed key/);
+    expect(problems()).not.toContain("same-test-key");
+    staging({
+      GOOGLE_ROUTES_API_KEY: "server-test-key",
+      NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY: "browser-test-key",
+    });
+    expect(problems()).toBe("");
+  });
+
   it("reaches a hosted database over TLS, with the certificate checked when verifying", () => {
     staging({ DATABASE_SSL: "off" });
     expect(problems()).toMatch(

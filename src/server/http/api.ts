@@ -102,12 +102,31 @@ export async function readJson<T extends z.ZodType>(
       httpStatus: 400,
     });
   }
-  const text = await request.text();
-  if (Buffer.byteLength(text, "utf8") > (options.maxBytes ?? MAX_BODY_BYTES)) {
-    throw new DomainError("VALIDATION_ERROR", "Request body is too large.", {
-      httpStatus: 400,
-    });
+  const limit = options.maxBytes ?? MAX_BODY_BYTES;
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  const reader = request.body?.getReader();
+  if (reader) {
+    try {
+      while (true) {
+        const part = await reader.read();
+        if (part.done) break;
+        size += part.value.byteLength;
+        if (size > limit) {
+          void reader.cancel().catch(() => {});
+          throw new DomainError(
+            "VALIDATION_ERROR",
+            "Request body is too large.",
+            { httpStatus: 400 },
+          );
+        }
+        chunks.push(part.value);
+      }
+    } finally {
+      reader.releaseLock();
+    }
   }
+  const text = Buffer.concat(chunks).toString("utf8");
   let raw: unknown;
   try {
     raw = JSON.parse(text);

@@ -27,6 +27,7 @@ export default function CheckoutPage() {
       <CheckoutFlow
         demoScenarios={demoScenarios}
         googlePlaces={env.ROUTING_PROVIDER === "google"}
+        mapEmbedKey={env.NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY}
       />
     </div>
   );

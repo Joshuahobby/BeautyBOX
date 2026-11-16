@@ -44,14 +44,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [message, setMessage] = useState("");
   const cartRef = useRef<Cart | null>(null);
 
-  useEffect(() => {
-    cartRef.current = cart;
-  }, [cart]);
-
   const refresh = useCallback(async () => {
     try {
       await ensureGuestSession();
       const next = await api<Cart>("/cart");
+      cartRef.current = next;
       setCart(next);
       setStatus("ready");
       return next;
@@ -71,7 +68,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const mutate = useCallback(
-    async (run: (current: Cart, key: string) => Promise<Cart>) => {
+    async (
+      run: (current: Cart, key: string) => Promise<Cart>,
+      confirms?: (before: Cart, after: Cart) => boolean,
+    ) => {
       await ensureGuestSession();
       const current = cartRef.current ?? (await refresh());
       if (!current)
@@ -87,14 +87,36 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setCart(next);
         return next;
       } catch (error) {
-        // A stale version means another tab changed the cart: reload, let the shopper retry.
+        const uncertain =
+          error instanceof ApiError &&
+          (error.status === 0 ||
+            error.code === "UNCERTAIN" ||
+            error.status >= 500);
         if (
           error instanceof ApiError &&
-          (error.code === "VERSION_CONFLICT" ||
-            error.code === "PAYMENT_UNRESOLVED" ||
-            error.status === 0)
-        )
-          await refresh();
+          (uncertain ||
+            error.code === "VERSION_CONFLICT" ||
+            error.code === "PAYMENT_UNRESOLVED")
+        ) {
+          const latest = await refresh();
+          // Read the authoritative cart after a lost response. Accept only the exact
+          // intended quantity/option, never send a second mutation automatically.
+          if (
+            uncertain &&
+            latest &&
+            latest.id === current.id &&
+            latest.version >= current.version &&
+            !latest.paymentPending &&
+            confirms?.(current, latest)
+          )
+            return latest;
+        }
+        if (uncertain)
+          throw new ApiError(
+            0,
+            "UNCERTAIN",
+            "We couldn't confirm that cart change. Review your cart before trying again.",
+          );
         throw error;
       }
     },
@@ -103,36 +125,63 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const setLine = useCallback(
     (variantId: string, quantity: number) =>
-      mutate((current, key) =>
-        api<Cart>("/cart/lines", {
-          method: "POST",
-          idempotencyKey: key,
-          body: { variantId, quantity, expectedVersion: current.version },
-        }),
+      mutate(
+        (current, key) =>
+          api<Cart>("/cart/lines", {
+            method: "POST",
+            idempotencyKey: key,
+            body: { variantId, quantity, expectedVersion: current.version },
+          }),
+        (_before, after) =>
+          (after.lines.find((line) => line.variantId === variantId)?.quantity ??
+            0) === quantity,
       ),
     [mutate],
   );
 
   const removeLine = useCallback(
     (variantId: string) =>
-      mutate((current, key) =>
-        api<Cart>(`/cart/lines/${variantId}`, {
-          method: "DELETE",
-          idempotencyKey: key,
-          body: { expectedVersion: current.version },
-        }),
+      mutate(
+        (current, key) =>
+          api<Cart>(`/cart/lines/${variantId}`, {
+            method: "DELETE",
+            idempotencyKey: key,
+            body: { expectedVersion: current.version },
+          }),
+        (_before, after) =>
+          !after.lines.some((line) => line.variantId === variantId),
       ),
     [mutate],
   );
 
   const replaceLine = useCallback(
     (variantId: string, replacementVariantId: string) =>
-      mutate((current, key) =>
-        api<Cart>("/cart/lines/" + variantId, {
-          method: "PATCH",
-          idempotencyKey: key,
-          body: { replacementVariantId, expectedVersion: current.version },
-        }),
+      mutate(
+        (current, key) =>
+          api<Cart>("/cart/lines/" + variantId, {
+            method: "PATCH",
+            idempotencyKey: key,
+            body: { replacementVariantId, expectedVersion: current.version },
+          }),
+        (before, after) => {
+          const source = before.lines.find(
+            (line) => line.variantId === variantId,
+          );
+          if (!source) return false;
+          const previousTarget = before.lines.find(
+            (line) => line.variantId === replacementVariantId,
+          );
+          const expected =
+            variantId === replacementVariantId
+              ? source.quantity
+              : source.quantity + (previousTarget?.quantity ?? 0);
+          return (
+            (variantId === replacementVariantId ||
+              !after.lines.some((line) => line.variantId === variantId)) &&
+            after.lines.find((line) => line.variantId === replacementVariantId)
+              ?.quantity === expected
+          );
+        },
       ),
     [mutate],
   );

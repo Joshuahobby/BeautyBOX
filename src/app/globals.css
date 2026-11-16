@@ -91,7 +91,7 @@ textarea {
   width: 100%;
   max-width: calc(var(--layout-max-content) + 2 * var(--gutter));
   margin: 0 auto;
-  padding: 0 var(--gutter);
+  padding-inline: var(--gutter);
 }
 
 .page {

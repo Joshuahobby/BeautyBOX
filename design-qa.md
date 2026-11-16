@@ -1,10 +1,18 @@
 # BeautyBOX rebuild design QA
 
+## Full-detail audit — 16 November 2026
+
+Freshly captured and visually inspected the actual local production build across discovery, product/shade/cart, checkout/payment/order, empty/failure states and staff screens. Final evidence: [19 numbered steps and findings](docs/DETAIL-AUDIT.md), [compact PNG preview](docs/evidence/detail-audit/audit-preview.png) and [coverage ledger](docs/SCOPE-COVERAGE.md). Original screenshots are retained beside the final captures.
+
+Resolved the homepage's lost vertical section spacing, delivery fallback dead end, unidentified destination review, contact-edit persistence, lost cart-response feedback, generic option/price wording, icon alignment, singular item grammar and phone staff layout. Staff order cards now follow the UX contract; other wide staff tables retain labelled keyboard scrolling. Final captures contain no broken images, document overflow or detected axe findings. The two final console errors are the intentionally injected search outage and dropped response. Automated accessibility checks do not replace real assistive-technology/device review.
+
+The map's separate browser-key preview is opt-in and mock-tested; live Google rendering/coverage remains unverified while billing is closed. Generated photos remain explicitly illustrative; pending images and draft policy/business placeholders are release inputs, not approved content. This audit does not turn optional roadmap ideas or unavailable external-service checks into completed features.
+
 ## Purchase and delivery follow-up — 16 November 2026
 
 The original storefront review below remains scoped to the homepage/catalogue. Product, shade-sheet, mobile cart and checkout presentation now also pass the structural review in [purchase design QA](docs/evidence/purchase-rebuild/design-qa.md). Saved product/shade/cart captures show the supplied visual system and honest shared-image labels. Delivery/payment-review captures are in `docs/evidence/delivery-rebuild/`; the local preview uses the selected Kigali tariff with simulated routing. Full production-build browser checks cover responsive accessibility and purchase recovery; final targeted checks also verify changed-location fees, route failures and rejection of a stale Places response. Google branding is included only with Google place results; live Google/Embed rendering and actual motorcycle coverage remain unverified while billing is closed.
 
-**Scope:** homepage, shared shop header/footer, catalogue and product cards only. Purchase-flow and delivery restoration remain separate slices.
+**Historical scope of the original review below:** homepage, shared shop header/footer, catalogue and product cards. The later purchase/delivery reviews and full-detail audit above extend that scope.
 
 **Source visual truth:** `docs/design-explorations/images/11-BeautyBOX-Signature.png`, 1003 × 1568 pixels. The owner's subsequent requests add slideshow controls, mega menus and richer discovery sections. The existing app supplies actual categories, brands, prices, stock and filters.
 

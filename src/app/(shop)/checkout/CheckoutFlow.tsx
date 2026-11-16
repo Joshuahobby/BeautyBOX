@@ -41,6 +41,7 @@ import {
   type StepKey,
 } from "./parts";
 import styles from "./checkout.module.css";
+import { ManualLocation, StreetMapPreview } from "./LocationControls";
 
 const NUDGE_DEGREES = 0.000225; // ~25 m
 
@@ -74,9 +75,11 @@ function problemFrom(error: unknown, phase: "quote" | "pay"): Problem {
 export function CheckoutFlow({
   demoScenarios,
   googlePlaces = false,
+  mapEmbedKey,
 }: {
   demoScenarios: { suffix: string; label: string }[] | null;
   googlePlaces?: boolean;
+  mapEmbedKey?: string;
 }) {
   const router = useRouter();
   const { cart, refresh: refreshCart } = useCart();
@@ -247,6 +250,10 @@ export function CheckoutFlow({
       return;
     }
     if (!payerPhone) setPayerPhone(phone);
+    const recipientChanged =
+      checkout?.recipient?.name !== name.trim().replace(/\s+/g, " ") ||
+      checkout?.recipient?.phone !== toCanonicalRwandaPhone(phone);
+    if (recipientChanged) setQuote(null);
     goTo("delivery");
   }
 
@@ -666,6 +673,24 @@ export function CheckoutFlow({
                   placeLabel={placeLabel}
                   onNudge={nudge}
                 />
+                <StreetMapPreview
+                  point={destination}
+                  browserKey={mapEmbedKey}
+                />
+                <ManualLocation
+                  onPick={(point) => {
+                    pinIntent.current++;
+                    setResolvingPlace(false);
+                    setLocating(false);
+                    setDestination(point);
+                    setPlaceLabel(null);
+                    setQuote(null);
+                    setDestinationIssues([]);
+                    setLocationMessage(
+                      "Pin set from your coordinates. Check it, then confirm to calculate delivery.",
+                    );
+                  }}
+                />
                 <p role="status" className="label-text">
                   {locationMessage}
                 </p>
@@ -716,6 +741,9 @@ export function CheckoutFlow({
                 previousFee={previousFee}
                 productsRwf={checkout.productsRwf}
                 totalRwf={total}
+                recipient={checkout.recipient}
+                destination={checkout.destination}
+                placeLabel={placeLabel}
                 onChange={() => {
                   setQuote(null);
                   setPreviousFee(null);
@@ -735,6 +763,11 @@ export function CheckoutFlow({
               {messages.checkout.reviewHeading}
             </h1>
             <ErrorSummary ref={summaryRef} issues={payIssues} />
+            <DeliveryAddress
+              recipient={checkout.recipient}
+              destination={checkout.destination}
+              placeLabel={placeLabel}
+            />
             <div className={styles.panel}>
               <div className={styles.row}>
                 <span>{messages.checkout.products}</span>
@@ -986,11 +1019,49 @@ function PinPanel({
   );
 }
 
+function DeliveryAddress({
+  recipient,
+  destination,
+  placeLabel,
+}: {
+  recipient: Checkout["recipient"];
+  destination: Point | null;
+  placeLabel: string | null;
+}) {
+  if (!recipient || !destination) return null;
+  return (
+    <section
+      className={styles.panel + " " + styles.destinationDetails}
+      aria-label="Delivery details"
+    >
+      <h2 className="u-body-size u-w-600">Deliver to</h2>
+      <p>
+        <strong>{recipient.name}</strong> ·{" "}
+        {displayRwandaPhone(recipient.phone)}
+      </p>
+      {placeLabel ? <p>{placeLabel}</p> : null}
+      <p className="label-text">
+        Confirmed pin:{" "}
+        <span className="tabular">
+          {destination.lat.toFixed(6)}, {destination.lng.toFixed(6)}
+        </span>
+      </p>
+      {recipient.landmark ? <p>Landmark: {recipient.landmark}</p> : null}
+      {recipient.instructions ? (
+        <p>Instructions: {recipient.instructions}</p>
+      ) : null}
+    </section>
+  );
+}
+
 function QuoteReview({
   quote,
   previousFee,
   productsRwf,
   totalRwf,
+  recipient,
+  destination,
+  placeLabel,
   onChange,
   onAccept,
 }: {
@@ -998,11 +1069,19 @@ function QuoteReview({
   previousFee: number | null;
   productsRwf: number;
   totalRwf: number | null;
+  recipient: Checkout["recipient"];
+  destination: Point | null;
+  placeLabel: string | null;
   onChange: () => void;
   onAccept: () => void;
 }) {
   return (
     <div className="stack-4">
+      <DeliveryAddress
+        recipient={recipient}
+        destination={destination}
+        placeLabel={placeLabel}
+      />
       {previousFee !== null ? (
         <Notice
           tone="warning"

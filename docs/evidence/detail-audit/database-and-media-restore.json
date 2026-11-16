@@ -1,0 +1,28 @@
+{
+  "drillAt": "2026-11-16T07:16:09.423Z",
+  "source": "beautybox_test",
+  "dumpBytes": 158480,
+  "dumpSha256": "cd4ae8d609bfb487ebf7690e8d26bbed2c7d3f6f03e69c8d6e8442c608effabb",
+  "backupSeconds": 0.13,
+  "mediaFiles": 2,
+  "mediaVerification": "SHA-256 per file, backup copy and scratch media restore",
+  "restoreSeconds": 0.33,
+  "tables": 46,
+  "rows": 33,
+  "pendingJobs": "none",
+  "tableDiffs": [],
+  "checks": {
+    "rowCountsMatch": true,
+    "migrationsMatch": true,
+    "constraintsMatch": true,
+    "indexesMatch": true,
+    "triggersMatch": true,
+    "pendingJobsRetained": true,
+    "ledgerReconciles": true,
+    "runtimeGrantsRestored": true,
+    "schemaCompatibleWithBuild": true,
+    "mediaCopied": true,
+    "mediaRestored": true
+  },
+  "passed": true
+}

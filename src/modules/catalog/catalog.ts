@@ -5,7 +5,11 @@ import { now } from "@/modules/shared/clock";
 import { toRwf } from "@/modules/shared/money";
 import { DomainError } from "@/modules/shared/errors";
 import { currentSettings, kigaliToday } from "@/modules/settings/settings";
-import { sellableLotCondition, visibleProductCondition, type StockScope } from "@/modules/inventory/eligibility";
+import {
+  sellableLotCondition,
+  visibleProductCondition,
+  type StockScope,
+} from "@/modules/inventory/eligibility";
 import { mediaUrl } from "./media";
 
 // Public catalog reads (FSD CAT-01..04). Only published, visible products; prices
@@ -35,7 +39,12 @@ export type PublicProduct = {
   variants: PublicVariant[];
 };
 
-export type PublicCategory = { id: string; slug: string; title: string; parentId: string | null };
+export type PublicCategory = {
+  id: string;
+  slug: string;
+  title: string;
+  parentId: string | null;
+};
 
 export type ProductSort = "RELEVANCE" | "PRICE_ASC" | "PRICE_DESC" | "NEWEST";
 
@@ -55,29 +64,48 @@ export const DEFAULT_PAGE_SIZE = 24;
 
 export async function stockScope(): Promise<StockScope> {
   const settings = await currentSettings();
-  return { locationId: settings.activeLocationId, todayKigali: kigaliToday(now()) };
+  return {
+    locationId: settings.activeLocationId,
+    todayKigali: kigaliToday(now()),
+  };
 }
 
 function decodeCursor(cursor: string | null | undefined): number {
   if (!cursor) return 0;
   try {
-    const parsed = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as { o?: unknown };
-    if (typeof parsed.o === "number" && Number.isSafeInteger(parsed.o) && parsed.o >= 0 && parsed.o <= 100_000) {
+    const parsed = JSON.parse(
+      Buffer.from(cursor, "base64url").toString("utf8"),
+    ) as { o?: unknown };
+    if (
+      typeof parsed.o === "number" &&
+      Number.isSafeInteger(parsed.o) &&
+      parsed.o >= 0 &&
+      parsed.o <= 100_000
+    ) {
       return parsed.o;
     }
   } catch {
     // fall through
   }
-  throw new DomainError("VALIDATION_ERROR", "Invalid page cursor.", { httpStatus: 400 });
+  throw new DomainError("VALIDATION_ERROR", "Invalid page cursor.", {
+    httpStatus: 400,
+  });
 }
 
-const encodeCursor = (offset: number) => Buffer.from(JSON.stringify({ o: offset })).toString("base64url");
+const encodeCursor = (offset: number) =>
+  Buffer.from(JSON.stringify({ o: offset })).toString("base64url");
 
 function escapeLike(text: string) {
   return text.replace(/[\\%_]/g, (m) => `\\${m}`);
 }
 
-export async function listProducts(query: ProductQuery): Promise<{ items: PublicProduct[]; nextCursor: string | null; total: number }> {
+export async function listProducts(
+  query: ProductQuery,
+): Promise<{
+  items: PublicProduct[];
+  nextCursor: string | null;
+  total: number;
+}> {
   const scope = await stockScope();
   const limit = Math.min(Math.max(query.limit ?? DEFAULT_PAGE_SIZE, 1), 100);
   const offset = decodeCursor(query.cursor);
@@ -90,15 +118,19 @@ export async function listProducts(query: ProductQuery): Promise<{ items: Public
       OR lower(coalesce(pc.title, '')) LIKE ${like})`);
   }
   if (query.category) {
-    where.push(Prisma.sql`(c.slug = ${query.category} OR pc.slug = ${query.category})`);
+    where.push(
+      Prisma.sql`(c.slug = ${query.category} OR pc.slug = ${query.category})`,
+    );
   }
-  if (query.brand) where.push(Prisma.sql`lower(p.brand) = ${query.brand.toLowerCase()}`);
+  if (query.brand)
+    where.push(Prisma.sql`lower(p.brand) = ${query.brand.toLowerCase()}`);
   const min = query.minPriceRwf ?? null;
   const max = query.maxPriceRwf ?? null;
   if (min !== null || max !== null) {
     where.push(Prisma.sql`EXISTS (SELECT 1 FROM commerce.variants pv WHERE pv.product_id = p.id AND pv.is_active
       AND (${min}::bigint IS NULL OR pv.price_rwf >= ${min}::bigint)
-      AND (${max}::bigint IS NULL OR pv.price_rwf <= ${max}::bigint))`);
+      AND (${max}::bigint IS NULL OR pv.price_rwf <= ${max}::bigint)
+      ${query.availableOnly ? Prisma.sql`AND EXISTS (SELECT 1 FROM avail pa WHERE pa.variant_id = pv.id AND pa.available > 0)` : Prisma.empty})`);
   }
 
   const relevance = q
@@ -138,10 +170,16 @@ export async function listProducts(query: ProductQuery): Promise<{ items: Public
   const pageIds = rows.slice(0, limit).map((r) => r.id);
   const total = rows.length > 0 ? Number(rows[0]!.total) : 0;
   const items = await loadProducts(pageIds, scope);
-  return { items, nextCursor: rows.length > limit ? encodeCursor(offset + limit) : null, total };
+  return {
+    items,
+    nextCursor: rows.length > limit ? encodeCursor(offset + limit) : null,
+    total,
+  };
 }
 
-export async function getProductBySlug(slug: string): Promise<PublicProduct | null> {
+export async function getProductBySlug(
+  slug: string,
+): Promise<PublicProduct | null> {
   const scope = await stockScope();
   const found = await db().$queryRaw<{ id: string }[]>`
     SELECT p.id FROM commerce.products p WHERE p.slug = ${slug} AND ${visibleProductCondition("p")}`;
@@ -150,29 +188,47 @@ export async function getProductBySlug(slug: string): Promise<PublicProduct | nu
   return product ?? null;
 }
 
-async function availabilityByVariant(variantIds: string[], scope: StockScope): Promise<Map<string, number>> {
+async function availabilityByVariant(
+  variantIds: string[],
+  scope: StockScope,
+): Promise<Map<string, number>> {
   if (variantIds.length === 0) return new Map();
-  const rows = await db().$queryRaw<{ variant_id: string; available: bigint }[]>`
+  const rows = await db().$queryRaw<
+    { variant_id: string; available: bigint }[]
+  >`
     SELECT l.variant_id, SUM(l.quantity_on_hand - l.reserved_qty - l.committed_qty) AS available
       FROM commerce.inventory_lots l
      WHERE l.variant_id IN (${Prisma.join(variantIds.map((id) => Prisma.sql`${id}::uuid`))})
        AND ${sellableLotCondition("l", scope)}
      GROUP BY l.variant_id`;
-  return new Map(rows.map((r) => [r.variant_id, Math.max(0, Number(r.available))]));
+  return new Map(
+    rows.map((r) => [r.variant_id, Math.max(0, Number(r.available))]),
+  );
 }
 
-export async function availableQuantities(variantIds: string[]): Promise<Map<string, number>> {
+export async function availableQuantities(
+  variantIds: string[],
+): Promise<Map<string, number>> {
   return availabilityByVariant(variantIds, await stockScope());
 }
 
-async function loadProducts(ids: string[], scope: StockScope): Promise<PublicProduct[]> {
+async function loadProducts(
+  ids: string[],
+  scope: StockScope,
+): Promise<PublicProduct[]> {
   if (ids.length === 0) return [];
   const products = await db().product.findMany({
     where: { id: { in: ids } },
     include: {
       category: true,
-      variants: { where: { isActive: true }, orderBy: [{ sortOrder: "asc" }, { sku: "asc" }] },
-      media: { where: { reviewState: "APPROVED" }, orderBy: { sortOrder: "asc" } },
+      variants: {
+        where: { isActive: true },
+        orderBy: [{ sortOrder: "asc" }, { sku: "asc" }],
+      },
+      media: {
+        where: { reviewState: "APPROVED" },
+        orderBy: { sortOrder: "asc" },
+      },
     },
   });
   const available = await availabilityByVariant(
@@ -194,7 +250,9 @@ async function loadProducts(ids: string[], scope: StockScope): Promise<PublicPro
       packSize: p.packSize,
       optionLabel: p.optionLabel,
       isDemo: p.dataOrigin !== "VERIFIED",
-      images: p.media.filter((m) => !m.variantId).map((m) => ({ url: mediaUrl(m.storageKey), alt: m.alt })),
+      images: p.media
+        .filter((m) => !m.variantId)
+        .map((m) => ({ url: mediaUrl(m.storageKey), alt: m.alt })),
       variants: p.variants.map((v) => {
         const media = p.media.find((m) => m.variantId === v.id);
         return {
@@ -211,7 +269,9 @@ async function loadProducts(ids: string[], scope: StockScope): Promise<PublicPro
 
 export async function listCategories(): Promise<PublicCategory[]> {
   // Published, non-empty categories only: no empty departments in navigation.
-  const rows = await db().$queryRaw<{ id: string; slug: string; title: string; parent_id: string | null }[]>`
+  const rows = await db().$queryRaw<
+    { id: string; slug: string; title: string; parent_id: string | null }[]
+  >`
     SELECT c.id, c.slug, c.title, c.parent_id
       FROM commerce.categories c
      WHERE c.is_published
@@ -220,5 +280,10 @@ export async function listCategories(): Promise<PublicCategory[]> {
           JOIN commerce.categories pc ON pc.id = p.category_id
          WHERE (pc.id = c.id OR pc.parent_id = c.id) AND ${visibleProductCondition("p")})
      ORDER BY c.sort_order, c.title`;
-  return rows.map((r) => ({ id: r.id, slug: r.slug, title: r.title, parentId: r.parent_id }));
+  return rows.map((r) => ({
+    id: r.id,
+    slug: r.slug,
+    title: r.title,
+    parentId: r.parent_id,
+  }));
 }

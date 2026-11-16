@@ -1,8 +1,14 @@
 # BeautyBOX continuation and recovery plan
 
-Checkpoint prepared on 16 November 2026, following the owner's request to push completed work before continuing tasks blocked by Google billing.
+Updated on 16 November 2026, following the owner's request to preserve completed work, rebuild missing source and review every detail including optional items.
 
-## What this checkpoint actually contains
+## Current implementation and next dependencies
+
+The selected storefront/catalogue, product/shade/cart and checkout presentation, Silverback/Kigali configuration and server-only Google adapters are rebuilt on `codex/beautybox-storefront-rebuild`. The subsequent full-detail audit addressed fifteen findings, added opt-in street-map preview and stronger local media restoration, and recorded 19 fresh screen states. See [DETAIL-AUDIT.md](DETAIL-AUDIT.md), [SCOPE-COVERAGE.md](SCOPE-COVERAGE.md) and [TEST-EVIDENCE.md](TEST-EVIDENCE.md). The original recovery record below explains the starting point; it is not the current source status.
+
+Remaining work is explicit: reopen Google billing and verify motorcycle coverage with bounded calls; supply isolated storage/sandbox credentials for six optional external cases; implement/configure real SMS; provide approved inventory/photos/copy, contacts/hours, delivery windows/parcel measurements and legal policies; rehearse hosted recovery separately. Deals, shop following, wishlist/reviews and later business-plan capabilities remain their own product decisions. No release or hosting action is implied by this audit.
+
+## Original design-reference recovery checkpoint (historical)
 
 - Fourteen recovered generated design previews, accessible as individual PNG files through [the visual index](design-explorations/README.md).
 - The original eleven-concept index and a SHA-256 inventory of every recovered PNG.
@@ -26,7 +32,7 @@ The previously discussed source files, standalone HTML prototypes, detailed back
 | Billing blocker       | Earlier live checks returned HTTP 403 Permission denied. The latest user-supplied Google screenshot shows a closed billing account, a disabled Reopen button and the BeautyBOX project already linked. Billing reactivation and fresh API checks remain outstanding; no fresh Google API calls were made for this checkpoint.       |
 | Release boundary      | Push reviewable work to a separate Git branch. Do not merge into main, publish the cloud environment, update hosted settings, change payment/SMS modes or launch real sales as part of this checkpoint. Existing staging deployment behavior remains governed by `DEPLOYMENT.md`.                                                   |
 
-The delivery terms and visual references are decisions to carry forward, not claims that they are currently applied to the loaded application.
+The delivery terms and selected visual references above are now implemented locally as described in the rebuild and audit sections. External service and release verification remain separate.
 
 ## Rebuild checkpoint — 16 November 2026
 

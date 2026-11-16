@@ -1,0 +1,45 @@
+{
+  "checkedAt": "2026-11-16T07:22:28.323Z",
+  "providerRequests": 0,
+  "settingsChanged": false,
+  "optionalSuites": [
+    {
+      "suite": "storage-supabase.test.ts",
+      "cases": 2,
+      "status": "MISSING_CREDENTIALS",
+      "required": {
+        "NEXT_PUBLIC_SUPABASE_URL": false,
+        "SUPABASE_SECRET_KEY": false
+      },
+      "command": "RUN_SUPABASE_STORAGE_TESTS=1 npx vitest run --project integration tests/integration/storage-supabase.test.ts"
+    },
+    {
+      "suite": "pawapay-sandbox.test.ts",
+      "cases": 4,
+      "status": "MISSING_SANDBOX_CONFIGURATION",
+      "required": {
+        "PAWAPAY_API_TOKEN": false,
+        "sandboxMode": false,
+        "customEndpointAbsent": true
+      },
+      "command": "RUN_PAWAPAY_SANDBOX_TESTS=1 npx vitest run --project integration tests/integration/pawapay-sandbox.test.ts"
+    }
+  ],
+  "google": {
+    "serverKeyPresent": true,
+    "separateBrowserEmbedKeyPresent": true,
+    "liveCoverage": "PENDING_BILLING_AND_EXPLICIT_LIVE_CHECK",
+    "command": "npm run delivery:check-google"
+  },
+  "sms": {
+    "realProvider": "NOT_IMPLEMENTED_OR_CONFIGURED",
+    "localSimulation": "AVAILABLE",
+    "realMessagesSent": 0
+  },
+  "backupRestore": {
+    "scope": "LOCAL_TEST_ONLY",
+    "command": "npm run ops:drill -- --source beautybox_test",
+    "hostedRestore": "REQUIRES_SEPARATE_HOSTED_REHEARSAL"
+  },
+  "note": "READY_TO_OPT_IN is not a passed test. Review the isolated target before opting in. Put credentials in private environment settings, never chat or Git."
+}

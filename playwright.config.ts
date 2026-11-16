@@ -9,7 +9,8 @@ const envFile = path.resolve(import.meta.dirname, ".env.test");
 if (fs.existsSync(envFile)) {
   for (const line of fs.readFileSync(envFile, "utf8").split(/\r?\n/)) {
     const i = line.indexOf("=");
-    if (i > 0 && !line.startsWith("#")) testEnv[line.slice(0, i)] = line.slice(i + 1);
+    if (i > 0 && !line.startsWith("#"))
+      testEnv[line.slice(0, i)] = line.slice(i + 1);
   }
 }
 
@@ -21,7 +22,10 @@ export default defineConfig({
   timeout: 120_000,
   expect: { timeout: 30_000 },
   retries: 0,
-  reporter: [["list"], ["html", { open: "never", outputFolder: "playwright-report" }]],
+  reporter: [
+    ["list"],
+    ["html", { open: "never", outputFolder: "playwright-report" }],
+  ],
   use: {
     baseURL: "http://localhost:3100",
     trace: "retain-on-failure",
@@ -36,6 +40,14 @@ export default defineConfig({
     url: "http://localhost:3100/staff/sign-in",
     timeout: 900_000,
     reuseExistingServer: false,
-    env: { ...testEnv, NEXT_DIST_DIR: ".next-e2e", NEXT_TELEMETRY_DISABLED: "1" },
+    env: {
+      ...testEnv,
+      GOOGLE_ROUTES_API_KEY: "",
+      GOOGLE_PLACES_API_KEY: "",
+      GOOGLE_TWO_WHEELER_COVERAGE_APPROVED: "false",
+      NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY: "test-browser-key",
+      NEXT_DIST_DIR: ".next-e2e",
+      NEXT_TELEMETRY_DISABLED: "1",
+    },
   },
 });

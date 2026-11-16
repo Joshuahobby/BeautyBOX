@@ -32,7 +32,7 @@ The admin settings route accepts up to 128 KiB after ADMIN authentication so the
 
 `GOOGLE_ROUTES_API_KEY` is server-only, restricted to Routes API; it may also allow Places API (New). Set a separate server-only `GOOGLE_PLACES_API_KEY` if Places uses a different key. Never put either under NEXT_PUBLIC_. Do not print keys or include them in Git.
 
-`NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` is a separate, browser-restricted Embed key. This rebuild does not load an Embed map and does not require that key for distance calculation. The current pin preview is a coordinate preview; it is not presented as a street map.
+`NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY` is a separate, browser-restricted Embed key. The optional street-map iframe loads only after the customer selects Show street map and a valid pin exists. It does not require or expose the server key. Panning the preview does not change the delivery pin; accessible manual coordinate entry and nudging remain available. Without the browser key, checkout still works through search/GPS/manual coordinates. The coordinate schematic is labelled as a preview, not a street map. Live Embed rendering and key/referrer restrictions still need account-side verification; automated tests fulfill the iframe with a local mock and make no Google request.
 
 The app selects the adapter with `ROUTING_PROVIDER=google`. `GOOGLE_TWO_WHEELER_COVERAGE_APPROVED=false` is the default and blocks route requests until evidence is reviewed. Production publication blocks retain ROUTING_ADAPTER_NOT_LIVE while that evidence gate is false. No request parameter can choose the provider or approve coverage. Local previews continue using fake routing/payment/SMS. Hosted staging remains on its existing sandbox/disabled configuration.
 

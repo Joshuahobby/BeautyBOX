@@ -1,0 +1,51 @@
+{
+  "checkedAt": "2026-11-16T07:42:30.228024+00:00",
+  "branch": "codex/beautybox-storefront-rebuild",
+  "verify": {
+    "unitPassed": 132,
+    "tokens": true,
+    "contract": "v1.2 pinned baseline check passed",
+    "typecheck": true,
+    "lint": true
+  },
+  "integration": {
+    "passed": 185,
+    "optionalExternalSkipped": 6
+  },
+  "browser": {
+    "fullRunPassed": 58,
+    "afterRecipientFixFocusedPassed": 14,
+    "finalAuditCasesAfterMobileCardsPassed": 7,
+    "finalDesktopStaffRegressionPassed": 3,
+    "distinctCasesPassingAcrossRuns": 59,
+    "singleFinal59CaseRunClaimed": false,
+    "responsiveWidths": [
+      320,
+      360,
+      390,
+      768,
+      1440
+    ],
+    "staffEntryPagesScannedAt360": 9,
+    "liveGoogleCalls": 0,
+    "mapIframe": "dummy browser key and locally intercepted response"
+  },
+  "optional": {
+    "externalSupabaseCases": {
+      "count": 2,
+      "status": "blocked: current URL/secret absent"
+    },
+    "externalPawapayCases": {
+      "count": 4,
+      "status": "blocked: current sandbox mode/token absent"
+    },
+    "localDatabaseRestore": "passed: synthetic order and pending job preserved",
+    "localMediaRestore": "passed: two synthetic private/public images compared by SHA-256",
+    "realSms": "not implemented/configured; no messages sent",
+    "googleLive": "not attempted: latest owner billing evidence closed"
+  },
+  "noHostedChanges": true,
+  "mainMerged": false,
+  "deployed": false,
+  "environmentPublished": false
+}

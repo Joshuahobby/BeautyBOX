@@ -83,6 +83,10 @@ export function ProductPurchase({
   return (
     <div className="stack-5">
       <p className={styles.price}>
+        {!variant &&
+        new Set(product.variants.map((v) => v.priceRwf)).size > 1 ? (
+          <span className="label-text">From </span>
+        ) : null}
         <Money
           amount={
             variant?.priceRwf ??
@@ -100,10 +104,18 @@ export function ProductPurchase({
           </h2>
           <p className="label-text muted">
             {variant
-              ? format(messages.product.selectedShade, {
-                  shade: variantLabel(variant.attributes),
-                })
-              : messages.product.noShadeSelected}
+              ? format(
+                  isShade
+                    ? messages.product.selectedShade
+                    : messages.product.selectedOption,
+                  {
+                    shade: variantLabel(variant.attributes),
+                    option: variantLabel(variant.attributes),
+                  },
+                )
+              : isShade
+                ? messages.product.noShadeSelected
+                : messages.product.noOptionSelected}
           </p>
           <button
             ref={trigger}

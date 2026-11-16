@@ -43,7 +43,8 @@
     "staging:env-push": "tsx scripts/ops/vercel-env-push.ts",
     "launch-list": "tsx --conditions=react-server --env-file=.env.staging.local scripts/ops/launch-list.ts",
     "delivery:configure-kigali": "tsx --conditions=react-server scripts/ops/configure-kigali.ts",
-    "delivery:check-google": "tsx --conditions=react-server scripts/ops/check-google-delivery.ts"
+    "delivery:check-google": "tsx --conditions=react-server scripts/ops/check-google-delivery.ts",
+    "audit:optional": "node scripts/ops/optional-checks-preflight.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.1",

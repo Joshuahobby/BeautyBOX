@@ -18,9 +18,12 @@ import styles from "./Layout.module.css";
 
 export function CartLink() {
   const { count, status } = useCart();
-  const label = format(messages.nav.cartCountLabel, {
-    count: status === "ready" ? count : 0,
-  });
+  const label =
+    count === 1
+      ? "Cart, 1 item"
+      : format(messages.nav.cartCountLabel, {
+          count: status === "ready" ? count : 0,
+        });
   return (
     <Link
       href="/cart"

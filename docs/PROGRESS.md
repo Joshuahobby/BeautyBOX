@@ -1,5 +1,13 @@
 # Implementation progress
 
+## Full-detail and optional-item audit — 16 November 2026
+
+Reviewed the rebuilt customer journey, staff entry routes, failure states, operational checks and earlier optional ideas. Fifteen findings are resolved or have explicit evidence limits in [DETAIL-AUDIT.md](DETAIL-AUDIT.md). Fixes include manual location entry without GPS/search, destination and recipient review, contact-edit requoting, lost cart-response readback, composed price/stock filtering, generic option pricing, homepage spacing, phone order cards, stock-table containment and streamed request limits. The optional Google Embed preview now loads only on request with a separate browser key; real rendering remains unverified. Local media restoration now compares hashes through a scratch restore.
+
+Fresh verification: **132 unit and 185 integration cases passed; six optional external cases skipped**. The full Chromium run passed 58 cases; final focused rebuilt-app checks passed 14 purchase/audit cases, seven audit cases and three desktop staff regressions (59 distinct browser cases across runs). Nineteen final screenshots have zero detected axe violations, broken images or document overflow. Fresh local database and database/media restore drills passed.
+
+[SCOPE-COVERAGE.md](SCOPE-COVERAGE.md) distinguishes completed, blocked, partial and deferred work, including deals/favourite shops, wishlist/reviews, optional email, SMS, analytics, parcel weights and hosted recovery. Current storage/sandbox credentials are absent; live Google remains blocked by the latest closed-billing evidence. No hosted configuration, main merge, deployment or cloud publication was performed.
+
 ## Kigali and Google restoration — 16 November 2026
 
 Silverback Mall dispatch, the unsimplified 1,749-vertex City of Kigali polygon and the owner-selected RWF 1,500 / 3 km + RWF 250/km tariff are restored. The explicit local/test configuration command was applied to the local preview only (settings version 2), preserving inventory location identity and release switches. Server-only Places API (New), TWO_WHEELER Routes, Google attribution, a default-closed coverage-evidence gate and bounded diagnostics are implemented. Google road distances/responses are not retained in commerce quotes.
@@ -43,7 +51,7 @@ Updated 2026-11-01. Local build, plus the staging deployment live since 2026-10-
 
 ## API contract
 
-The handoff contract (v1.0.0) is implemented together with documented additions CC-01..CC-20 ([CONTRACT-CHANGES.md](CONTRACT-CHANGES.md)). The machine-readable result is [api/API-Contract-v1.1.openapi.json](api/API-Contract-v1.1.openapi.json). Every implemented operation's real responses are validated against it in `tests/integration/contract.test.ts`; the provider callback is tested separately. Decisions: [DECISION-LOG.md](DECISION-LOG.md) DR-001..DR-045.
+The active v1.2 contract extends the pinned committed v1.1 baseline with CC-21; historical additions CC-01..CC-20 ([CONTRACT-CHANGES.md](CONTRACT-CHANGES.md)). The active machine-readable contract is [api/API-Contract-v1.2.openapi.json](api/API-Contract-v1.2.openapi.json). Every implemented operation's real responses are validated against it in `tests/integration/contract.test.ts`; the provider callback is tested separately. Decisions: [DECISION-LOG.md](DECISION-LOG.md) DR-001..DR-045.
 
 ## Done on 2026-10-30
 
@@ -58,7 +66,7 @@ The handoff contract (v1.0.0) is implemented together with documented additions 
 - **No staff tool to value an unvalued supplier obligation** or to close a refund case that turns out not to be owed. Both need a finance procedure first.
 - Product weights do not exist yet, so a parcel weight limit can be recorded but is not enforced.
 - Staff sessions revoked by a password reset keep working on other devices until their access token expires (one hour by default), because the app verifies staff tokens locally; see the release checklist.
-- Staff UI is desktop-first; it has not been tested below 768 px.
+- Staff UI remains desktop-first. The detail audit now tests all nine entry routes at 360 px, including table containment and axe; this does not imply every staff dialog/detail has a full real-device review.
 - Finalized product photos that are never used on a product stay in private storage; deleting them needs a retention rule.
 - Supabase reports 24 foreign keys without their own index (informational). At staging volumes this costs nothing; revisit with real order volumes.
 
@@ -69,6 +77,6 @@ The handoff contract (v1.0.0) is implemented together with documented additions 
 
 ## Open founder inputs
 
-B01-B13 remain outstanding (see the handoff `business/Founder-Inputs.md`). None block local work, and the public sale flow stays closed until they and the release gates pass.
+Some founder inputs remain open; they are not all untouched. Silverback Mall, the Kigali launch boundary and starting tariff were decided and configured locally. Photography/real inventory, contacts/hours, delivery window/parcel measurements, policies and production-provider evidence remain open. See `SCOPE-COVERAGE.md`; public release remains a separate decision.
 
 Supabase dev project (checked 2026-10-23): public sign-ups are disabled, the first staff user exists and holds ADMIN, and `SUPABASE_SECRET_KEY` is in `.env.local`. Anonymous sign-ins are off, and the first administrator has signed in with a verified authenticator app. Staff reset their own password from the sign-in page (redirect URL added by the founder); operators can also use `npm run staff:set-password`. Custom SMTP is needed before staff rely on emailed resets.
