@@ -13,6 +13,7 @@ The original handoff is not present in this checkout. The reproducible API basel
 
 | Read                                   | For                                                                                          |
 | -------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `docs/STAGING-MERGE.md`                | PR #6, staging merge/deployment handoff and preserved hosted data/settings                   |
 | `docs/DETAIL-AUDIT.md`                 | Fresh detailed review, fixes, screenshots and remaining blockers                             |
 | `docs/SCOPE-COVERAGE.md`               | Every reviewed feature and optional item, including explicit deferrals                       |
 | `docs/integrations/GOOGLE-DELIVERY.md` | Silverback Mall, Kigali boundary/tariff, local configuration and billing-blocked live checks |

@@ -1,5 +1,9 @@
 # Implementation progress
 
+## Staging merge preparation — 16 November 2026
+
+[PR #6](https://github.com/Joshuahobby/BeautyBOX/pull/6) prepares the reviewed design and purchase flows for `main`. Fresh full checks passed **132 unit, 185 integration and 59 browser cases**; six external-service cases remain skipped. No schema migration or hosted database reset/reseed is needed. The optional Google settings are now included in the staging template/deployment helper, with server keys marked sensitive; no hosted settings were pushed. See [STAGING-MERGE.md](STAGING-MERGE.md) for Vercel authorization, the owner-account checkpoint, merge instructions, unchanged staging safeguards and post-merge review.
+
 ## Full-detail and optional-item audit — 16 November 2026
 
 Reviewed the rebuilt customer journey, staff entry routes, failure states, operational checks and earlier optional ideas. Fifteen findings are resolved or have explicit evidence limits in [DETAIL-AUDIT.md](DETAIL-AUDIT.md). Fixes include manual location entry without GPS/search, destination and recipient review, contact-edit requoting, lost cart-response readback, composed price/stock filtering, generic option pricing, homepage spacing, phone order cards, stock-table containment and streamed request limits. The optional Google Embed preview now loads only on request with a separate browser key; real rendering remains unverified. Local media restoration now compares hashes through a scratch restore.

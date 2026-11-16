@@ -1,5 +1,11 @@
 # Test evidence
 
+## Staging merge candidate — 16 November 2026
+
+Fresh complete checks for [PR #6](https://github.com/Joshuahobby/BeautyBOX/pull/6): `npm run verify` passed tokens, pinned v1.2 contract, types, lint and **132 unit tests**; real-PostgreSQL integration passed **185 cases**, with six isolated external-service cases skipped; a fresh production build and **all 59 Chromium browser cases passed in one run**. This supersedes the earlier audit's split browser-run count below. The staging settings helper also passed a placeholder-only dry run and four-setting local CLI imitation, verifying secret flags and excluded owner credentials with zero Vercel requests.
+
+Evidence: [verification.json](evidence/staging-merge/verification.json); handoff: [STAGING-MERGE.md](STAGING-MERGE.md). Application source is unchanged since the audited checkpoint. No schema migration, hosted reset/reseed, main merge, real payment, real SMS or cloud-environment publication was performed during preparation. The feature preview's Vercel membership failure and the owner-account checkpoint/merge route are described in the handoff.
+
 ## Full-detail and optional-item audit — 16 November 2026
 
 - `npm run verify`: **132 unit tests** passed; tokens, pinned v1.2 contract, Next type generation/TypeScript and ESLint passed.

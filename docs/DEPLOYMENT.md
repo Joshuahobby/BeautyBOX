@@ -1,5 +1,9 @@
 # Staging deployment on beautyboxmarket.com (DR-044)
 
+## Prepared design update — 16 November 2026
+
+[PR #6](https://github.com/Joshuahobby/BeautyBOX/pull/6) prepares the reviewed storefront and purchase-flow update for `main`. See [STAGING-MERGE.md](STAGING-MERGE.md) for the exact merge route, Vercel author-authorization failure, unchanged hosted data/settings, fresh checks and post-merge review. The feature branch itself has not updated staging. No new schema migration or Google billing activation is required to view this design with the existing staging configuration.
+
 What this sets up, at no cost until launch:
 
 | Address | What visitors see |

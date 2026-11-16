@@ -1,0 +1,57 @@
+{
+  "checkedAt": "2026-11-16T08:20:59.183910+00:00",
+  "pullRequest": "https://github.com/Joshuahobby/BeautyBOX/pull/6",
+  "baseMainCommit": "197e926c56dab50f0218ffdd017e40aeb039d79f",
+  "applicationCommit": "e25c573286e5c13a2198970a30c01eebb04babfa",
+  "applicationSourceTree": "735ed24264cf706459e1787779459ea1254d642d",
+  "preparationChanges": "Staging handoff, optional Google deployment helper/template and validation evidence; application source unchanged.",
+  "verification": {
+    "tokens": true,
+    "contract": "v1.2 pinned check passed",
+    "typecheck": true,
+    "lint": true,
+    "unitPassed": 132,
+    "integrationPassed": 185,
+    "optionalExternalSkipped": 6,
+    "fullProductionBuildBrowserPassed": 59,
+    "browserFailures": 0
+  },
+  "compatibility": {
+    "mainIsAncestor": true,
+    "newSchemaMigrations": 0,
+    "dependencyLockChanged": false,
+    "vercelProjectConfigChanged": false,
+    "hostedResetOrSeedRequired": false
+  },
+  "providers": {
+    "liveGoogleCalls": 0,
+    "realPayments": 0,
+    "realSms": 0,
+    "googleCoverageGate": false,
+    "externalStorageAndPaymentCases": "6 skipped; isolated credentials unavailable"
+  },
+  "stagingEnvironmentHelper": {
+    "dryRun": "passed; names/lengths only",
+    "localCliImitation": "4 settings passed with correct sensitivity",
+    "ownerCredentialsExcluded": true,
+    "providerRequests": 0,
+    "hostedSettingsChanged": false
+  },
+  "gitHubCheckpoint": {
+    "method": "GitHub Git data API with authenticated-account defaults; original history retained",
+    "expectedAuthor": "Joshuahobby"
+  },
+  "originalFeaturePreview": {
+    "state": "BLOCKED",
+    "reason": "Feature-commit author is not a member of the BeautyBOX Vercel team",
+    "evidence": "https://github.com/Joshuahobby/BeautyBOX/pull/6#issuecomment-6910961752"
+  },
+  "mainMerged": false,
+  "hostedSettingsChanged": false,
+  "cloudEnvironmentPublished": false,
+  "logSha256": {
+    "verify": "a0dbf81b7513d2f238f69a561256bcf37a40a3bd939f908ddc419459df7da093",
+    "integration": "700be28c24fc6e2ab27a2f0bb867df085d91678e1462d0c4d8fee29b9b0ce3e8",
+    "browser": "d1ca8096bc56495885a2c58b9069f50b1b84e384d0a51b02ac37002b97b9ba56"
+  }
+}
