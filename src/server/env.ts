@@ -68,6 +68,13 @@ const schema = z
     PAYMENT_PROVIDER: z.enum(["fake", "pawapay"]),
     ROUTING_PROVIDER: z.enum(["fake", "google"]),
     SMS_PROVIDER: z.enum(["disabled", "fake", "africastalking"]),
+    AFRICASTALKING_SEND_ENABLED: bool,
+    AFRICASTALKING_MODE: z.enum(["sandbox", "live"]).default("sandbox"),
+    AFRICASTALKING_USERNAME: unsetIfEmpty(z.string().min(1).max(100)),
+    AFRICASTALKING_API_KEY: unsetIfEmpty(z.string().min(1)),
+    AFRICASTALKING_SENDER_ID: unsetIfEmpty(
+      z.string().regex(/^[A-Za-z0-9]{1,11}$/),
+    ),
     DEMO_CATALOG_VISIBLE: bool,
     DATABASE_POOL_MAX: z.coerce.number().int().min(1).max(50).default(10),
     // TLS to the database: "off" only on this machine; "verify" checks the server certificate
@@ -266,11 +273,39 @@ const schema = z
     }
     // Implemented adapters only: an unbuilt provider would take down payments and photos too.
 
-    if (env.SMS_PROVIDER === "africastalking")
-      problem(
-        "SMS_PROVIDER",
-        "Africa's Talking SMS is not implemented in this build yet (I11)",
-      );
+    if (env.AFRICASTALKING_MODE === "live" && env.APP_ENV !== "production")
+      problem("AFRICASTALKING_MODE", "live mode requires APP_ENV=production");
+    if (env.AFRICASTALKING_SEND_ENABLED) {
+      if (env.SMS_PROVIDER !== "africastalking")
+        problem(
+          "SMS_PROVIDER",
+          "select africastalking before enabling its send switch",
+        );
+      for (const name of [
+        "AFRICASTALKING_USERNAME",
+        "AFRICASTALKING_API_KEY",
+        "AFRICASTALKING_SENDER_ID",
+      ] as const)
+        if (!env[name]) problem(name, "required when SMS sending is enabled");
+      if (
+        env.AFRICASTALKING_MODE === "sandbox" &&
+        env.AFRICASTALKING_USERNAME !== "sandbox"
+      )
+        problem(
+          "AFRICASTALKING_USERNAME",
+          "sandbox mode requires the sandbox username",
+        );
+      if (
+        env.AFRICASTALKING_MODE === "live" &&
+        env.AFRICASTALKING_USERNAME === "sandbox"
+      )
+        problem(
+          "AFRICASTALKING_USERNAME",
+          "live mode requires an approved live account",
+        );
+      if (env.APP_ENV === "production" && env.AFRICASTALKING_MODE !== "live")
+        problem("AFRICASTALKING_MODE", "production sending requires live mode");
+    }
     if (env.APP_ENV === "staging") {
       // Staging runs on serverless hosting: no writable local disk, and no simulator schema.
       if (env.MEDIA_STORAGE === "local")
@@ -348,7 +383,11 @@ export function publicSecretProblems(
   return Object.entries(env)
     .filter(([name, value]) => {
       if (!name.startsWith("NEXT_PUBLIC_")) return false;
-      if (/SECRET|PASSWORD|PRIVATE|SERVICE_ROLE|API_TOKEN/i.test(name))
+      if (
+        /SECRET|PASSWORD|PRIVATE|SERVICE_ROLE|API_TOKEN|AFRICASTALKING_API_KEY/i.test(
+          name,
+        )
+      )
         return true;
       return (
         typeof value === "string" &&
