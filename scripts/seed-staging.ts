@@ -18,7 +18,7 @@ async function shopBase(): Promise<{ sellerId: string; locationId: string }> {
     return { sellerId: location.sellerId, locationId: location.id };
   }
   // No SMS provider in staging yet, so customer notifications stay off.
-  const { seller, location } = await seedBaseConfiguration({ staging: true, notificationsEnabled: false });
+  const { seller, location } = await seedBaseConfiguration({ staging: true, notificationsEnabled: false, kigaliDelivery: true });
   console.log("[seed-staging] shop configuration added");
   return { sellerId: seller.id, locationId: location.id };
 }

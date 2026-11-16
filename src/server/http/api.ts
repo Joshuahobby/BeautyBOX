@@ -14,12 +14,21 @@ export type ApiContext = { requestId: string };
 
 const MAX_BODY_BYTES = 16 * 1024;
 
-export function jsonResponse(body: unknown, init: { status?: number; requestId: string; cache?: "no-store" | "public-short" }) {
+export function jsonResponse(
+  body: unknown,
+  init: {
+    status?: number;
+    requestId: string;
+    cache?: "no-store" | "public-short";
+  },
+) {
   const res = NextResponse.json(body, { status: init.status ?? 200 });
   res.headers.set("X-Request-Id", init.requestId);
   res.headers.set(
     "Cache-Control",
-    init.cache === "public-short" ? "public, max-age=30, stale-while-revalidate=60" : "private, no-store, max-age=0",
+    init.cache === "public-short"
+      ? "public, max-age=30, stale-while-revalidate=60"
+      : "private, no-store, max-age=0",
   );
   return res;
 }
@@ -30,18 +39,30 @@ export function errorResponse(error: DomainError, requestId: string) {
       code: error.code,
       message: error.message,
       requestId,
-      ...(error.fieldErrors && error.fieldErrors.length > 0 ? { fieldErrors: error.fieldErrors } : {}),
+      ...(error.fieldErrors && error.fieldErrors.length > 0
+        ? { fieldErrors: error.fieldErrors }
+        : {}),
     },
     { status: error.httpStatus, requestId },
   );
-  if (error.retryAfterSeconds) res.headers.set("Retry-After", String(error.retryAfterSeconds));
+  if (error.retryAfterSeconds)
+    res.headers.set("Retry-After", String(error.retryAfterSeconds));
   return res;
 }
 
-export function withApi<P extends Record<string, string | string[]> = Record<string, never>>(
-  handler: (request: NextRequest, params: P, ctx: ApiContext) => Promise<NextResponse>,
+export function withApi<
+  P extends Record<string, string | string[]> = Record<string, never>,
+>(
+  handler: (
+    request: NextRequest,
+    params: P,
+    ctx: ApiContext,
+  ) => Promise<NextResponse>,
 ) {
-  return async (request: NextRequest, route: { params: Promise<P> }): Promise<NextResponse> => {
+  return async (
+    request: NextRequest,
+    route: { params: Promise<P> },
+  ): Promise<NextResponse> => {
     const requestId = randomUUID();
     try {
       const params = await route.params;
@@ -53,38 +74,66 @@ export function withApi<P extends Record<string, string | string[]> = Record<str
       logEvent("error", "api_unhandled", {
         requestId,
         route: request.nextUrl.pathname.replace(/[0-9a-f-]{36}/gi, ":id"),
-        error: error instanceof Error ? `${error.name}: ${error.message.slice(0, 200)}` : "unknown",
+        error:
+          error instanceof Error
+            ? `${error.name}: ${error.message.slice(0, 200)}`
+            : "unknown",
       });
-      return errorResponse(new DomainError("INTERNAL_ERROR", "Something went wrong. Please try again."), requestId);
+      return errorResponse(
+        new DomainError(
+          "INTERNAL_ERROR",
+          "Something went wrong. Please try again.",
+        ),
+        requestId,
+      );
     }
   };
 }
 
 /** Parse a JSON body strictly against a schema (unknown fields rejected). */
-export async function readJson<T extends z.ZodType>(request: NextRequest, schema: T): Promise<z.infer<T>> {
+export async function readJson<T extends z.ZodType>(
+  request: NextRequest,
+  schema: T,
+  options: { maxBytes?: number } = {},
+): Promise<z.infer<T>> {
   const type = request.headers.get("content-type") ?? "";
   if (!type.toLowerCase().startsWith("application/json")) {
-    throw new DomainError("VALIDATION_ERROR", "Send a JSON request body.", { httpStatus: 400 });
+    throw new DomainError("VALIDATION_ERROR", "Send a JSON request body.", {
+      httpStatus: 400,
+    });
   }
   const text = await request.text();
-  if (Buffer.byteLength(text, "utf8") > MAX_BODY_BYTES) {
-    throw new DomainError("VALIDATION_ERROR", "Request body is too large.", { httpStatus: 400 });
+  if (Buffer.byteLength(text, "utf8") > (options.maxBytes ?? MAX_BODY_BYTES)) {
+    throw new DomainError("VALIDATION_ERROR", "Request body is too large.", {
+      httpStatus: 400,
+    });
   }
   let raw: unknown;
   try {
     raw = JSON.parse(text);
   } catch {
-    throw new DomainError("VALIDATION_ERROR", "Request body is not valid JSON.", { httpStatus: 400 });
+    throw new DomainError(
+      "VALIDATION_ERROR",
+      "Request body is not valid JSON.",
+      { httpStatus: 400 },
+    );
   }
   const parsed = schema.safeParse(raw);
   if (!parsed.success) {
-    throw new DomainError("VALIDATION_ERROR", "Check the highlighted details.", {
-      httpStatus: 422,
-      fieldErrors: parsed.error.issues.slice(0, 20).map((i) => ({
-        field: i.path.join(".") || "body",
-        message: i.code === "unrecognized_keys" ? "Unknown field." : "Invalid value.",
-      })),
-    });
+    throw new DomainError(
+      "VALIDATION_ERROR",
+      "Check the highlighted details.",
+      {
+        httpStatus: 422,
+        fieldErrors: parsed.error.issues.slice(0, 20).map((i) => ({
+          field: i.path.join(".") || "body",
+          message:
+            i.code === "unrecognized_keys"
+              ? "Unknown field."
+              : "Invalid value.",
+        })),
+      },
+    );
   }
   return parsed.data;
 }
@@ -99,7 +148,8 @@ export function assertSameOrigin(request: NextRequest): void {
   const expected = new URL(serverEnv().APP_ORIGIN).origin;
   const origin = request.headers.get("origin");
   if (origin) {
-    if (origin !== expected) throw new DomainError("FORBIDDEN", "Request origin is not allowed.");
+    if (origin !== expected)
+      throw new DomainError("FORBIDDEN", "Request origin is not allowed.");
     return;
   }
   const site = request.headers.get("sec-fetch-site");
@@ -114,5 +164,7 @@ export function idempotencyKeyFrom(request: NextRequest): string | null {
 export function clientAddress(request: NextRequest): string {
   // Behind the hosting proxy the first X-Forwarded-For entry is the client. Used only
   // as a hashed rate-limit key, never stored raw.
-  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local";
+  return (
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "local"
+  );
 }

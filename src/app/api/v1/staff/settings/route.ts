@@ -1,5 +1,11 @@
 import type { NextRequest } from "next/server";
-import { assertSameOrigin, idempotencyKeyFrom, jsonResponse, readJson, withApi } from "@/server/http/api";
+import {
+  assertSameOrigin,
+  idempotencyKeyFrom,
+  jsonResponse,
+  readJson,
+  withApi,
+} from "@/server/http/api";
 import { staffFrom } from "@/server/http/staff";
 import { settingsUpdateInput } from "@/server/http/staff-schemas";
 import { validateIdempotencyKey } from "@/modules/idempotency/idempotency";
@@ -18,6 +24,10 @@ export const PUT = withApi(async (request: NextRequest, _params, ctx) => {
   assertSameOrigin(request);
   const staff = await staffFrom(request, "settings.write", ctx.requestId);
   const key = validateIdempotencyKey(idempotencyKeyFrom(request));
-  const body = await readJson(request, settingsUpdateInput);
-  return jsonResponse(await updateSettings(staff, body, key, ctx.requestId), { requestId: ctx.requestId });
+  const body = await readJson(request, settingsUpdateInput, {
+    maxBytes: 128 * 1024,
+  });
+  return jsonResponse(await updateSettings(staff, body, key, ctx.requestId), {
+    requestId: ctx.requestId,
+  });
 });

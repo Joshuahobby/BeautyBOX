@@ -1,0 +1,12 @@
+{
+  "capturedAt": "2026-11-16T06:47:14.476Z",
+  "mode": "local production build; TEST demo data; simulated 5km route; no live provider calls",
+  "viewport": {
+    "width": 390,
+    "height": 844
+  },
+  "deliveryFeeRwf": 2000,
+  "merchandiseRwf": 10000,
+  "totalRwf": 12000,
+  "browserErrors": []
+}

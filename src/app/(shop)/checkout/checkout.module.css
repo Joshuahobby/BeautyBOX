@@ -281,7 +281,7 @@
   }
 }
 
-.main > h1 {
+.main h1 {
   letter-spacing: -0.035em;
 }
 .panel {
@@ -291,4 +291,14 @@
 .summary {
   background: var(--color-canvas);
   border-radius: 6px;
+}
+
+.googleAttribution {
+  width: 98px;
+  height: auto;
+  margin-block: 8px;
+}
+
+.main [tabindex="-1"] {
+  scroll-margin-top: calc(var(--header-height) + 24px);
 }

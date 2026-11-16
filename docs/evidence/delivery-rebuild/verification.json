@@ -1,0 +1,65 @@
+{
+  "checkedAt": "2026-11-16T06:42:19.655116+00:00",
+  "sourceBranch": "codex/beautybox-storefront-rebuild",
+  "verify": {
+    "passed": true,
+    "unitTests": 120,
+    "tokens": true,
+    "contract": true,
+    "typecheck": true,
+    "lint": true
+  },
+  "integration": {
+    "passed": 184,
+    "optionalExternalSkipped": 6
+  },
+  "googlePreflight": {
+    "requests": 0,
+    "routesKeyPresent": true,
+    "placesKeyPresent": true,
+    "embedKeyPresent": true,
+    "coverageApproved": false,
+    "settingsChanged": false
+  },
+  "localConfiguration": {
+    "settingsVersion": 2,
+    "polygonVertices": 1749,
+    "dispatch": "Silverback Mall, Kicukiro",
+    "extraRwfPerKm": 250,
+    "releaseGatesChanged": false
+  },
+  "liveGoogleRequestsDuringRebuild": 0,
+  "liveGoogleOutcome": "Not attempted: owner-reported billing account remains closed",
+  "paymentsAndSms": "local/test simulated",
+  "hostedSettingsChanged": false,
+  "mainMerged": false,
+  "environmentPublished": false,
+  "deployed": false,
+  "browser": {
+    "productionBuild": true,
+    "fullRun": {
+      "passed": 50,
+      "failed": 1,
+      "failure": "new outage test expected wording absent from the app; corrected assertion"
+    },
+    "finalTargetedRun": {
+      "passed": 10,
+      "failed": 0,
+      "includes": [
+        "corrected outage case",
+        "new late-place-response guard",
+        "location-change repricing",
+        "no motorcycle route",
+        "outside city",
+        "responsive axe 360/768/1440",
+        "fake payment success and failure"
+      ]
+    },
+    "distinctCasesPassingAcrossRuns": 52,
+    "finalFocusRun": {
+      "passed": 4,
+      "failed": 0,
+      "checks": "Focused checkout title is visible below sticky header; delivery cases rechecked"
+    }
+  }
+}

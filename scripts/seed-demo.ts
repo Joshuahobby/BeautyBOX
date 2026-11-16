@@ -16,7 +16,7 @@ async function main() {
     console.log("[seed] demo data already present; run `npm run setup:local -- --reset` to start from empty");
     return;
   }
-  const { seller, location } = await seedBaseConfiguration();
+  const { seller, location } = await seedBaseConfiguration({ kigaliDelivery: true });
   const supplierA = await db().supplier.create({
     data: { name: "Demo supplier A (synthetic)", agreementReference: "DEMO-AGR-A", dataOrigin: "SYNTHETIC_DEMO" },
   });

@@ -1,5 +1,14 @@
 import "server-only";
-import type { DataOrigin, LotOwnership, ParcelClass } from "@/generated/prisma/client";
+import {
+  SILVERBACK_MALL,
+  KIGALI_COVERAGE,
+  KIGALI_TARIFF,
+} from "@/config/delivery/kigali";
+import type {
+  DataOrigin,
+  LotOwnership,
+  ParcelClass,
+} from "@/generated/prisma/client";
 import { db, transaction } from "@/server/db";
 import { serverEnv } from "@/server/env";
 import { applyLotDelta } from "@/modules/inventory/stock";
@@ -21,7 +30,14 @@ export async function assertFixturesAllowed(opts: { staging?: boolean } = {}) {
   }
   const profile = await db().deploymentProfile.findUnique({ where: { id: 1 } });
   const expected = stagingAllowed ? "STAGING" : null;
-  if (!profile || !profile.demoDataAllowed || profile.environment === "PRODUCTION" || (expected ? profile.environment !== expected : profile.environment === "STAGING")) {
+  if (
+    !profile ||
+    !profile.demoDataAllowed ||
+    profile.environment === "PRODUCTION" ||
+    (expected
+      ? profile.environment !== expected
+      : profile.environment === "STAGING")
+  ) {
     throw new Error("Database deployment profile does not allow demo fixtures");
   }
 }
@@ -42,21 +58,36 @@ export const DEMO_COVERAGE = {
 export const DEMO_ORIGIN = { lat: -1.944, lng: 30.0619 };
 
 export async function seedBaseConfiguration(
-  opts: { checkoutEnabled?: boolean; reservationTtlSeconds?: number; quoteTtlSeconds?: number; notificationsEnabled?: boolean; staging?: boolean } = {},
+  opts: {
+    checkoutEnabled?: boolean;
+    reservationTtlSeconds?: number;
+    quoteTtlSeconds?: number;
+    notificationsEnabled?: boolean;
+    staging?: boolean;
+    kigaliDelivery?: boolean;
+  } = {},
 ) {
   await assertFixturesAllowed({ staging: opts.staging });
   return transaction(async (tx) => {
-    const seller = await tx.seller.create({ data: { name: "BeautyBOX (demo seller record)", isActive: true } });
+    const seller = await tx.seller.create({
+      data: { name: "BeautyBOX (demo seller record)", isActive: true },
+    });
     const location = await tx.dispatchLocation.create({
       data: {
         sellerId: seller.id,
-        label: "Demo dispatch point (synthetic pin)",
-        addressText: opts.staging ? "Synthetic location for the staging site only" : "Synthetic location for local development only",
-        lat: DEMO_ORIGIN.lat,
-        lng: DEMO_ORIGIN.lng,
+        label: opts.kigaliDelivery
+          ? SILVERBACK_MALL.label
+          : "Demo dispatch point (synthetic pin)",
+        addressText: opts.kigaliDelivery
+          ? SILVERBACK_MALL.addressText
+          : opts.staging
+            ? "Synthetic location for the staging site only"
+            : "Synthetic location for local development only",
+        lat: opts.kigaliDelivery ? SILVERBACK_MALL.lat : DEMO_ORIGIN.lat,
+        lng: opts.kigaliDelivery ? SILVERBACK_MALL.lng : DEMO_ORIGIN.lng,
         parcelRules: { maxTotalUnits: 20 },
         isActive: true,
-        approvalState: "DEMO",
+        approvalState: opts.kigaliDelivery ? "PROPOSED" : "DEMO",
         dataOrigin: "SYNTHETIC_DEMO",
       },
     });
@@ -65,13 +96,19 @@ export async function seedBaseConfiguration(
         version: 1,
         baseRwf: 1500n,
         includedMetres: 3000,
-        extraRwfPerKm: 300n,
+        extraRwfPerKm: opts.kigaliDelivery
+          ? BigInt(KIGALI_TARIFF.extraRwfPerKm)
+          : 300n,
         roundingRwf: 100n,
-        maxDistanceMetres: 25_000,
-        coverageRules: DEMO_COVERAGE,
-        approvalState: "DEMO",
+        maxDistanceMetres: opts.kigaliDelivery
+          ? KIGALI_TARIFF.maxDistanceMetres
+          : 25_000,
+        coverageRules: opts.kigaliDelivery ? KIGALI_COVERAGE : DEMO_COVERAGE,
+        approvalState: opts.kigaliDelivery ? "PROPOSED" : "DEMO",
         dataOrigin: "SYNTHETIC_DEMO",
-        reason: "Proposed FSD DEL-03 test tariff; not an approved courier rate",
+        reason: opts.kigaliDelivery
+          ? "Owner-selected Kigali starting tariff; local rehearsal, live routing pending"
+          : "Proposed FSD DEL-03 test tariff; not an approved courier rate",
       },
     });
     const settings = await tx.settingsVersion.create({
@@ -90,17 +127,34 @@ export async function seedBaseConfiguration(
         deliveryPromise: null,
         policiesApproved: false,
         dataOrigin: "SYNTHETIC_DEMO",
-        reason: opts.staging ? "Staging demo configuration (synthetic)" : "Local demo configuration",
+        reason: opts.staging
+          ? "Staging demo configuration (synthetic)"
+          : "Local demo configuration",
       },
     });
     return { seller, location, tariff, settings };
   });
 }
 
-export async function createCategory(input: { slug: string; title: string; parentSlug?: string; sortOrder?: number }) {
-  const parent = input.parentSlug ? await db().category.findUniqueOrThrow({ where: { slug: input.parentSlug } }) : null;
+export async function createCategory(input: {
+  slug: string;
+  title: string;
+  parentSlug?: string;
+  sortOrder?: number;
+}) {
+  const parent = input.parentSlug
+    ? await db().category.findUniqueOrThrow({
+        where: { slug: input.parentSlug },
+      })
+    : null;
   return db().category.create({
-    data: { slug: input.slug, title: input.title, parentId: parent?.id ?? null, sortOrder: input.sortOrder ?? 0, isPublished: true },
+    data: {
+      slug: input.slug,
+      title: input.title,
+      parentId: parent?.id ?? null,
+      sortOrder: input.sortOrder ?? 0,
+      isPublished: true,
+    },
   });
 }
 
@@ -109,7 +163,15 @@ export type FixtureVariant = {
   attributes?: Record<string, string>;
   priceRwf: number;
   parcelClass?: ParcelClass;
-  lots?: { quantity: number; supplierSku?: string; ownership?: LotOwnership; supplierId?: string; costBasisRwf?: number; expiryDate?: string; batch?: string }[];
+  lots?: {
+    quantity: number;
+    supplierSku?: string;
+    ownership?: LotOwnership;
+    supplierId?: string;
+    costBasisRwf?: number;
+    expiryDate?: string;
+    batch?: string;
+  }[];
 };
 
 export async function createProduct(input: {
@@ -126,7 +188,9 @@ export async function createProduct(input: {
   publish?: boolean;
   variants: FixtureVariant[];
 }) {
-  const category = await db().category.findUniqueOrThrow({ where: { slug: input.categorySlug } });
+  const category = await db().category.findUniqueOrThrow({
+    where: { slug: input.categorySlug },
+  });
   const product = await db().product.create({
     data: {
       sellerId: input.sellerId,
@@ -195,18 +259,26 @@ export async function receiveStock(input: {
         agreementReference: input.supplierId ? "DEMO-AGREEMENT" : null,
         batchReference: input.batchReference,
         quantityOnHand: 0,
-        costBasisRwf: input.costBasisRwf === null ? null : BigInt(input.costBasisRwf),
-        expiryDate: input.expiryDate ? new Date(`${input.expiryDate}T00:00:00Z`) : null,
+        costBasisRwf:
+          input.costBasisRwf === null ? null : BigInt(input.costBasisRwf),
+        expiryDate: input.expiryDate
+          ? new Date(`${input.expiryDate}T00:00:00Z`)
+          : null,
         reviewState: "VERIFIED",
         dataOrigin: input.dataOrigin,
       },
     });
     if (input.quantity > 0) {
-      await applyLotDelta(tx, lot.id, { onHand: input.quantity, reserved: 0, committed: 0 }, {
-        type: "RECEIPT",
-        reason: "Opening fixture stock (synthetic)",
-        actor: { type: "SYSTEM", id: null },
-      });
+      await applyLotDelta(
+        tx,
+        lot.id,
+        { onHand: input.quantity, reserved: 0, committed: 0 },
+        {
+          type: "RECEIPT",
+          reason: "Opening fixture stock (synthetic)",
+          actor: { type: "SYSTEM", id: null },
+        },
+      );
     }
     return lot;
   });

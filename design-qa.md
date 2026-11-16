@@ -1,4 +1,8 @@
-# Storefront rebuild design QA
+# BeautyBOX rebuild design QA
+
+## Purchase and delivery follow-up — 16 November 2026
+
+The original storefront review below remains scoped to the homepage/catalogue. Product, shade-sheet, mobile cart and checkout presentation now also pass the structural review in [purchase design QA](docs/evidence/purchase-rebuild/design-qa.md). Saved product/shade/cart captures show the supplied visual system and honest shared-image labels. Delivery/payment-review captures are in `docs/evidence/delivery-rebuild/`; the local preview uses the selected Kigali tariff with simulated routing. Full production-build browser checks cover responsive accessibility and purchase recovery; final targeted checks also verify changed-location fees, route failures and rejection of a stale Places response. Google branding is included only with Google place results; live Google/Embed rendering and actual motorcycle coverage remain unverified while billing is closed.
 
 **Scope:** homepage, shared shop header/footer, catalogue and product cards only. Purchase-flow and delivery restoration remain separate slices.
 
