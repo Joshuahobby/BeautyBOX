@@ -256,6 +256,7 @@ export function ActionDialog(props: ActionDialogProps) {
           if (operation?.state === "PENDING") void poll(operation);
         } else {
           pollRun.current++;
+          if (operation && operation.state !== "PENDING") setOperation(null);
         }
       }}
     >
@@ -412,7 +413,9 @@ export function ActionDialog(props: ActionDialogProps) {
               ) : null}
               <div className={styles.row}>
                 <Dialog.Close asChild>
-                  <Button variant="secondary">Cancel</Button>
+                  <Button variant="secondary">
+                    {uncertain ? "Close" : "Cancel"}
+                  </Button>
                 </Dialog.Close>
                 <Button type="submit" busy={busy} disabled={conflict}>
                   {uncertain ? "Check action outcome" : props.confirmLabel}

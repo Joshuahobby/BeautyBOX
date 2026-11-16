@@ -176,9 +176,14 @@ export function ProductEditor({
     body: unknown;
     success: string;
     create: boolean;
+    isDraft: boolean;
   } | null>(null);
   const [uncertain, setUncertain] = useState(false);
   const [conflict, setConflict] = useState(false);
+  // Advance only from a confirmed own response. An unrelated route refresh must
+  // not pair stale entered fields with somebody else's newer product version.
+  const [baseVersion, setBaseVersion] = useState(product?.version ?? 0);
+  const [lastSaved, setLastSaved] = useState(product);
 
   const draft = () => ({
     title,
@@ -240,8 +245,8 @@ export function ProductEditor({
     imageRightsConfirmed: p.imageRightsConfirmed,
     isSynthetic: p.isSynthetic,
   });
-  const dirty = product
-    ? JSON.stringify(draft()) !== JSON.stringify(savedDraft(product))
+  const dirty = lastSaved
+    ? JSON.stringify(draft()) !== JSON.stringify(savedDraft(lastSaved))
     : true;
 
   function focusField(path: PropertyKey[]) {
@@ -267,6 +272,40 @@ export function ProductEditor({
       intent.current = null;
       setUncertain(false);
       setMessage({ tone: "success", text: original.success });
+      setBaseVersion(saved.version);
+      setLastSaved(saved);
+      if (original.isDraft) {
+        // Next refresh preserves client state. Adopt assigned IDs before another
+        // save, otherwise a newly added variant is submitted again as a new SKU.
+        setTitle(saved.product.title);
+        setSlug(saved.product.slug);
+        setBrand(saved.product.brand);
+        setCategoryId(saved.categoryId);
+        setDescription(saved.product.description);
+        setContentReviewed(saved.contentReviewed);
+        setImageRights(saved.imageRightsConfirmed);
+        setVariants(
+          saved.variants.map((v) => ({
+            id: v.id,
+            sku: v.sku,
+            shade: v.attributes.shade ?? "",
+            size: v.attributes.size ?? "",
+            priceRwf: String(v.priceRwf),
+            isActive: v.isActive,
+          })),
+        );
+        setMedia(
+          saved.media
+            .filter((m) => m.reviewState !== "REJECTED")
+            .map(({ storageKey, alt, variantId, url, reviewState }) => ({
+              storageKey,
+              alt,
+              variantId,
+              url,
+              reviewState,
+            })),
+        );
+      }
       if (original.create) router.replace(`/staff/catalog/${saved.product.id}`);
       router.refresh();
     } catch (e) {
@@ -312,10 +351,11 @@ export function ProductEditor({
         : "/staff/products",
       method: product ? "PUT" : "POST",
       body: product
-        ? { expectedVersion: product.version, draft: payload }
+        ? { expectedVersion: baseVersion, draft: payload }
         : payload,
       success: "Saved.",
       create: !product,
+      isDraft: true,
     };
     await sendIntent();
   }
@@ -326,9 +366,10 @@ export function ProductEditor({
       key: newIdempotencyKey(),
       endpoint: `/staff/products/${product.product.id}/publication`,
       method: "POST",
-      body: { expectedVersion: product.version, state, reason },
+      body: { expectedVersion: baseVersion, state, reason },
       success: state === "PUBLISHED" ? "Published." : "Archived.",
       create: false,
+      isDraft: false,
     };
     await sendIntent();
   }
@@ -346,7 +387,13 @@ export function ProductEditor({
       !PHOTO_TYPES.includes(photo.type) ||
       photo.size > 10_000_000
     ) {
-      setPhotoError("Choose a JPEG, PNG or WebP photo of 10 MB or less.");
+      setPhotoError(
+        !photo
+          ? "Choose a JPEG, PNG or WebP photo."
+          : !PHOTO_TYPES.includes(photo.type)
+            ? "Use a JPEG, PNG or WebP photo."
+            : "Photos must be 10 MB or smaller.",
+      );
       fileInput.current?.focus();
       return;
     }

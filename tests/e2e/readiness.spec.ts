@@ -96,6 +96,28 @@ for (const width of [320, 360]) {
     await expect(page).toHaveURL(/\/staff\/catalog\/[0-9a-f-]{36}$/);
     expect(saves).toHaveLength(2);
     expect(saves[1]).toEqual(saves[0]);
+    await page.unroute("**/api/v1/staff/products");
+    // Add a variant to an existing product, then save again without reloading.
+    // The first update assigns its ID; the next save must retain that ID.
+    await page
+      .getByRole("button", { name: "Add variant", exact: true })
+      .click();
+    await page.getByLabel("SKU", { exact: true }).nth(2).fill(`R-${suffix}-C`);
+    await page.getByLabel("Price (RWF)", { exact: true }).nth(2).fill("2000");
+    await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Saved." }),
+    ).toBeVisible();
+    await page.getByLabel("Price (RWF)", { exact: true }).nth(2).fill("2100");
+    await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Saved." }),
+    ).toBeVisible();
+    await page.reload();
+    await expect(
+      page.getByLabel("Price (RWF)", { exact: true }).nth(2),
+    ).toHaveValue("2100");
+
     await page.goto("/staff/stock/import");
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("link", { name: "Download CSV template" }).click();
@@ -222,7 +244,7 @@ for (const width of [320, 360]) {
     await expect(
       dialog.getByRole("button", { name: "Check action outcome" }),
     ).toBeVisible();
-    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await page
       .getByRole("button", { name: "Start preparation", exact: true })
       .click();
@@ -287,7 +309,7 @@ for (const width of [320, 360]) {
     await expect(
       dialog.getByRole("button", { name: "Check action outcome" }),
     ).toBeVisible();
-    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
     await page
       .getByRole("button", {
         name: /^Request refund from the payment verified/,
@@ -325,6 +347,28 @@ for (const width of [320, 360]) {
           .analyze()
       ).violations,
     ).toEqual([]);
+    await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
+    // A completed read operation can be closed and used again; pending/unknown
+    // operations keep their original context instead of submitting another action.
+    await ownerQuery(
+      "UPDATE commerce.payment_attempts SET verification_flag='NEEDS_REVIEW' WHERE order_id=$1",
+      [id],
+    );
+    await page.reload();
+    const checkPayment = page.getByRole("button", {
+      name: /^Check payment attempt/,
+    });
+    await checkPayment.click();
+    await dialog
+      .getByRole("button", { name: "Check now", exact: true })
+      .click();
+    await expect(dialog.getByText("Done", { exact: true })).toBeVisible();
+    await dialog.getByRole("button", { name: "Close", exact: true }).click();
+    await checkPayment.click();
+    await expect(dialog.getByLabel("Reason", { exact: true })).toBeVisible();
+    await expect(
+      dialog.getByRole("button", { name: "Check now", exact: true }),
+    ).toBeVisible();
     await dialog.getByRole("button", { name: "Cancel", exact: true }).click();
   });
 }

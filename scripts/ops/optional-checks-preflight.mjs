@@ -67,7 +67,8 @@ const report = {
     liveVerification:
       "PENDING_OWNER_ACCOUNT_SENDER_CREDIT_COPY_AND_DELIVERY_CHECK",
     localSimulation: "AVAILABLE",
-    realMessagesSent: 0,
+    messagesSentByThisCheck: 0,
+    deliveryVerification: "NOT_CHECKED_BY_PREFLIGHT",
   },
   backupRestore: {
     scope: "LOCAL_TEST_ONLY",
