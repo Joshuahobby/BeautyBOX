@@ -2,15 +2,18 @@ import Link from "next/link";
 import {
   ArrowRight,
   ArrowUpRight,
-  PackageCheck,
+  ChevronDown,
   MapPin,
   ShoppingBag,
+  Smartphone,
 } from "lucide-react";
 import { FeatureCarousel } from "@/components/commerce/FeatureCarousel";
 import { productImage } from "@/lib/product-imagery";
 import { Notice } from "@/components/ui/Notice";
 import { ProductGrid } from "@/components/commerce/ProductCard";
 import { listCategories, listProducts } from "@/modules/catalog/catalog";
+import { messages } from "@/messages";
+import { beautybox } from "@/content/beautybox";
 import styles from "./page.module.css";
 
 const categoryImages: Record<string, string> = {
@@ -25,7 +28,12 @@ const categoryImages: Record<string, string> = {
 export default async function HomePage() {
   const [categories, catalogue] = await Promise.all([
     listCategories(),
-    listProducts({ availableOnly: true, limit: 100, sort: "NEWEST" }),
+    listProducts({
+      availableOnly: true,
+      standardDeliveryOnly: true,
+      limit: 100,
+      sort: "NEWEST",
+    }),
   ]);
   const top = categories.filter((c) => !c.parentId);
   const preferred = [
@@ -189,25 +197,76 @@ export default async function HomePage() {
         </section>
       ) : null}
       <section
-        className={"container " + styles.assurances}
-        aria-label="Shopping with BeautyBOX"
+        className={`container ${styles.about}`}
+        aria-labelledby="about-heading"
       >
         <div>
+          <p className={styles.eyebrow}>BEAUTYBOX · KIGALI</p>
+          <h2 id="about-heading" className={styles.display}>
+            {beautybox.headline}
+          </h2>
+        </div>
+        <div className="stack-4">
+          <p>{beautybox.intro}</p>
+          <p>{beautybox.homepageBody}</p>
+          <Link href="/about" className={styles.shopLink}>
+            {beautybox.aboutLink}
+            <ArrowUpRight size={18} aria-hidden="true" />
+          </Link>
+        </div>
+      </section>
+      <section
+        className={"container " + styles.assurances}
+        aria-labelledby="shopping-heading"
+      >
+        <h2 id="shopping-heading" className={styles.assuranceHeading}>
+          {messages.home.howHeading}
+        </h2>
+        <div>
           <ShoppingBag size={24} aria-hidden="true" />
-          <h3>Beauty, all in one place</h3>
-          <p>Skincare, makeup and personal care essentials.</p>
+          <h3>{messages.home.guestHeading}</h3>
+          <p>{messages.home.guestBody}</p>
         </div>
         <div>
           <MapPin size={24} aria-hidden="true" />
-          <h3>Know your total</h3>
-          <p>Confirm your location and review delivery before you pay.</p>
+          <h3>{messages.home.deliveryHeading}</h3>
+          <p>{messages.home.deliveryBody}</p>
         </div>
         <div>
-          <PackageCheck size={24} aria-hidden="true" />
-          <h3>A little help, whenever</h3>
-          <Link href="/help">
-            Visit our help centre <ArrowRight size={15} aria-hidden="true" />
+          <Smartphone size={24} aria-hidden="true" />
+          <h3>{messages.home.paymentHeading}</h3>
+          <p>{messages.home.paymentBody}</p>
+        </div>
+      </section>
+      <section
+        className={"container " + styles.faq}
+        aria-labelledby="faq-heading"
+      >
+        <div className={styles.faqIntro}>
+          <h2 id="faq-heading" className={styles.display}>
+            {messages.home.faqHeading}
+          </h2>
+          <p>{messages.home.faqIntro}</p>
+          <Link href="/help" className={styles.shopLink}>
+            {messages.home.faqHelp}
+            <ArrowRight size={18} aria-hidden="true" />
           </Link>
+        </div>
+        <div className={styles.faqItems}>
+          {messages.home.faq.map((item) => (
+            <details key={item.question}>
+              <summary>
+                {item.question}
+                <ChevronDown size={18} aria-hidden="true" />
+              </summary>
+              <div className={styles.faqAnswer}>
+                <p>{item.answer}</p>
+                {"link" in item ? (
+                  <Link href={item.link}>{item.linkLabel}</Link>
+                ) : null}
+              </div>
+            </details>
+          ))}
         </div>
       </section>
     </>

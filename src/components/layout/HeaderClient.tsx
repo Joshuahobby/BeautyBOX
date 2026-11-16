@@ -3,14 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import {
-  ArrowUpRight,
-  ChevronDown,
-  Menu,
-  Search,
-  ShoppingBag,
-  X,
-} from "lucide-react";
+import { ArrowUpRight, ChevronDown, Menu, ShoppingBag, X } from "lucide-react";
 import { useCart } from "@/components/cart/CartProvider";
 import { format, messages } from "@/messages";
 import type { PublicCategory } from "@/modules/catalog/catalog";
@@ -40,7 +33,7 @@ export function CartLink() {
   );
 }
 
-/** Mobile disclosure for search and stocked categories; closes on navigation and Escape. */
+/** Category disclosure; search remains in the header. Closes on navigation and Escape. */
 export function MobileMenu({ categories }: { categories: PublicCategory[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
@@ -86,24 +79,6 @@ export function MobileMenu({ categories }: { categories: PublicCategory[] }) {
       </button>
       <div id={panelId} hidden={!open} className={styles.menuOverlay}>
         <div className={`container ${styles.menuPanel}`}>
-          <form action="/shop" role="search" className={styles.mobileSearch}>
-            <label htmlFor="mobile-search" className="visually-hidden">
-              {messages.nav.searchLabel}
-            </label>
-            <Search
-              size={18}
-              className={styles.searchIcon}
-              aria-hidden="true"
-            />
-            <input
-              id="mobile-search"
-              className={styles.searchInput}
-              type="search"
-              name="q"
-              placeholder={messages.nav.searchPlaceholder}
-              enterKeyHint="search"
-            />
-          </form>
           <nav aria-label="Categories">
             <ul className={styles.menuList}>
               <li>

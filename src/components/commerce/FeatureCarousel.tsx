@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
+import { messages } from "@/messages";
 import styles from "./FeatureCarousel.module.css";
 
 const features = [
   {
     emphasis: "Beauty,",
     title: "for every day.",
-    body: "Explore skincare, makeup and personal care essentials.",
+    body: "Skincare, makeup and personal care from BeautyBOX's shop in Kigali.",
     link: "/shop",
     cta: "Shop the collection",
     label: "EVERYDAY",
@@ -60,6 +61,7 @@ export function FeatureCarousel() {
         </p>
         <div className={styles.composition}>
           <div className={styles.copy + (index ? " " + styles.compact : "")}>
+            <p className={styles.eyebrow}>{messages.home.shopLocation}</p>
             <h1>
               <span>{feature.emphasis}</span>
               <br />

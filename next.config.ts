@@ -6,9 +6,22 @@ const securityHeaders = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), payment=(), geolocation=(self)" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), payment=(), geolocation=(self)",
+  },
   { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
 ];
+
+// Public source provenance, not a credential. This lets a staging review confirm
+// the actual deployed Git revision without relying on a cached screenshot.
+const deployedRevision = process.env.VERCEL_GIT_COMMIT_SHA;
+if (deployedRevision && /^[a-f0-9]{40}$/i.test(deployedRevision)) {
+  securityHeaders.push({
+    key: "X-BeautyBOX-Revision",
+    value: deployedRevision,
+  });
+}
 
 const nextConfig: NextConfig = {
   // Browser tests run their own server against the test database in a separate build dir.
@@ -31,7 +44,13 @@ const nextConfig: NextConfig = {
         // The proxy (and its per-request CSP) skips /api. Route handlers return JSON, but an
         // unknown /api path still renders the HTML 404 page, so give those a deny-all policy.
         source: "/api/:path*",
-        headers: [{ key: "Content-Security-Policy", value: "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'" }],
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value:
+              "default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+          },
+        ],
       },
       {
         // Private order access: never leak the URL fragment holder via referrer, never index.

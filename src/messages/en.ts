@@ -34,13 +34,60 @@ export const en = {
     help: "Help",
   },
   footer: {
+    about: "About BeautyBOX",
     help: "Help",
     deliveryReturns: "Delivery & returns",
     terms: "Terms",
     privacy: "Privacy",
-    note: "BeautyBOX sells products held at its own shop and delivers from one dispatch point.",
+    note: "Beauty and personal care from BeautyBOX's shop in Kigali.",
   },
   home: {
+    shopLocation: "From our shop in Kigali",
+    howHeading: "Shopping with BeautyBOX",
+    guestHeading: "No account needed",
+    guestBody:
+      "Choose your products and check out with your name and phone number.",
+    deliveryHeading: "Review delivery first",
+    deliveryBody:
+      "Confirm your location in Kigali, then review your delivery fee and full total before paying.",
+    paymentHeading: "Pay by mobile money",
+    paymentBody:
+      "Choose an available network at checkout and approve the request on your phone.",
+    faqHeading: "Good to know",
+    faqIntro:
+      "A few answers before you shop. For more help, visit our help centre.",
+    faqHelp: "Visit our help centre",
+    faq: [
+      {
+        question: "Where do you deliver?",
+        answer:
+          "Delivery is available within our Kigali service area. Confirm your location at checkout to check coverage and see the delivery fee.",
+        link: "/help/delivery-returns",
+        linkLabel: "Delivery and returns",
+      },
+      {
+        question: "How is my delivery fee calculated?",
+        answer:
+          "Delivery is priced by distance from our shop to your confirmed location. You can review the fee and full order total before you pay.",
+      },
+      {
+        question: "Do I need to create an account?",
+        answer:
+          "No. You can shop as a guest with your name and phone number. Your delivery number can be different from the mobile money number you use to pay.",
+      },
+      {
+        question: "How do I approve payment?",
+        answer:
+          "Choose an available mobile money network at checkout, then approve its payment request on your phone. BeautyBOX never asks for your wallet PIN.",
+      },
+      {
+        question: "How can I check my order or get help?",
+        answer:
+          "Use your private order page to check the order's status. For payment, delivery or returns questions, visit our help centre.",
+        link: "/help",
+        linkLabel: "Get help with an order",
+      },
+    ],
     heroTitle: "Your everyday beauty essentials.",
     heroBody:
       "Explore skincare, makeup and beauty accessories. See the full order total before you pay.",
@@ -130,6 +177,8 @@ export const en = {
     insufficientLine:
       "Only {available} available. Change the quantity to continue.",
     useAvailable: "Change to {available}",
+    specialParcelLine:
+      "This item needs special delivery, which is not available at checkout. Remove it to continue with the rest of your cart.",
     priceChanged: "Price updated to {price}.",
     paymentPending:
       "A payment for this cart is still being checked. Your cart can't be changed until it is resolved.",

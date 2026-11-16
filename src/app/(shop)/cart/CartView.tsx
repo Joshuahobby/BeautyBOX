@@ -219,6 +219,12 @@ export function CartView() {
                       }
                     />
                   ) : null}
+                  {line.issues.includes("SPECIAL_PARCEL") ? (
+                    <Notice
+                      tone="warning"
+                      title={messages.cart.specialParcelLine}
+                    />
+                  ) : null}
                   <div className={styles.lineControls}>
                     {!unavailable ? (
                       <div
@@ -283,6 +289,7 @@ export function CartView() {
         </ul>
         <aside
           className={styles.summary}
+          data-needs-attention={needsAttention || undefined}
           aria-label={messages.checkout.summaryHeading}
         >
           <div className={`${styles.row} ${styles.total}`}>
