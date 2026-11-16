@@ -2,6 +2,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .label {
@@ -23,6 +25,17 @@
   border-radius: var(--radius-control);
   background: var(--color-surface);
   font-size: var(--type-body-size);
+  min-width: 0;
+  max-width: 100%;
+}
+
+input[type="file"].input {
+  padding: var(--space-2);
+}
+.label,
+.help,
+.error {
+  overflow-wrap: anywhere;
 }
 
 textarea.input {
