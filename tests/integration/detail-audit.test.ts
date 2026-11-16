@@ -36,3 +36,47 @@ it("combines price and availability on the same variant, rather than different o
     ).items.map((p) => p.slug),
   ).toEqual(["test-lip"]);
 });
+
+it("keeps unsupported delivery items out of homepage selection before pagination", async () => {
+  const catalogue = await listProducts({ availableOnly: true });
+  expect(catalogue.items.map((p) => p.slug)).toContain("bulky-item");
+
+  const featured = await listProducts({
+    availableOnly: true,
+    standardDeliveryOnly: true,
+    limit: 1,
+    sort: "PRICE_DESC",
+  });
+  expect(featured.items).toHaveLength(1);
+  expect(featured.items[0]!.slug).toBe("last-unit-serum");
+  expect(featured.total).toBe(catalogue.total - 1);
+
+  const rest = await listProducts({
+    availableOnly: true,
+    standardDeliveryOnly: true,
+    cursor: featured.nextCursor,
+    sort: "PRICE_DESC",
+  });
+  expect(rest.items.map((p) => p.slug)).not.toContain("bulky-item");
+});
+
+it("does not feature mixed delivery options, but ignores inactive unsupported options", async () => {
+  await db().variant.update({
+    where: { id: shop.lipRoyal.id },
+    data: { parcelClass: "SPECIAL_HANDLING" },
+  });
+  const query = {
+    q: "Test Lip",
+    availableOnly: true,
+    standardDeliveryOnly: true,
+  };
+  expect((await listProducts(query)).items).toEqual([]);
+
+  await db().variant.update({
+    where: { id: shop.lipRoyal.id },
+    data: { isActive: false },
+  });
+  expect((await listProducts(query)).items.map((p) => p.slug)).toEqual([
+    "test-lip",
+  ]);
+});

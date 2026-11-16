@@ -55,6 +55,8 @@ export type ProductQuery = {
   minPriceRwf?: number;
   maxPriceRwf?: number;
   availableOnly?: boolean;
+  // Internal merchandising filter; not a public catalog API query parameter.
+  standardDeliveryOnly?: boolean;
   sort?: ProductSort;
   limit?: number;
   cursor?: string | null;
@@ -99,9 +101,7 @@ function escapeLike(text: string) {
   return text.replace(/[\\%_]/g, (m) => `\\${m}`);
 }
 
-export async function listProducts(
-  query: ProductQuery,
-): Promise<{
+export async function listProducts(query: ProductQuery): Promise<{
   items: PublicProduct[];
   nextCursor: string | null;
   total: number;
@@ -113,6 +113,14 @@ export async function listProducts(
   const like = `%${escapeLike(q)}%`;
 
   const where: Prisma.Sql[] = [visibleProductCondition("p")];
+  if (query.standardDeliveryOnly) {
+    // Do not promote an item whose active options can strand a standard basket.
+    where.push(Prisma.sql`NOT EXISTS (
+      SELECT 1 FROM commerce.variants unsupported
+       WHERE unsupported.product_id = p.id AND unsupported.is_active
+         AND unsupported.parcel_class <> 'STANDARD'
+    )`);
+  }
   if (q) {
     where.push(Prisma.sql`(lower(p.title) LIKE ${like} OR lower(p.brand) LIKE ${like} OR lower(c.title) LIKE ${like}
       OR lower(coalesce(pc.title, '')) LIKE ${like})`);

@@ -1,0 +1,43 @@
+.topicLinks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.topicLinks a {
+  display: flex;
+  align-items: center;
+  min-height: 68px;
+  height: 100%;
+  padding: 16px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.topic {
+  scroll-margin-top: 220px;
+}
+.contact {
+  padding: 24px;
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-panel);
+}
+.contact a,
+.policyLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 650px) {
+  .topicLinks {
+    grid-template-columns: 1fr;
+  }
+  .contact {
+    padding: 16px;
+  }
+}
