@@ -73,8 +73,29 @@ for (const width of [320, 360]) {
     await page.getByLabel("I reviewed this content").check();
     await page.getByLabel("BeautyBOX has the right").check();
     await expectNoHorizontalScroll(page);
+    const saves: { body: string | null; key: string | undefined }[] = [];
+    await page.route("**/api/v1/staff/products", async (route) => {
+      if (route.request().method() !== "POST") return route.continue();
+      saves.push({
+        body: route.request().postData(),
+        key: route.request().headers()["idempotency-key"],
+      });
+      const response = await route.fetch();
+      expect(response.ok()).toBe(true);
+      if (saves.length === 1) await route.abort("failed");
+      else await route.fulfill({ response });
+    });
     await page.getByRole("button", { name: "Save draft", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "Check product outcome" }),
+    ).toBeVisible();
+    await expect(
+      page.getByLabel("Product name", { exact: true }),
+    ).toBeDisabled();
+    await page.getByRole("button", { name: "Check product outcome" }).click();
     await expect(page).toHaveURL(/\/staff\/catalog\/[0-9a-f-]{36}$/);
+    expect(saves).toHaveLength(2);
+    expect(saves[1]).toEqual(saves[0]);
     await page.goto("/staff/stock/import");
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("link", { name: "Download CSV template" }).click();
@@ -88,11 +109,13 @@ for (const width of [320, 360]) {
     await page
       .getByRole("button", { name: "Preview import", exact: true })
       .click();
-    await expect(page.getByRole("alert")).toContainText("Row 2");
+    await expect(
+      page.getByRole("alert").filter({ hasText: "Row 2" }),
+    ).toContainText("Row 2");
     await expect(page.getByLabel("CSV rows", { exact: true })).toBeFocused();
     const batch = `COUNT-${suffix}, signed`;
     const csv = `\uFEFF${header}\r\nR-${suffix}-A,7,OWNED,,,"${batch}",2028-02-29,500\r\n`;
-    await page.getByLabel("Upload CSV", { exact: true }).setInputFiles({
+    await page.getByLabel("Upload CSV", { exact: false }).setInputFiles({
       name: "count.csv",
       mimeType: "text/csv",
       buffer: Buffer.from(csv),
@@ -278,7 +301,7 @@ for (const width of [320, 360]) {
     expect(
       (
         await ownerQuery(
-          "SELECT count(*)::int AS n FROM commerce.refunds WHERE order_id=$1",
+          "SELECT count(*)::int AS n FROM commerce.refunds r JOIN commerce.refund_cases c ON c.id=r.case_id WHERE c.order_id=$1",
           [id],
         )
       ).rows[0].n,

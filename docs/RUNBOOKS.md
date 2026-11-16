@@ -63,10 +63,18 @@ Draft runbooks for the Phase 1 build (I13). They describe what the software does
 
 ## SMS failure, or a customer lost their link
 
+- The Africa's Talking adapter remains disabled by default. Account/sender/credit, approved copy and actual handset delivery are owner inputs; see [AFRICASTALKING.md](integrations/AFRICASTALKING.md). ACCEPTED means provider acceptance only. Never infer payment or delivery from an SMS result.
 - A definite provider failure is retried 3 times, then left FAILED and flagged. An unknown outcome is never resent. The order stays valid and visible.
 - Verify the customer outside the system: match the order reference and the contact details on the order. Never reveal order details first. Record a case reference.
 - **Send a new private link** revokes every earlier link and order session, then texts a fresh one-time link to the order's contact number. Staff never see the link.
 - If the contact number itself is wrong, there is no edit tool yet. Escalate to an admin.
+
+## Unconfirmed staff actions and counted stock
+
+- For a lost action response, close/reopen the dialog if needed and choose **Check action outcome**. Entries remain locked and the original request/key/version is retained. Do not create a new intent while the outcome is unknown. A version conflict requires reloading the record.
+- Product save/publication has the equivalent **Check product outcome** control. Keep the page open; refreshing the whole browser discards in-memory recovery context. Entered fields and successful photo uploads are kept after validation errors, with focus moved to the invalid field.
+- Admin/Operations stock intake uses the [CSV runbook](STOCK-IMPORT.md) and header-only download. Changing the source invalidates its preview. **Check import outcome** reuses the original apply payload and key; do not import the same count again under a fresh key to resolve uncertainty.
+- Page recovery's **Try loading again** re-fetches route reads. It does not resubmit action forms or payment requests. Shop cart context and workspace navigation stay outside these route boundaries.
 
 ## Product photos: takedown and storage problems (DR-041)
 

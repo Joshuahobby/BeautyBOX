@@ -83,9 +83,21 @@ export default function ImportClient() {
         }),
       );
     } catch (e) {
+      const details =
+        e instanceof ApiError
+          ? e.fieldErrors
+              .map(
+                (f) =>
+                  `${f.field.replace(/^rows\.(\d+)\./, (_, index) => `CSV row ${Number(index) + 2}, `)}: ${f.message}`,
+              )
+              .join("\n")
+          : "";
       setError(
-        e instanceof ApiError ? e.message : "The preview could not be loaded.",
+        e instanceof ApiError
+          ? `${e.message}${details ? `\n${details}` : ""}`
+          : "The preview could not be loaded.",
       );
+      document.getElementById("import-csv")?.focus();
     } finally {
       setBusy(false);
     }
@@ -121,6 +133,8 @@ export default function ImportClient() {
       if (isDefiniteRejection(e)) {
         intent.current = null;
         setUncertain(false);
+        if (e.code === "VERSION_CONFLICT" || e.code === "ACTION_NOT_ALLOWED")
+          setPreview(null);
         setError(e.message);
       } else {
         setUncertain(true);
