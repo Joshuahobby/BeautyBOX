@@ -39,7 +39,14 @@ jobs:
       - name: Install Chromium and system libraries
         run: npx playwright install --with-deps chromium
       - name: Prepare isolated local and TEST databases
+        id: database
         run: npm run setup:local
+      - name: Report a database setup failure
+        if: failure() && steps.database.outcome == 'failure'
+        run: |
+          if [ -f .local/postgres/server.log ]; then
+            sed -E '/password|secret|token|api.?key|PRIVATE KEY|DATABASE_URL/Id' .local/postgres/server.log | tail -n 60
+          fi
       - name: Check tokens, contract, types, lint and unit tests
         run: npm run verify
       - name: Test database integration
