@@ -30,7 +30,7 @@ The delivery terms and visual references are decisions to carry forward, not cla
 
 ## Rebuild checkpoint — 16 November 2026
 
-Priority 2 below is now implemented and locally verified on `codex/beautybox-storefront-rebuild`: Signature homepage, manual featured slides, mega menus, category/brand/budget discovery, responsive catalogue and demo-labelled packshots. Tests and captured visual QA are in `docs/evidence/storefront-rebuild/`. The baseline app's existing cart/checkout continues to work; its reviewed presentation and delivery/provider restoration remain next. This is new rebuilt source, not recovered source from the earlier lost workspace.
+Priorities 2 and 3 below are now implemented and locally verified on `codex/beautybox-storefront-rebuild`: Signature homepage, manual featured slides, mega menus, category/brand/budget discovery, responsive catalogue and demo-labelled packshots. Tests and captured visual QA are in `docs/evidence/storefront-rebuild/`. The product gallery, explicit shade sheet, cart option editing and checkout presentation are now restored and tested. Delivery/provider restoration remains next. This is new rebuilt source, not recovered source from the earlier lost workspace.
 
 ## Next tasks, in order
 

@@ -10,8 +10,16 @@ const WIDTHS = [360, 768, 1440] as const;
 const SCREENS = "test-results/screens";
 
 async function axe(page: Page) {
-  const results = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze();
-  const summary = results.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(" | ")}`);
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+    .analyze();
+  const summary = results.violations.map(
+    (v) =>
+      `${v.id} (${v.impact}): ${v.nodes
+        .map((n) => n.target.join(" "))
+        .slice(0, 3)
+        .join(" | ")}`,
+  );
   expect(summary, "axe violations").toEqual([]);
 }
 
@@ -22,14 +30,23 @@ for (const width of WIDTHS) {
     // The animated opening is checked in its own test below.
     await page.emulateMedia({ reducedMotion: "reduce" });
     for (const [name, path, heading] of [
-      ["launching-soon", "/launching-soon", "Everyday beauty essentials, coming soon."],
+      [
+        "launching-soon",
+        "/launching-soon",
+        "Everyday beauty essentials, coming soon.",
+      ],
       ["preview-access", "/access", "Preview access"],
       ["launch-privacy", "/launch-privacy", "Launch list privacy notice"],
     ] as const) {
       await page.goto(path);
-      await expect(page.getByRole("heading", { level: 1, name: heading })).toBeVisible();
+      await expect(
+        page.getByRole("heading", { level: 1, name: heading }),
+      ).toBeVisible();
       await expectNoHorizontalScroll(page);
-      await page.screenshot({ path: `${SCREENS}/${name}-${width}.png`, fullPage: true });
+      await page.screenshot({
+        path: `${SCREENS}/${name}-${width}.png`,
+        fullPage: true,
+      });
       await axe(page);
     }
   });
@@ -46,7 +63,10 @@ for (const width of WIDTHS) {
       await page.goto(path);
       await expect(page.locator("main h1").first()).toBeVisible();
       await expectNoHorizontalScroll(page);
-      await page.screenshot({ path: `${SCREENS}/${name}-${width}.png`, fullPage: true });
+      await page.screenshot({
+        path: `${SCREENS}/${name}-${width}.png`,
+        fullPage: true,
+      });
       await axe(page);
     }
   });
@@ -55,68 +75,113 @@ for (const width of WIDTHS) {
     await page.setViewportSize({ width, height: 900 });
     await addShadeToCart(page, "lip-hue", "Salmon");
     await page.goto("/cart");
-    await expect(page.getByRole("heading", { name: "Your cart" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Your cart" }),
+    ).toBeVisible();
     await expectNoHorizontalScroll(page);
-    await page.screenshot({ path: `${SCREENS}/cart-${width}.png`, fullPage: true });
+    await page.screenshot({
+      path: `${SCREENS}/cart-${width}.png`,
+      fullPage: true,
+    });
     await axe(page);
     await page.getByRole("button", { name: "Continue to checkout" }).click();
-    await expect(page.getByRole("heading", { name: "Who is receiving?" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Who is receiving?" }),
+    ).toBeVisible();
     await expectNoHorizontalScroll(page);
-    await page.screenshot({ path: `${SCREENS}/checkout-contact-${width}.png`, fullPage: true });
+    await page.screenshot({
+      path: `${SCREENS}/checkout-contact-${width}.png`,
+      fullPage: true,
+    });
     await axe(page);
     // Invalid submit: error summary takes focus and links to the fields.
     await page.getByRole("button", { name: "Continue to delivery" }).click();
-    await expect(page.getByRole("alert").filter({ hasText: "Check the highlighted details" })).toBeFocused();
+    await expect(
+      page
+        .getByRole("alert")
+        .filter({ hasText: "Check the highlighted details" }),
+    ).toBeFocused();
     await axe(page);
     await page.getByLabel("Recipient name").fill("Demo Recipient");
     await page.getByLabel("Delivery phone").fill("0788 555 111");
     await page.getByRole("button", { name: "Continue to delivery" }).click();
     await page.getByLabel(/Search for a place/).fill("Kicukiro");
     await page.getByRole("button", { name: /Kicukiro Centre/ }).click();
-    await expect(page.getByRole("status").filter({ hasText: "Pin set to" })).toBeVisible();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Pin set to" }),
+    ).toBeVisible();
     await expectNoHorizontalScroll(page);
-    await page.screenshot({ path: `${SCREENS}/checkout-delivery-${width}.png`, fullPage: true });
+    await page.screenshot({
+      path: `${SCREENS}/checkout-delivery-${width}.png`,
+      fullPage: true,
+    });
     await axe(page);
     await page.getByRole("button", { name: "Confirm pin and get fee" }).click();
     await page.getByRole("button", { name: "Accept fee and continue" }).click();
-    await expect(page.getByRole("heading", { name: "Review and pay" })).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "Review and pay" }),
+    ).toBeVisible();
     await expectNoHorizontalScroll(page);
-    await page.screenshot({ path: `${SCREENS}/checkout-pay-${width}.png`, fullPage: true });
+    await page.screenshot({
+      path: `${SCREENS}/checkout-pay-${width}.png`,
+      fullPage: true,
+    });
     await axe(page);
   });
 }
 
-test("checkout reflows at 320 CSS px without horizontal scrolling", async ({ page }) => {
+test("checkout reflows at 320 CSS px without horizontal scrolling", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 320, height: 700 });
   await addShadeToCart(page, "lip-hue", "Vermillion");
   await page.goto("/cart");
   await expectNoHorizontalScroll(page);
   await page.getByRole("button", { name: "Continue to checkout" }).click();
-  await expect(page.getByRole("heading", { name: "Who is receiving?" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Who is receiving?" }),
+  ).toBeVisible();
   await expectNoHorizontalScroll(page);
 });
 
-test("shade selection and add to cart work with the keyboard alone", async ({ page }) => {
+test("shade selection and add to cart work with the keyboard alone", async ({
+  page,
+}) => {
   await page.goto("/products/lip-hue");
+  await page
+    .getByRole("button", { name: "Choose your shade", exact: true })
+    .focus();
+  await page.keyboard.press("Enter");
   const first = page.getByRole("radio", { name: "Brownie", exact: true });
   await first.focus();
   await page.keyboard.press("ArrowRight"); // native radio group: moves to the next available shade
   const checked = page.getByRole("radio", { checked: true });
   await expect(checked).toHaveCount(1);
+  const chosen = await checked.getAttribute("aria-label");
+  await page
+    .getByRole("button", { name: "Use " + chosen, exact: true })
+    .focus();
+  await page.keyboard.press("Enter");
   // Tab forward (the disabled decrease button is skipped) until the add button has focus.
   let focused = "";
   for (let i = 0; i < 6 && !focused.includes("Add to cart"); i++) {
     await page.keyboard.press("Tab");
-    focused = await page.evaluate(() => document.activeElement?.textContent ?? "");
+    focused = await page.evaluate(
+      () => document.activeElement?.textContent ?? "",
+    );
   }
   expect(focused).toContain("Add to cart");
-  const outline = await page.evaluate(() => getComputedStyle(document.activeElement as Element).outlineStyle);
+  const outline = await page.evaluate(
+    () => getComputedStyle(document.activeElement as Element).outlineStyle,
+  );
   expect(outline).toBe("solid");
   await page.keyboard.press("Enter");
   await expect(page.getByText("Added to cart", { exact: true })).toBeVisible();
 });
 
-test("mobile filter sheet keeps applied filters until Apply and returns focus", async ({ page }) => {
+test("mobile filter sheet keeps applied filters until Apply and returns focus", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 360, height: 780 });
   await page.goto("/shop");
   const trigger = page.getByRole("button", { name: "Filters", exact: true });
@@ -132,23 +197,32 @@ test("mobile filter sheet keeps applied filters until Apply and returns focus", 
   await dialog.getByLabel("Category").selectOption("makeup");
   await dialog.getByRole("button", { name: "Apply filters" }).click();
   await expect(page).toHaveURL(/category=makeup/);
-  await expect(page.getByRole("heading", { name: "Makeup", level: 1 })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Makeup", level: 1 }),
+  ).toBeVisible();
 });
 
-test("the pre-launch openings come to rest within five seconds and pass axe", async ({ page }) => {
+test("the pre-launch openings come to rest within five seconds and pass axe", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   for (const path of ["/launching-soon", "/access"]) {
     await page.goto(path);
     // Nothing on the page may move on its own for more than five seconds (WCAG 2.2.2): only the
     // film does, and it has its own Pause button. So every animation finishes, none loops.
     const loaded = Date.now();
-    await page.waitForFunction(() => document.getAnimations().every((a) => a.playState === "finished"), undefined, { timeout: 10_000 });
+    await page.waitForFunction(
+      () => document.getAnimations().every((a) => a.playState === "finished"),
+      undefined,
+      { timeout: 10_000 },
+    );
     expect(Date.now() - loaded, `${path} settles`).toBeLessThan(5_500);
     await axe(page);
   }
 });
 
-const FILM_FILE = /\/_next\/static\/media\/beautybox-promo\.[^./]+\.(webm|mp4)$/;
+const FILM_FILE =
+  /\/_next\/static\/media\/beautybox-promo\.[^./]+\.(webm|mp4)$/;
 const POSTER_FILE = /\/_next\/static\/media\/poster\.[^./]+\.png$/;
 // HTMLMediaElement readyState / networkState values (the test runner has no DOM).
 const HAVE_NOTHING = 0;
@@ -158,7 +232,15 @@ const NETWORK_LOADING = 2;
 const filmState = (page: Page) =>
   page
     .locator("figure video")
-    .evaluate((v: HTMLVideoElement) => ({ playing: !v.paused, muted: v.muted, time: v.currentTime, loaded: v.readyState, network: v.networkState, src: v.currentSrc, poster: v.poster }));
+    .evaluate((v: HTMLVideoElement) => ({
+      playing: !v.paused,
+      muted: v.muted,
+      time: v.currentTime,
+      loaded: v.readyState,
+      network: v.networkState,
+      src: v.currentSrc,
+      poster: v.poster,
+    }));
 
 /**
  * The playback position once the film really plays (data loaded, "playing" fired): it starts on
@@ -166,13 +248,23 @@ const filmState = (page: Page) =>
  * the requested start position.
  */
 const firstPlayedSecond = (page: Page) =>
-  page.locator("figure video").evaluate(
-    (v: HTMLVideoElement, ready) =>
-      !v.paused && v.readyState >= ready ? v.currentTime : new Promise<number>((done) => v.addEventListener("playing", () => done(v.currentTime), { once: true })),
-    HAVE_FUTURE_DATA,
-  );
+  page
+    .locator("figure video")
+    .evaluate(
+      (v: HTMLVideoElement, ready) =>
+        !v.paused && v.readyState >= ready
+          ? v.currentTime
+          : new Promise<number>((done) =>
+              v.addEventListener("playing", () => done(v.currentTime), {
+                once: true,
+              }),
+            ),
+      HAVE_FUTURE_DATA,
+    );
 
-test("the launch film plays muted from a hashed static file and pauses on request", async ({ page }) => {
+test("the launch film plays muted from a hashed static file and pauses on request", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/launching-soon");
   expect(await firstPlayedSecond(page)).toBeGreaterThanOrEqual(POSTER_SECONDS);
@@ -191,36 +283,50 @@ test("the launch film plays muted from a hashed static file and pauses on reques
   );
   await page.screenshot({ path: `${SCREENS}/launching-soon-film-1440.png` });
   await page.getByRole("button", { name: "Pause the film" }).click();
-  await expect(page.getByRole("button", { name: "Play the film" })).toBeFocused();
+  await expect(
+    page.getByRole("button", { name: "Play the film" }),
+  ).toBeFocused();
   const paused = await filmState(page);
   expect(paused.playing).toBe(false);
   await page.waitForTimeout(600);
   expect((await filmState(page)).time).toBe(paused.time);
 });
 
-test("the launch film pauses once less than a quarter of it is on screen", async ({ page }) => {
+test("the launch film pauses once less than a quarter of it is on screen", async ({
+  page,
+}) => {
   // A small phone: the film starts below the fold, so it can also be left half-scrolled-to.
   await page.setViewportSize({ width: 360, height: 640 });
   await page.goto("/launching-soon");
   const film = page.locator("figure video");
   const isPlaying = () => film.evaluate((v: HTMLVideoElement) => !v.paused);
-  await film.evaluate((v: HTMLVideoElement) => v.scrollIntoView({ block: "center", behavior: "instant" }));
+  await film.evaluate((v: HTMLVideoElement) =>
+    v.scrollIntoView({ block: "center", behavior: "instant" }),
+  );
   await expect.poll(isPlaying).toBe(true);
 
   // Scroll back up until only the top tenth of the film shows at the bottom of the screen.
   // Measured while it is fully in view, so its scroll-in entrance is not moving it.
   const shown = await film.evaluate((v: HTMLVideoElement) => {
     const box = v.getBoundingClientRect();
-    window.scrollTo({ top: box.top + window.scrollY - window.innerHeight + box.height * 0.1, behavior: "instant" });
+    window.scrollTo({
+      top: box.top + window.scrollY - window.innerHeight + box.height * 0.1,
+      behavior: "instant",
+    });
     const now = v.getBoundingClientRect();
-    return (Math.min(now.bottom, window.innerHeight) - Math.max(now.top, 0)) / now.height;
+    return (
+      (Math.min(now.bottom, window.innerHeight) - Math.max(now.top, 0)) /
+      now.height
+    );
   });
   expect(shown, "share of the film on screen").toBeGreaterThan(0);
   expect(shown, "share of the film on screen").toBeLessThan(0.25);
   await expect.poll(isPlaying).toBe(false);
 
   // Back in view, it plays again: scrolling decides while the visitor has not chosen.
-  await film.evaluate((v: HTMLVideoElement) => v.scrollIntoView({ block: "center", behavior: "instant" }));
+  await film.evaluate((v: HTMLVideoElement) =>
+    v.scrollIntoView({ block: "center", behavior: "instant" }),
+  );
   await expect.poll(isPlaying).toBe(true);
 });
 
@@ -228,7 +334,11 @@ test.describe("reduced motion", () => {
   test.use({ reducedMotion: "reduce" });
   test("transitions are disabled", async ({ page }) => {
     await page.goto("/");
-    const duration = await page.evaluate(() => getComputedStyle(document.querySelector("a[href='/shop']")!).transitionDuration);
+    const duration = await page.evaluate(
+      () =>
+        getComputedStyle(document.querySelector("a[href='/shop']")!)
+          .transitionDuration,
+    );
     expect(duration.split(",").every((d) => d.trim() === "0s")).toBe(true);
   });
 
@@ -238,12 +348,17 @@ test.describe("reduced motion", () => {
     expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
   });
 
-  test("the launch film shows its poster and loads nothing until Play", async ({ page }) => {
+  test("the launch film shows its poster and loads nothing until Play", async ({
+    page,
+  }) => {
     const filmRequests: string[] = [];
     page.on("request", (request) => {
-      if (FILM_FILE.test(new URL(request.url()).pathname)) filmRequests.push(request.url());
+      if (FILM_FILE.test(new URL(request.url()).pathname))
+        filmRequests.push(request.url());
     });
-    const poster = page.waitForResponse((response) => POSTER_FILE.test(new URL(response.url()).pathname));
+    const poster = page.waitForResponse((response) =>
+      POSTER_FILE.test(new URL(response.url()).pathname),
+    );
     await page.goto("/launching-soon");
     expect((await poster).status()).toBe(200);
     const play = page.getByRole("button", { name: "Play the film" });
@@ -253,10 +368,16 @@ test.describe("reduced motion", () => {
     expect(still).toMatchObject({ playing: false, loaded: HAVE_NOTHING });
     expect(still.network).not.toBe(NETWORK_LOADING);
     expect(filmRequests).toEqual([]);
-    const film = page.waitForResponse((response) => FILM_FILE.test(new URL(response.url()).pathname));
+    const film = page.waitForResponse((response) =>
+      FILM_FILE.test(new URL(response.url()).pathname),
+    );
     await play.click();
     expect([200, 206]).toContain((await film).status());
-    expect(await firstPlayedSecond(page)).toBeGreaterThanOrEqual(POSTER_SECONDS);
-    await expect(page.getByRole("button", { name: "Pause the film" })).toBeVisible();
+    expect(await firstPlayedSecond(page)).toBeGreaterThanOrEqual(
+      POSTER_SECONDS,
+    );
+    await expect(
+      page.getByRole("button", { name: "Pause the film" }),
+    ).toBeVisible();
   });
 });

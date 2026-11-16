@@ -19,15 +19,50 @@ const expected =
 if (createHash("sha256").update(baseline).digest("hex") !== expected)
   throw new Error("Immutable v1.1 contract baseline changed.");
 const contract = JSON.parse(baseline);
+// CC-21: additive atomic option replacement. Existing cart responses are unchanged.
+const replacement = structuredClone(
+  contract.paths["/cart/lines/{variantId}"].delete,
+);
+replacement.operationId = "replaceCartLine";
+replacement.summary =
+  "CC-21: atomically replace an item with an option of the same product";
+replacement.description =
+  "Preserves quantity, merges an existing target line, revalidates stock/price and invalidates editable checkout quotes. Versioned and idempotent; failures leave the original cart intact.";
+replacement.requestBody = {
+  required: true,
+  content: {
+    "application/json": {
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["expectedVersion", "replacementVariantId"],
+        properties: {
+          expectedVersion: {
+            type: "integer",
+            minimum: 1,
+            maximum: 9007199254740991,
+          },
+          replacementVariantId: { type: "string", format: "uuid" },
+        },
+      },
+    },
+  },
+};
+contract.paths["/cart/lines/{variantId}"].patch = replacement;
+contract.info.version = "1.2.0";
+contract.info.description +=
+  "\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged.";
 const output = JSON.stringify(contract, null, 2) + "\n";
-const target = path.join(root, "docs/api/API-Contract-v1.1.openapi.json");
+const target = path.join(root, "docs/api/API-Contract-v1.2.openapi.json");
 if (process.argv.includes("--check")) {
   if (fs.readFileSync(target, "utf8") !== output)
     throw new Error(
       "Contract differs from the pinned baseline; document and generate any additions explicitly.",
     );
-  console.log("[contract] matches pinned committed v1.1 baseline");
+  console.log(
+    "[contract] v1.2 matches generated additions to the pinned v1.1 baseline",
+  );
 } else {
   fs.writeFileSync(target, output);
-  console.log("[contract] wrote v1.1 from pinned baseline");
+  console.log("[contract] wrote v1.2 from pinned v1.1 baseline");
 }

@@ -1,5 +1,12 @@
 # Implementation progress
 
+## Product and cart rebuild — 16 November 2026
+
+The selected product/shade/cart journey is rebuilt: shared-image gallery, explicit shade confirmation, mobile bottom sheet, server-priced cart photos and atomic option changes, editable quantities, transparent subtotal and responsive checkout. API v1.2 adds PATCH /cart/lines/{variantId} (CC-21). Source changes preserve unresolved-payment locks, idempotency, stock checks and quote invalidation. Payments and SMS remain simulated locally.
+
+Fresh verification: 90 unit and 165 integration tests passed (6 optional live cases skipped), a production build and 16 targeted purchase/accessibility browser checks passed. Final responsive adjustments receive an additional targeted run. Screens and review are in `docs/evidence/purchase-rebuild/`. Kigali/Google restoration remains next; billing is still closed. Nothing is merged, deployed or enabled on hosted services.
+
+
 ## Storefront rebuild checkpoint — 16 November 2026
 
 The Signature-inspired homepage and catalogue are rebuilt on `codex/beautybox-storefront-rebuild`: editorial imagery/type, full supplied lockup, manual featured slides, accessible department mega menus, mobile category disclosure, real category/brand/budget discovery, and restored product-card presentation. Seventeen generated assets are stored in Git; fourteen are explicitly demo-only packshots. Reviewed real SKU images retain precedence. No fabricated promotions/reviews/shops are introduced. Brand filters now survive price filtering, and the catalogue keeps URL-driven search/filter/sort/pagination.

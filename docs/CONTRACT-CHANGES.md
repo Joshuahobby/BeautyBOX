@@ -54,3 +54,9 @@ Behaviour notes for suppliers and settings (no shape change):
 ## Reproducible contract baseline (16 November 2026)
 
 The historical v1.0 handoff input outside the repository is unavailable in the reloaded workspace. Contract generation now starts from the exact v1.1 JSON committed at `197e926c56dab50f0218ffdd017e40aeb039d79f`, copied without edits into `docs/api/baseline/`. Its SHA-256 is pinned in the generator and its Git blob/provenance are recorded alongside it. The v1.0 input has not been recreated or inferred. The active v1.1 contract and response shapes are unchanged for the homepage/catalog rebuild. Future API additions must be documented and generated against this baseline.
+
+## CC-21 — Atomic cart option replacement (v1.2)
+
+Adds `PATCH /cart/lines/{variantId}` with strict JSON `{ expectedVersion, replacementVariantId }`, normal same-origin/session/idempotency/rate-limit requirements, and the existing Cart success response. Replacement is restricted to another active, visible variant of the same product. It carries the source quantity, merges any existing target line and validates the combined quantity against current availability and the 99-unit limit. A failure changes no line. Success uses the new option's current price, increments the cart version once and invalidates editable checkout quotes. The payment-pending guard and checkout-before-cart lock order apply. A same-option request is an idempotent no-op after ownership/version checks. No existing method, request or response field is removed.
+
+The active contract is now `docs/api/API-Contract-v1.2.openapi.json`, generated from the pinned immutable v1.1 baseline plus this documented addition. The old v1.1 file remains unchanged. Cart photographs and available-option lists are fetched through the existing public catalogue endpoint, so no cart response media fields are added.

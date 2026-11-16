@@ -1,5 +1,10 @@
 # Test evidence
 
+## Product/cart rebuild — 16 November 2026
+
+`npm run verify`: 90 unit tests plus tokens, contract, TypeScript and lint passed. `npm run test:integration`: 165 passed, 6 optional live cases skipped. Nine new cart-option database cases cover stock failures, same-product validation, merge/replay, stale versions, concurrent edits, frozen payment, quote invalidation and the authenticated HTTP operation. The purchase browser pass covered 16 cases including fake-payment success/failure, required shade and stock, mobile draft discard/confirmation, cart merging, keyboard focus, axe/reflow and outside coverage. Captures and visual findings: `docs/evidence/purchase-rebuild/`. All provider activity in these tests was simulated; no live Google evidence is claimed.
+
+
 ## Homepage/catalog rebuild — 16 November 2026
 
 `npm run verify` passed with 90 unit tests, token and pinned-contract checks, TypeScript and ESLint. `npm run test:integration` passed 156 tests; 6 opt-in live cases skipped. A fresh production build and 10 selected Chromium browser checks passed, including responsive axe at 360/768/1440 px, mobile filters, carousel actions, keyboard mega-menu behavior, mobile query navigation, brand preservation and campaign/featured image loading. Final production-rendered captures report zero page/console errors, broken images or horizontal overflow.

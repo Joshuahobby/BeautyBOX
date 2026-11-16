@@ -4,7 +4,8 @@ import { z } from "zod";
 // rejected, money and versions are safe integers). Domain rules (phone ranges,
 // coverage, stock) are enforced again by the modules.
 
-const safeInt = (min: number) => z.number().int().min(min).max(Number.MAX_SAFE_INTEGER);
+const safeInt = (min: number) =>
+  z.number().int().min(min).max(Number.MAX_SAFE_INTEGER);
 const uuid = z.uuid();
 const rwPhone = z.string().regex(/^\+2507[0-9]{8}$/, "Use +2507XXXXXXXX");
 
@@ -14,9 +15,19 @@ export const cartLineInput = z.strictObject({
   expectedVersion: safeInt(1),
 });
 
-export const removeCartLineInput = z.strictObject({ expectedVersion: safeInt(1) });
+export const replaceCartLineInput = z.strictObject({
+  replacementVariantId: uuid,
+  expectedVersion: safeInt(1),
+});
 
-export const createCheckoutInput = z.strictObject({ cartId: uuid, expectedCartVersion: safeInt(1) });
+export const removeCartLineInput = z.strictObject({
+  expectedVersion: safeInt(1),
+});
+
+export const createCheckoutInput = z.strictObject({
+  cartId: uuid,
+  expectedCartVersion: safeInt(1),
+});
 
 export const pointSchema = z.strictObject({
   lat: z.number().min(-90).max(90),
@@ -47,9 +58,14 @@ export const payRequestInput = z.strictObject({
   payerPhone: rwPhone,
 });
 
-export const orderTokenExchangeInput = z.strictObject({ token: z.string().min(40).max(200) });
+export const orderTokenExchangeInput = z.strictObject({
+  token: z.string().min(40).max(200),
+});
 
-export const cancellationRequestInput = z.strictObject({ expectedVersion: safeInt(1), reason: z.string().min(1).max(500) });
+export const cancellationRequestInput = z.strictObject({
+  expectedVersion: safeInt(1),
+  reason: z.string().min(1).max(500),
+});
 
 export const runJobsInput = z.strictObject({
   batchSize: z.number().int().min(1).max(50),
@@ -60,9 +76,22 @@ export const productListQuery = z.object({
   q: z.string().max(100).optional(),
   category: z.string().max(80).optional(),
   brand: z.string().max(80).optional(),
-  minPriceRwf: z.coerce.number().int().min(0).max(Number.MAX_SAFE_INTEGER).optional(),
-  maxPriceRwf: z.coerce.number().int().min(0).max(Number.MAX_SAFE_INTEGER).optional(),
-  availableOnly: z.enum(["true", "false"]).optional().transform((v) => v === "true"),
+  minPriceRwf: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .max(Number.MAX_SAFE_INTEGER)
+    .optional(),
+  maxPriceRwf: z.coerce
+    .number()
+    .int()
+    .min(0)
+    .max(Number.MAX_SAFE_INTEGER)
+    .optional(),
+  availableOnly: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((v) => v === "true"),
   sort: z.enum(["RELEVANCE", "PRICE_ASC", "PRICE_DESC", "NEWEST"]).optional(),
   cursor: z.string().max(200).optional(),
   limit: z.coerce.number().int().min(1).max(100).optional(),

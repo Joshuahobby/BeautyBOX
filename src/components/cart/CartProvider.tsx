@@ -1,7 +1,21 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { api, ApiError, ensureGuestSession, newIdempotencyKey } from "@/lib/api-client";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  api,
+  ApiError,
+  ensureGuestSession,
+  newIdempotencyKey,
+} from "@/lib/api-client";
 import type { Cart } from "@/lib/types";
 
 // Client cart state. The server cart is authoritative: every change goes through the
@@ -15,6 +29,10 @@ type CartContextValue = {
   refresh: () => Promise<Cart | null>;
   setLine: (variantId: string, quantity: number) => Promise<Cart>;
   removeLine: (variantId: string) => Promise<Cart>;
+  replaceLine: (
+    variantId: string,
+    replacementVariantId: string,
+  ) => Promise<Cart>;
   announce: (message: string) => void;
 };
 
@@ -56,7 +74,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
     async (run: (current: Cart, key: string) => Promise<Cart>) => {
       await ensureGuestSession();
       const current = cartRef.current ?? (await refresh());
-      if (!current) throw new ApiError(0, "NETWORK", "We couldn't load your cart. Please try again.");
+      if (!current)
+        throw new ApiError(
+          0,
+          "NETWORK",
+          "We couldn't load your cart. Please try again.",
+        );
       const key = newIdempotencyKey();
       try {
         const next = await run(current, key);
@@ -65,7 +88,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return next;
       } catch (error) {
         // A stale version means another tab changed the cart: reload, let the shopper retry.
-        if (error instanceof ApiError && (error.code === "VERSION_CONFLICT" || error.status === 0)) await refresh();
+        if (
+          error instanceof ApiError &&
+          (error.code === "VERSION_CONFLICT" ||
+            error.code === "PAYMENT_UNRESOLVED" ||
+            error.status === 0)
+        )
+          await refresh();
         throw error;
       }
     },
@@ -75,7 +104,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const setLine = useCallback(
     (variantId: string, quantity: number) =>
       mutate((current, key) =>
-        api<Cart>("/cart/lines", { method: "POST", idempotencyKey: key, body: { variantId, quantity, expectedVersion: current.version } }),
+        api<Cart>("/cart/lines", {
+          method: "POST",
+          idempotencyKey: key,
+          body: { variantId, quantity, expectedVersion: current.version },
+        }),
       ),
     [mutate],
   );
@@ -83,7 +116,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeLine = useCallback(
     (variantId: string) =>
       mutate((current, key) =>
-        api<Cart>(`/cart/lines/${variantId}`, { method: "DELETE", idempotencyKey: key, body: { expectedVersion: current.version } }),
+        api<Cart>(`/cart/lines/${variantId}`, {
+          method: "DELETE",
+          idempotencyKey: key,
+          body: { expectedVersion: current.version },
+        }),
+      ),
+    [mutate],
+  );
+
+  const replaceLine = useCallback(
+    (variantId: string, replacementVariantId: string) =>
+      mutate((current, key) =>
+        api<Cart>("/cart/lines/" + variantId, {
+          method: "PATCH",
+          idempotencyKey: key,
+          body: { replacementVariantId, expectedVersion: current.version },
+        }),
       ),
     [mutate],
   );
@@ -101,15 +150,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
       refresh,
       setLine,
       removeLine,
+      replaceLine,
       announce,
     }),
-    [cart, status, refresh, setLine, removeLine, announce],
+    [cart, status, refresh, setLine, removeLine, replaceLine, announce],
   );
 
   return (
     <CartContext.Provider value={value}>
       {children}
-      <div className="visually-hidden" role="status" aria-live="polite" aria-atomic="true">
+      <div
+        className="visually-hidden"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {message}
       </div>
     </CartContext.Provider>
