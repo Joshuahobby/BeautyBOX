@@ -1,5 +1,5 @@
 import { expect, test } from "./fixtures";
-import { expectNoHorizontalScroll } from "./helpers";
+import { addSimpleToCart, expectNoHorizontalScroll } from "./helpers";
 
 test("feature carousel changes the collection and CTA without automatic movement", async ({
   page,
@@ -57,7 +57,7 @@ test("department mega menu supports keyboard dismissal and real category navigat
   await expect(trigger).toHaveAttribute("aria-expanded", "false");
 });
 
-test("mobile category menu closes even when only the shop query changes", async ({
+test("mobile menu keeps one usable search and closes when the shop query changes", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 360, height: 800 });
@@ -67,6 +67,20 @@ test("mobile category menu closes even when only the shop query changes", async 
     exact: true,
   });
   await trigger.click();
+  const search = page.getByRole("searchbox", {
+    name: "Search products",
+    exact: true,
+  });
+  await expect(search).toHaveCount(1);
+  await search.fill("lip");
+  await search.press("Enter");
+  await expect(page).toHaveURL(/\/shop\?q=lip$/);
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText(
+    "Results for “lip”",
+  );
+  await expect(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  await expect(search).toHaveCount(1);
   await page
     .getByRole("navigation", { name: "Categories", exact: true })
     .getByRole("link", { name: "Skincare", exact: true })
@@ -144,4 +158,97 @@ test("campaign artwork and the four featured demo product images load", async ({
       .toBeGreaterThan(0);
     await expectNoHorizontalScroll(page);
   }
+});
+
+test("hero copy stays clear of campaign art and search stays usable across tablet breakpoints", async ({
+  page,
+}) => {
+  for (const width of [651, 768, 900, 1003, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    await page.evaluate(() => document.fonts.ready);
+    const search = page.getByRole("searchbox", {
+      name: "Search products",
+      exact: true,
+    });
+    expect((await search.boundingBox())!.width).toBeGreaterThanOrEqual(240);
+    const hero = page.getByRole("region", {
+      name: "BeautyBOX featured collections",
+    });
+
+    for (const slide of [1, 2, 3]) {
+      await hero
+        .getByRole("button", { name: "Show feature " + slide, exact: true })
+        .click();
+      const art = (await hero.locator("img").first().boundingBox())!;
+      const body = (await hero.locator("h1 + p").boundingBox())!;
+      const action = (await hero.getByRole("link").boundingBox())!;
+      const intro = (await hero
+        .getByText("From our shop in Kigali", { exact: true })
+        .boundingBox())!;
+      const highlight = (await hero.locator("h1 span").first().boundingBox())!;
+      expect(
+        intro.y + intro.height,
+        `intro at ${width}px / slide ${slide}`,
+      ).toBeLessThanOrEqual(highlight.y);
+      const spans = await hero
+        .locator("h1 span")
+        .evaluateAll((nodes) =>
+          nodes.map((node) => node.getBoundingClientRect().right),
+        );
+      expect(
+        body.x + body.width,
+        `body at ${width}px / slide ${slide}`,
+      ).toBeLessThanOrEqual(art.x);
+      expect(
+        action.x + action.width,
+        `CTA at ${width}px / slide ${slide}`,
+      ).toBeLessThanOrEqual(art.x);
+      expect(
+        Math.max(...spans),
+        `headline at ${width}px / slide ${slide}`,
+      ).toBeLessThanOrEqual(art.x);
+      await expectNoHorizontalScroll(page);
+    }
+  }
+});
+
+test("a special-delivery basket explains the block and recovers when the item is removed", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await addSimpleToCart(page, "pure-zen-cleanser");
+  await addSimpleToCart(page, "salon-hood-dryer");
+  await page.goto("/cart");
+  await expect(
+    page.getByText(/This item needs special delivery/),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Resolve cart to continue" }),
+  ).toBeDisabled();
+  const removal = page.getByRole("button", {
+    name: "Remove Salon Hood Dryer (special delivery)",
+    exact: true,
+  });
+  const removeBox = (await removal.boundingBox())!;
+  const summaryBox = (await page
+    .getByRole("complementary", { name: "Order summary" })
+    .boundingBox())!;
+  expect(summaryBox.y).toBeGreaterThanOrEqual(removeBox.y + removeBox.height);
+  await page
+    .getByRole("button", {
+      name: "Remove Salon Hood Dryer (special delivery)",
+      exact: true,
+    })
+    .click();
+  await expect(page.getByText(/This item needs special delivery/)).toHaveCount(
+    0,
+  );
+  await expect(
+    page.getByRole("button", { name: "Continue to checkout" }),
+  ).toBeEnabled();
+  await page.getByRole("button", { name: "Continue to checkout" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Who is receiving?" }),
+  ).toBeVisible();
 });

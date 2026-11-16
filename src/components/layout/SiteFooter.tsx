@@ -1,6 +1,6 @@
 import Link from "next/link";
 import brand from "@/design/brand/BeautyBox_Platform_Hub_Lockup_Outlined.svg";
-import { messages } from "@/messages";
+import { currentKigaliYear, messages } from "@/messages";
 import styles from "./Layout.module.css";
 
 export function SiteFooter() {
@@ -17,6 +17,9 @@ export function SiteFooter() {
         <nav aria-label="Help and policies">
           <ul className={styles.footerLinks}>
             <li>
+              <Link href="/about">{messages.footer.about}</Link>
+            </li>
+            <li>
               <Link href="/help">{messages.footer.help}</Link>
             </li>
             <li>
@@ -32,7 +35,9 @@ export function SiteFooter() {
             </li>
           </ul>
         </nav>
-        <p className={styles.footerNote}>{messages.footer.note}</p>
+        <p className={styles.footerNote}>
+          © {currentKigaliYear()} BeautyBOX · {messages.footer.note}
+        </p>
       </div>
     </footer>
   );

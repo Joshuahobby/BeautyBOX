@@ -85,6 +85,11 @@
   align-self: start;
 }
 
+/* Keep corrective line actions uncovered while a shopper resolves a blocked cart. */
+.summary[data-needs-attention] {
+  position: static;
+}
+
 .row {
   display: flex;
   justify-content: space-between;
