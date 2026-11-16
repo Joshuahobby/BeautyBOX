@@ -1,0 +1,199 @@
+{
+  "measuredAt": "2026-11-16T17:35:00.051Z",
+  "sourceCommit": "cab19df5b5966656bb4f3e60109f2f58f99a9627",
+  "trackedWorktreeChanges": false,
+  "chromium": "155.0.8059.79",
+  "mode": "local production build, TEST fixtures; laboratory evidence, not field data",
+  "protocol": {
+    "viewport": {
+      "width": 390,
+      "height": 844
+    },
+    "deviceScaleFactor": 2,
+    "cpuSlowdown": 4,
+    "latencyMs": 100,
+    "downloadBytesPerSecond": 200000,
+    "cache": "disabled",
+    "coldRuns": 3,
+    "path": "/",
+    "settleMs": 2500
+  },
+  "medians": {
+    "lcpMs": 5704,
+    "cls": 0.0025134630403816924,
+    "imageBytes": 942371
+  },
+  "runs": [
+    {
+      "run": 1,
+      "lcp": {
+        "ms": 5780,
+        "element": "IMG",
+        "image": "/images/editorial/green-ritual.webp"
+      },
+      "cls": 0.0025134630403816924,
+      "imageBytes": 942371,
+      "imageTransfers": [
+        {
+          "url": "/_next/static/media/BeautyBox_Platform_Hub_Lockup_Outlined.2l6v-jut-w932.svg",
+          "bytes": 3566
+        },
+        {
+          "url": "/images/editorial/green-ritual.webp",
+          "bytes": 195079
+        },
+        {
+          "url": "/images/editorial/everyday-beauty.webp",
+          "bytes": 148411
+        },
+        {
+          "url": "/images/editorial/cleanser.webp",
+          "bytes": 107235
+        },
+        {
+          "url": "/images/editorial/lip-hue.webp",
+          "bytes": 172221
+        },
+        {
+          "url": "/images/editorial/makeup-bag.webp",
+          "bytes": 232147
+        },
+        {
+          "url": "/images/editorial/sun-cream.webp",
+          "bytes": 83712
+        }
+      ],
+      "images": [
+        {
+          "source": "/_next/static/media/BeautyBox_Platform_Hub_Lockup_Outlined.2l6v-jut-w932.svg",
+          "renderedWidth": 174,
+          "naturalWidth": 860
+        },
+        {
+          "source": "/images/editorial/green-ritual.webp",
+          "renderedWidth": 207.625,
+          "naturalWidth": 1254
+        },
+        {
+          "source": "/images/editorial/everyday-beauty.webp",
+          "renderedWidth": 150.359375,
+          "naturalWidth": 900
+        }
+      ]
+    },
+    {
+      "run": 2,
+      "lcp": {
+        "ms": 5696,
+        "element": "IMG",
+        "image": "/images/editorial/green-ritual.webp"
+      },
+      "cls": 0.0025134630403816924,
+      "imageBytes": 942371,
+      "imageTransfers": [
+        {
+          "url": "/_next/static/media/BeautyBox_Platform_Hub_Lockup_Outlined.2l6v-jut-w932.svg",
+          "bytes": 3566
+        },
+        {
+          "url": "/images/editorial/green-ritual.webp",
+          "bytes": 195079
+        },
+        {
+          "url": "/images/editorial/everyday-beauty.webp",
+          "bytes": 148411
+        },
+        {
+          "url": "/images/editorial/cleanser.webp",
+          "bytes": 107235
+        },
+        {
+          "url": "/images/editorial/lip-hue.webp",
+          "bytes": 172221
+        },
+        {
+          "url": "/images/editorial/makeup-bag.webp",
+          "bytes": 232147
+        },
+        {
+          "url": "/images/editorial/sun-cream.webp",
+          "bytes": 83712
+        }
+      ],
+      "images": [
+        {
+          "source": "/_next/static/media/BeautyBox_Platform_Hub_Lockup_Outlined.2l6v-jut-w932.svg",
+          "renderedWidth": 174,
+          "naturalWidth": 860
+        },
+        {
+          "source": "/images/editorial/green-ritual.webp",
+          "renderedWidth": 207.625,
+          "naturalWidth": 1254
+        },
+        {
+          "source": "/images/editorial/everyday-beauty.webp",
+          "renderedWidth": 150.359375,
+          "naturalWidth": 900
+        }
+      ]
+    },
+    {
+      "run": 3,
+      "lcp": {
+        "ms": 5704,
+        "element": "IMG",
+        "image": "/images/editorial/green-ritual.webp"
+      },
+      "cls": 0.0025134630403816924,
+      "imageBytes": 942371,
+      "imageTransfers": [
+        {
+          "url": "/_next/static/media/BeautyBox_Platform_Hub_Lockup_Outlined.2l6v-jut-w932.svg",
+          "bytes": 3566
+        },
+        {
+          "url": "/images/editorial/green-ritual.webp",
+          "bytes": 195079
+        },
+        {
+          "url": "/images/editorial/everyday-beauty.webp",
+          "bytes": 148411
+        },
+        {
+          "url": "/images/editorial/cleanser.webp",
+          "bytes": 107235
+        },
+        {
+          "url": "/images/editorial/lip-hue.webp",
+          "bytes": 172221
+        },
+        {
+          "url": "/images/editorial/makeup-bag.webp",
+          "bytes": 232147
+        },
+        {
+          "url": "/images/editorial/sun-cream.webp",
+          "bytes": 83712
+        }
+      ],
+      "images": [
+        {
+          "source": "/_next/static/media/BeautyBox_Platform_Hub_Lockup_Outlined.2l6v-jut-w932.svg",
+          "renderedWidth": 174,
+          "naturalWidth": 860
+        },
+        {
+          "source": "/images/editorial/green-ritual.webp",
+          "renderedWidth": 207.625,
+          "naturalWidth": 1254
+        },
+        {
+          "source": "/images/editorial/everyday-beauty.webp",
+          "renderedWidth": 150.359375,
+          "naturalWidth": 900
+        }
+      ]
+    }
+  ]
+}

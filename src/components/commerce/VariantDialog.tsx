@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Money } from "@/components/ui/Money";
 import { ApiError } from "@/lib/api-client";
 import { productImage } from "@/lib/product-imagery";
+import { responsiveImage } from "@/lib/responsive-image";
 import type { PublicProduct } from "@/modules/catalog/catalog";
 import { format, messages } from "@/messages";
 import styles from "./VariantDialog.module.css";
@@ -103,6 +104,7 @@ export function VariantDialog({
                     alt={product.title}
                     width={100}
                     height={110}
+                    {...responsiveImage(photo, "100px")}
                   />
                   {!variant?.imageUrl ? <p>Shared product image</p> : null}
                 </div>

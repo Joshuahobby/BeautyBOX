@@ -15,6 +15,7 @@ import { listCategories, listProducts } from "@/modules/catalog/catalog";
 import { messages } from "@/messages";
 import { beautybox } from "@/content/beautybox";
 import styles from "./page.module.css";
+import { responsiveImage } from "@/lib/responsive-image";
 
 const categoryImages: Record<string, string> = {
   skincare: "green-ritual",
@@ -110,6 +111,10 @@ export default async function HomePage() {
                       alt=""
                       width={300}
                       height={300}
+                      {...responsiveImage(
+                        `/images/editorial/${categoryImages[c.slug] ?? "green-ritual"}.webp`,
+                        "(max-width: 767px) calc((100vw - 60px) / 3), (max-width: 1264px) calc((100vw - 164px) / 6), 184px",
+                      )}
                       loading="lazy"
                     />
                   </div>
@@ -129,6 +134,10 @@ export default async function HomePage() {
           alt=""
           width={1600}
           height={700}
+          {...responsiveImage(
+            "/images/editorial/hibiscus-ritual.webp",
+            "(max-width: 767px) 50vw, 60vw",
+          )}
           loading="lazy"
         />
         <div className={"container " + styles.ritualInner}>

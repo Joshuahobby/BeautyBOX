@@ -51,6 +51,8 @@ jobs:
         run: npm run verify
       - name: Test database integration
         run: npm run test:integration
+      - name: Report optional-service prerequisites without provider requests
+        run: npm run audit:optional
       - name: Build and test the browser flows
         run: npm run test:e2e
       - name: Keep browser failure evidence

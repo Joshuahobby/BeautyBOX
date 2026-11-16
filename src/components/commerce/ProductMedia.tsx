@@ -1,6 +1,7 @@
 import { Package } from "lucide-react";
 import { messages } from "@/messages";
 import styles from "./Commerce.module.css";
+import { responsiveImage } from "@/lib/responsive-image";
 
 /**
  * Render the image explicitly selected by the caller. Real SKUs use reviewed photos;
@@ -12,11 +13,13 @@ export function ProductMedia({
   alt,
   title,
   large,
+  sizes,
 }: {
   url: string | null;
   alt?: string;
   title: string;
   large?: boolean;
+  sizes?: string;
 }) {
   if (url) {
     return (
@@ -25,7 +28,17 @@ export function ProductMedia({
           src={url}
           alt={alt ?? title}
           className={styles.mediaImg}
-          loading="lazy"
+          width={800}
+          height={800}
+          {...responsiveImage(
+            url,
+            sizes ??
+              (large
+                ? "(max-width: 767px) calc(100vw - 32px), (max-width: 1264px) calc((100vw - 112px) * .56), 645px"
+                : "(max-width: 340px) calc(100vw - 32px), (max-width: 767px) calc((100vw - 48px) / 2), (max-width: 1023px) calc((100vw - 112px) / 3), (max-width: 1264px) calc((100vw - 136px) / 4), 282px"),
+          )}
+          loading={large ? "eager" : "lazy"}
+          fetchPriority={large ? "high" : "auto"}
           decoding="async"
         />
       </div>

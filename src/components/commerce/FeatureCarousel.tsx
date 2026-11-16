@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, ArrowUpRight } from "lucide-react";
 import { messages } from "@/messages";
 import styles from "./FeatureCarousel.module.css";
+import { responsiveImage } from "@/lib/responsive-image";
 
 const features = [
   {
@@ -80,7 +81,12 @@ export function FeatureCarousel() {
               alt={feature.alt}
               width={800}
               height={800}
+              {...responsiveImage(
+                `/images/editorial/${feature.image}.webp`,
+                "(max-width: 650px) calc((100vw - 32px) * .58), (max-width: 767px) calc((100vw - 32px) * .33), (max-width: 1264px) calc((100vw - 64px) * .33), 396px",
+              )}
               fetchPriority="high"
+              loading="eager"
             />
             <img
               className={styles.portrait}
@@ -96,6 +102,12 @@ export function FeatureCarousel() {
               }
               width={600}
               height={1000}
+              {...responsiveImage(
+                `/images/editorial/${feature.portrait ? "everyday-beauty" : "hibiscus-ritual"}.webp`,
+                "(max-width: 650px) calc((100vw - 32px) * .42), (max-width: 767px) calc((100vw - 32px) * .22), (max-width: 1264px) calc((100vw - 64px) * .22), 264px",
+              )}
+              loading="eager"
+              fetchPriority="high"
             />
           </div>
         </div>
