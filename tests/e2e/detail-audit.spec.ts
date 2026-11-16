@@ -244,16 +244,22 @@ test("non-shade products use option wording and show an explicit price range", a
       );
     await page.goto("/products/lip-hue");
     await expect(
-      page.getByText("No option selected", { exact: true }),
+      page
+        .getByText("No option selected", { exact: true })
+        .filter({ visible: true }),
     ).toBeVisible();
-    await expect(page.getByText("From", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("From", { exact: true }).filter({ visible: true }),
+    ).toBeVisible();
     await page
       .getByRole("button", { name: "Choose your option", exact: true })
       .click();
     await page.getByRole("radio", { name: "Small", exact: true }).check();
     await page.getByRole("button", { name: "Use Small", exact: true }).click();
     await expect(
-      page.getByText("Selected option: Small", { exact: true }),
+      page
+        .getByText("Selected option: Small", { exact: true })
+        .filter({ visible: true }),
     ).toBeVisible();
   } finally {
     await client.query(
