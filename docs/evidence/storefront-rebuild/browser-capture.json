@@ -1,0 +1,51 @@
+{
+  "capturedAt": "2026-11-16T05:50:26.980Z",
+  "mode": "local production build, TEST database, fake providers",
+  "captures": [
+    {
+      "name": "home-desktop",
+      "pathname": "/",
+      "cssViewport": {
+        "width": 1003,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "home-mobile",
+      "pathname": "/",
+      "cssViewport": {
+        "width": 360,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "catalog-desktop",
+      "pathname": "/shop",
+      "cssViewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "catalog-mobile",
+      "pathname": "/shop?category=makeup",
+      "cssViewport": {
+        "width": 360,
+        "height": 900
+      },
+      "deviceScaleFactor": 1,
+      "overflow": 0,
+      "brokenImages": []
+    }
+  ],
+  "pageAndConsoleErrors": []
+}

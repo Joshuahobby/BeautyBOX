@@ -1,0 +1,178 @@
+{
+  "generator": "Image Gen",
+  "artDirection": "Signature reference: warm ivory, coral, sage and aubergine; sunlit editorial beauty photography",
+  "noActualSKUPhotographyClaimed": true,
+  "realProductsUseReviewedMediaOnly": true,
+  "assets": [
+    {
+      "file": "public/images/editorial/brow-pencil.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 268894,
+      "sha256": "321d4057126a53e6e0275c3df9bcd3a9c0ed46e981a23f913b1263c4602aaee1",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/citrus-shower-gel.webp",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 188234,
+      "sha256": "1cafd1329cb6b41127bcb9de9a064489c5f900fcb6a3fc36658a3936afbce6d7",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/clay-mask.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 145846,
+      "sha256": "6dc6d3949c6ce5e6859a3d1bbf4b8c988979704c0e0d68850350874eb8aede26",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/cleanser.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 106334,
+      "sha256": "0179f95d49bbf6757f977e94be90399ee973253078dad37852b5c25495fcb167",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/clear-gloss.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 109914,
+      "sha256": "145541c6ce83183acca82fe127f567e9b5d28d00465ed89ba38fb5cb531744ae",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/detangling-comb.webp",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 377506,
+      "sha256": "3e9a21772227bef68172bb6fa3622ea4b322e74ae70c492a78257c8d3253e605",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/everyday-beauty.webp",
+      "dimensions": [
+        900,
+        1350
+      ],
+      "bytes": 147510,
+      "sha256": "f12a260d148ce25766a795f6a45446515b9c4956e03f5e2472589bfe3abd8d30",
+      "use": "campaign illustration"
+    },
+    {
+      "file": "public/images/editorial/foundation.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 119790,
+      "sha256": "11ebc7453fcf5c334f7625b0271eb091d3459059206f22656ad3ea6dc861e0f0",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/green-ritual.webp",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 194178,
+      "sha256": "37cf9ff3a022963a8e2f3b1b653d8230fc9aeb48f46a08636bcad807933b76fa",
+      "use": "campaign illustration"
+    },
+    {
+      "file": "public/images/editorial/hibiscus-ritual.webp",
+      "dimensions": [
+        1600,
+        701
+      ],
+      "bytes": 172546,
+      "sha256": "d6133a84b7ebf48f593db361ef7b814066296d5b734dff2cdbce4e6c9f2a393f",
+      "use": "campaign illustration"
+    },
+    {
+      "file": "public/images/editorial/lip-hue.webp",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 171320,
+      "sha256": "ea8f7d84b259ac7c7b45ebd396915cd87bfc02aff11a73a8a951ec27b2d9527d",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/makeup-bag.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 231246,
+      "sha256": "7ab60065bacc91505eea6f18012b49aaaa63fcc968f10d39a584038c90633fa1",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/makeup-sponges.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 178328,
+      "sha256": "55cc25dc577f51d7afeeb6c6f2ad989fcf80bbdae89a4cfb6e29daa5cc4c3442",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/mascara.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 100210,
+      "sha256": "c2b0564c0f222dc6200c80bcf2c60b859293612fd23b6d2314b184b52afe90b2",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/perfume.webp",
+      "dimensions": [
+        1254,
+        1254
+      ],
+      "bytes": 196600,
+      "sha256": "db79ae675f5d7ac477c86e63cb225860fb9cb2bd05e8c77ca2d8f07555613e19",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/roll-on.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 73746,
+      "sha256": "236f8cbc9b67833d4bbe994945bd342ce3217ac33a104592ca0dac3d20334ed2",
+      "use": "illustrative DEMO product only"
+    },
+    {
+      "file": "public/images/editorial/sun-cream.webp",
+      "dimensions": [
+        1024,
+        1024
+      ],
+      "bytes": 82812,
+      "sha256": "35a4dc1370cb6cc6c7eb32b8d3cb7c97c0c9ed0be4bc242a62be89c204f857be",
+      "use": "illustrative DEMO product only"
+    }
+  ]
+}

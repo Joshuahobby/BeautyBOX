@@ -28,6 +28,10 @@ The previously discussed source files, standalone HTML prototypes, detailed back
 
 The delivery terms and visual references are decisions to carry forward, not claims that they are currently applied to the loaded application.
 
+## Rebuild checkpoint — 16 November 2026
+
+Priority 2 below is now implemented and locally verified on `codex/beautybox-storefront-rebuild`: Signature homepage, manual featured slides, mega menus, category/brand/budget discovery, responsive catalogue and demo-labelled packshots. Tests and captured visual QA are in `docs/evidence/storefront-rebuild/`. The baseline app's existing cart/checkout continues to work; its reviewed presentation and delivery/provider restoration remain next. This is new rebuilt source, not recovered source from the earlier lost workspace.
+
 ## Next tasks, in order
 
 | Priority | Task | Completion evidence |

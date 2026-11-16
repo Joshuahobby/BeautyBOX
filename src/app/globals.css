@@ -11,15 +11,15 @@
 
 :root {
   --font-ui: var(--font-manrope), system-ui, "Segoe UI", Arial, sans-serif;
-  --header-height: 64px;
+  --header-height: 126px;
   --gutter: var(--layout-gutter-mobile);
   color-scheme: light;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
   :root {
     --gutter: var(--layout-gutter-desktop);
-    --header-height: 72px;
+    --header-height: 159px;
   }
 }
 

@@ -1,5 +1,11 @@
 # Test evidence
 
+## Homepage/catalog rebuild — 16 November 2026
+
+`npm run verify` passed with 90 unit tests, token and pinned-contract checks, TypeScript and ESLint. `npm run test:integration` passed 156 tests; 6 opt-in live cases skipped. A fresh production build and 10 selected Chromium browser checks passed, including responsive axe at 360/768/1440 px, mobile filters, carousel actions, keyboard mega-menu behavior, mobile query navigation, brand preservation and campaign/featured image loading. Final production-rendered captures report zero page/console errors, broken images or horizontal overflow.
+
+Reproducible checks: `npx playwright test tests/e2e/storefront-rebuild.spec.ts tests/e2e/layout-a11y.spec.ts --grep "feature carousel|department mega|mobile category|brand discovery|homepage budget|storefront pages fit|mobile filter sheet|campaign artwork"`; local production screenshot capture: `node scripts/evidence/capture-storefront.mjs`. Evidence and exact scope: `docs/evidence/storefront-rebuild/verification.json`; visual review: `design-qa.md`. Google calls were not made. Existing purchase/delivery restoration beyond this checkpoint remains outstanding.
+
 All results below are from runs of the actual application code on this machine (Windows 10, Node 22.23.1). Integration tests run against a real PostgreSQL 16.15 server (the project-local cluster), with fresh tables per test. External providers are the deterministic simulators described in DECISION-LOG DR-016, except the opt-in rows that name a live service: Supabase Storage (dev project) and the pawaPay **sandbox** (DR-043). No mocks stand in for the database, and nothing here has been run against pawaPay production, Google, an SMS provider or real money.
 
 | Suite | Command | Latest result | Date |

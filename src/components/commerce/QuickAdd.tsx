@@ -7,11 +7,18 @@ import { ApiError } from "@/lib/api-client";
 import { format, messages } from "@/messages";
 
 /** Quick add for simple (single-variant) items: adds one more unit, server-validated. */
-export function QuickAdd({ variantId, title }: { variantId: string; title: string }) {
+export function QuickAdd({
+  variantId,
+  title,
+}: {
+  variantId: string;
+  title: string;
+}) {
   const { cart, setLine, announce } = useCart();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const current = cart?.lines.find((l) => l.variantId === variantId)?.quantity ?? 0;
+  const current =
+    cart?.lines.find((l) => l.variantId === variantId)?.quantity ?? 0;
 
   async function add() {
     setBusy(true);
@@ -28,7 +35,14 @@ export function QuickAdd({ variantId, title }: { variantId: string; title: strin
 
   return (
     <div>
-      <Button full onClick={add} busy={busy} busyLabel={messages.product.adding} aria-label={`${messages.product.addToCart}: ${title}`}>
+      <Button
+        variant="secondary"
+        full
+        onClick={add}
+        busy={busy}
+        busyLabel={messages.product.adding}
+        aria-label={`${messages.product.addToCart}: ${title}`}
+      >
         {messages.product.addToCart}
       </Button>
       {error ? (
@@ -36,7 +50,11 @@ export function QuickAdd({ variantId, title }: { variantId: string; title: strin
           {error}
         </p>
       ) : null}
-      {current > 0 && !error ? <p className="label-text muted u-mt-2">{format("{count} in cart", { count: current })}</p> : null}
+      {current > 0 && !error ? (
+        <p className="label-text muted u-mt-2">
+          {format("{count} in cart", { count: current })}
+        </p>
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,13 @@
 # Implementation progress
 
+## Storefront rebuild checkpoint — 16 November 2026
+
+The Signature-inspired homepage and catalogue are rebuilt on `codex/beautybox-storefront-rebuild`: editorial imagery/type, full supplied lockup, manual featured slides, accessible department mega menus, mobile category disclosure, real category/brand/budget discovery, and restored product-card presentation. Seventeen generated assets are stored in Git; fourteen are explicitly demo-only packshots. Reviewed real SKU images retain precedence. No fabricated promotions/reviews/shops are introduced. Brand filters now survive price filtering, and the catalogue keeps URL-driven search/filter/sort/pagination.
+
+Fresh verification: **90 unit tests**, **156 integration tests** (6 optional live cases skipped), production build and **10 targeted browser checks** passed. The visual QA passed with saved desktop/mobile, mega-menu and source-comparison evidence in `docs/evidence/storefront-rebuild/`; `design-qa.md` records fixes and accepted product constraints. The exact committed v1.1 API contract is now the pinned reproducible baseline; the missing external v1.0 handoff was not reconstructed.
+
+This checkpoint does not claim the later product/shade/cart UI or Kigali/Google restoration is complete. Those are next. Google billing remains an owner-side blocker; no Google live calls or hosted deployment/settings changes were performed. Earlier entries below describe the existing base application and its historical evidence.
+
 Updated 2026-11-01. Local build, plus the staging deployment live since 2026-10-25 (DR-044, `docs/DEPLOYMENT.md`): synthetic data, pawaPay sandbox, simulated routing, no SMS. Evidence for every "verified" claim is in [TEST-EVIDENCE.md](TEST-EVIDENCE.md); review findings and their fixes are in [REVIEW-FINDINGS.md](REVIEW-FINDINGS.md).
 
 ## Backlog status

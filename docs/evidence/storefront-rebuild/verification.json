@@ -1,0 +1,39 @@
+{
+  "checkedAt": "2026-11-16T05:52:47.769595+00:00",
+  "scope": "homepage and catalogue rebuild",
+  "verify": {
+    "passed": true,
+    "unitTestsPassed": 90,
+    "includes": [
+      "tokens",
+      "pinned API baseline",
+      "TypeScript",
+      "ESLint"
+    ]
+  },
+  "integration": {
+    "passed": 156,
+    "optionalLiveSkipped": 6
+  },
+  "productionBuild": true,
+  "browser": {
+    "passed": 10,
+    "responsiveAxeWidths": [
+      360,
+      768,
+      1440
+    ],
+    "consoleErrors": 0,
+    "captureOverflow": 0,
+    "brokenImages": 0
+  },
+  "designQa": "passed",
+  "sourceBranch": "codex/beautybox-storefront-rebuild",
+  "deploymentPerformed": false,
+  "googleLiveChecksPerformed": false,
+  "remainingSlices": [
+    "product/shade/cart/checkout presentation",
+    "Silverback Mall and Kigali coverage plus starting prices",
+    "Google adapter restoration and bounded live verification after billing activation"
+  ]
+}
