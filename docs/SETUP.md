@@ -98,6 +98,12 @@ npm run test:e2e
 
 Browser tests start their own server on port 3100 against the test database. Stop `npm run dev` first on low-memory machines. Screenshots are written to `test-results/screens`.
 
+The readiness workflow at `.github/workflows/quality.yml` runs these checks on PRs to `main`, using Node 22, locked dependencies, PostgreSQL 16 and Chromium. Setup generates isolated LOCAL/TEST settings; no hosted secret is required. Database integration and browser suites must run sequentially because both reset `beautybox_test`. `npm run audit:optional` reports external prerequisites without making provider requests.
+
+If this environment blocks Playwright's download but has compatible system Chromium, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium` for local browser checks and evidence scripts. CI retains the Playwright-pinned browser. Record the actual browser version with evidence.
+
+`npm run images:generate` derives the checked-in responsive variants; `npm run images:check` verifies all source/variant hashes and is included in `verify`. Start the isolated production TEST preview before `npm run capture:readiness` or `npm run perf:mobile -- before` / `after`. The performance protocol is fixed in the script; compare separate clean-baseline and feature builds with fresh identical demo fixtures, sequentially. Curated PNG/JSON evidence is committed under `docs/evidence/readiness/`; raw Playwright traces stay ignored.
+
 ## Environment variables
 
 See `.env.example` for every variable. Staging uses `.env.staging.example` and the steps in [DEPLOYMENT.md](DEPLOYMENT.md); it refuses local photo storage, the payment simulator and the SMS simulator, and requires TLS to the database. Production refuses fake adapters, a visible demo catalog, a non-https origin and missing provider secrets (`src/server/env.ts`). Checkout additionally stays closed in production while any publication block exists: tariff, origin, policies, support contact, delivery promise, live payments or live routing (`src/modules/settings/settings.ts`).

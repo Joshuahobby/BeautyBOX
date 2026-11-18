@@ -1,5 +1,7 @@
 # Release checklist (G0–G5)
 
+Readiness engineering is tracked in [READINESS-IMPROVEMENTS.md](READINESS-IMPROVEMENTS.md). The Africa's Talking adapter is offline-tested with `AFRICASTALKING_SEND_ENABLED=false`; account/sender approval, credit, approved copy and a real handset delivery check remain open. The six optional external tests and Google billing/coverage evidence are separate from local/CI checks. This PR does not authorize release or alter these gates.
+
 Current audit and optional-item status: [DETAIL-AUDIT.md](DETAIL-AUDIT.md) and [SCOPE-COVERAGE.md](SCOPE-COVERAGE.md). Historical provider/staging entries below retain their original dates; they are not fresh checks from this environment.
 
 Public paid checkout stays **closed** until every item below has recorded evidence and the founder explicitly authorizes the launch. The application enforces this itself: in production, `publicationBlocks()` refuses quotes and payment starts while any block is open, and the configuration validator refuses fake adapters, a visible demo catalog and missing secrets.

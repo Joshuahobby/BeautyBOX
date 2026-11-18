@@ -12,6 +12,7 @@
   padding: var(--space-3) var(--gutter);
   border-bottom: 1px solid var(--color-rule);
   background: var(--color-surface);
+  flex-wrap: wrap;
 }
 
 .topbar img {
@@ -67,6 +68,9 @@
   align-items: center;
   gap: var(--space-3);
   font-size: var(--type-label-size);
+  flex-wrap: wrap;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .role {
@@ -79,7 +83,7 @@
 .cards {
   display: grid;
   gap: var(--space-4);
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
 }
 
 .card {
@@ -198,7 +202,7 @@
   transform: translate(-50%, -50%);
   width: calc(100% - 32px);
   max-width: 560px;
-  max-height: 90vh;
+  max-height: 90dvh;
   overflow-y: auto;
   background: var(--color-surface);
   border-radius: var(--radius-panel);
@@ -211,6 +215,8 @@
 .formGrid {
   display: grid;
   gap: var(--space-4);
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .row {
@@ -218,11 +224,54 @@
   flex-wrap: wrap;
   gap: var(--space-3);
   align-items: center;
+  min-width: 0;
 }
 
 .stack {
   display: grid;
   gap: var(--space-4);
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.row > *,
+.formGrid > *,
+.stack > * {
+  min-width: 0;
+  max-width: 100%;
+}
+.stack,
+.dialog,
+.fieldsetPanel {
+  overflow-wrap: anywhere;
+}
+.fieldsetPanel {
+  min-width: 0;
+}
+.fieldsetPanel input[type="file"] {
+  width: 100%;
+  min-width: 0;
+}
+.editorFields {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+@media (max-width: 400px) {
+  .dialog {
+    padding: var(--space-4);
+  }
+  .dialog .row > button {
+    width: 100%;
+  }
+  .who {
+    margin-left: 0;
+    width: 100%;
+  }
+  .fieldsetPanel .row > div {
+    flex: 1 1 100%;
+  }
 }
 
 /* Former inline styles: the production CSP blocks style="" attributes (DR-039). None of

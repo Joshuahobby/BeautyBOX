@@ -1,0 +1,71 @@
+name: Quality checks
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    name: Build, data and browser checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    env:
+      PG_BIN: /usr/lib/postgresql/16/bin
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Check out source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Use Node 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22.x"
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Verify PostgreSQL 16 binaries
+        run: test -x "$PG_BIN/pg_ctl" && "$PG_BIN/postgres" --version
+      - name: Install Chromium and system libraries
+        run: npx playwright install --with-deps chromium
+      - name: Prepare isolated local and TEST databases
+        id: database
+        run: npm run setup:local
+      - name: Report a database setup failure
+        if: failure() && steps.database.outcome == 'failure'
+        run: |
+          if [ -f .local/postgres/server.log ]; then
+            sed -E '/password|secret|token|api.?key|PRIVATE KEY|DATABASE_URL/Id' .local/postgres/server.log | tail -n 60
+          fi
+      - name: Check tokens, contract, types, lint and unit tests
+        run: npm run verify
+      - name: Test database integration
+        run: npm run test:integration
+      - name: Report optional-service prerequisites without provider requests
+        run: npm run audit:optional
+      - name: Build and test the browser flows
+        run: npm run test:e2e
+      - name: Keep browser failure evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: browser-failure-${{ github.run_id }}
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Stop the job's local PostgreSQL cluster
+        if: always()
+        continue-on-error: true
+        run: npm run db:local -- stop

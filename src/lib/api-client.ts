@@ -21,7 +21,20 @@ export class ApiError extends Error {
 
 export const newIdempotencyKey = () => `web-${crypto.randomUUID()}`;
 
-type Options = { method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"; body?: unknown; idempotencyKey?: string; signal?: AbortSignal };
+/** A gateway page or an in-flight idempotent intent never proves rejection. */
+export const isDefiniteRejection = (error: unknown): error is ApiError =>
+  error instanceof ApiError &&
+  error.status >= 400 &&
+  error.status < 500 &&
+  error.code !== "UNCERTAIN" &&
+  error.code !== "IDEMPOTENCY_CONFLICT";
+
+type Options = {
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+  body?: unknown;
+  idempotencyKey?: string;
+  signal?: AbortSignal;
+};
 
 export async function api<T>(path: string, options: Options = {}): Promise<T> {
   const method = options.method ?? "GET";
@@ -42,7 +55,11 @@ export async function api<T>(path: string, options: Options = {}): Promise<T> {
     });
   } catch (error) {
     if ((error as Error).name === "AbortError") throw error;
-    throw new ApiError(0, "NETWORK", "We couldn't reach BeautyBOX. Check your connection and try again.");
+    throw new ApiError(
+      0,
+      "NETWORK",
+      "We couldn't reach BeautyBOX. Check your connection and try again.",
+    );
   }
   if (response.status === 204) return undefined as T;
   const text = await response.text();
@@ -52,11 +69,26 @@ export async function api<T>(path: string, options: Options = {}): Promise<T> {
   } catch {
     // A proxy or gateway answered with a non-JSON page (for example a 502/504). The
     // request may or may not have been applied, so callers must treat it as uncertain.
-    throw new ApiError(response.ok ? 0 : response.status, "UNCERTAIN", "We could not confirm whether that worked. Check the record before trying again.");
+    throw new ApiError(
+      response.ok ? 0 : response.status,
+      "UNCERTAIN",
+      "We could not confirm whether that worked. Check the record before trying again.",
+    );
   }
   if (!response.ok) {
-    const e = (data ?? {}) as { code?: string; message?: string; fieldErrors?: FieldError[]; requestId?: string };
-    throw new ApiError(response.status, e.code ?? "INTERNAL_ERROR", e.message ?? "Something went wrong. Please try again.", e.fieldErrors ?? [], e.requestId ?? null);
+    const e = (data ?? {}) as {
+      code?: string;
+      message?: string;
+      fieldErrors?: FieldError[];
+      requestId?: string;
+    };
+    throw new ApiError(
+      response.status,
+      e.code ?? "INTERNAL_ERROR",
+      e.message ?? "Something went wrong. Please try again.",
+      e.fieldErrors ?? [],
+      e.requestId ?? null,
+    );
   }
   return data as T;
 }

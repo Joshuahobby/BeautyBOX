@@ -281,7 +281,11 @@ export function LoadMore({
   return (
     <>
       {items.length > 0 ? (
-        <ProductGrid products={items} label={messages.catalog.resultsHeading} />
+        <ProductGrid
+          products={items}
+          label={messages.catalog.resultsHeading}
+          imageSizes="(max-width: 340px) calc(100vw - 32px), (max-width: 767px) calc((100vw - 48px) / 2), (max-width: 1023px) calc((100vw - 112px) / 3), (max-width: 1264px) calc((100vw - 400px) / 4), 216px"
+        />
       ) : null}
       <div className={styles.loadMore}>
         {error ? <p role="alert">{messages.catalog.fetchFailed}</p> : null}

@@ -81,16 +81,15 @@ describe("staging configuration", () => {
     );
   });
 
-  it("accepts server-key Google configuration with coverage still gated; refuses unbuilt SMS", () => {
+  it("accepts server-key Google configuration with coverage still gated and SMS disabled", () => {
     staging({ ROUTING_PROVIDER: "google", GOOGLE_ROUTES_API_KEY: "k" });
     expect(problems()).toBe("");
     expect(serverEnv().GOOGLE_TWO_WHEELER_COVERAGE_APPROVED).toBe(false);
     staging({ ROUTING_PROVIDER: "google", GOOGLE_ROUTES_API_KEY: "" });
     expect(problems()).toMatch(/GOOGLE_ROUTES_API_KEY: required/);
     staging({ SMS_PROVIDER: "africastalking" });
-    expect(problems()).toMatch(
-      /SMS_PROVIDER: Africa's Talking SMS is not implemented/,
-    );
+    expect(problems()).toBe("");
+    expect(serverEnv().AFRICASTALKING_SEND_ENABLED).toBe(false);
   });
 
   it("refuses a server Routes key reused as the public Embed key", () => {

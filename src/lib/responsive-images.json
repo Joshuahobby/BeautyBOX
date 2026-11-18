@@ -1,0 +1,509 @@
+{
+  "transform": {
+    "widths": [
+      320,
+      480,
+      768
+    ],
+    "format": "webp",
+    "quality": 78,
+    "effort": 6,
+    "fit": "inside",
+    "withoutEnlargement": true
+  },
+  "images": {
+    "/images/editorial/brow-pencil.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 268894,
+      "sourceSha256": "321d4057126a53e6e0275c3df9bcd3a9c0ed46e981a23f913b1263c4602aaee1",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/brow-pencil-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 14092,
+          "sha256": "bb29ebffce6ff0aae55786aad12a8b7a53dbe08be0b6bcc29a6a88bf8e2d3336"
+        },
+        {
+          "url": "/images/editorial/responsive/brow-pencil-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 28432,
+          "sha256": "354d3dbd8ec771b89e7091bd369bae6673f31a25f71f1ff24789080111b73e3e"
+        },
+        {
+          "url": "/images/editorial/responsive/brow-pencil-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 65122,
+          "sha256": "805c37a8915638195cd5100e6a1ef8101b0312ad4665e215c298dcf139eb9a1d"
+        }
+      ]
+    },
+    "/images/editorial/citrus-shower-gel.webp": {
+      "width": 1254,
+      "height": 1254,
+      "bytes": 188234,
+      "sourceSha256": "1cafd1329cb6b41127bcb9de9a064489c5f900fcb6a3fc36658a3936afbce6d7",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/citrus-shower-gel-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 9390,
+          "sha256": "a5d1ac73c844b302d7264cbb344891628cd171907356cb0a997be2b4bf3a2cb4"
+        },
+        {
+          "url": "/images/editorial/responsive/citrus-shower-gel-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 18040,
+          "sha256": "675a8da188c33bdfb5ff7ca2f4630e559bf4dccc1b172059b1112a6fb913bf99"
+        },
+        {
+          "url": "/images/editorial/responsive/citrus-shower-gel-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 37882,
+          "sha256": "6224e64434db1393df8533e78bd97d4eddd973bc37387176be872843ebdd5ce7"
+        }
+      ]
+    },
+    "/images/editorial/clay-mask.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 145846,
+      "sourceSha256": "6dc6d3949c6ce5e6859a3d1bbf4b8c988979704c0e0d68850350874eb8aede26",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/clay-mask-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 9472,
+          "sha256": "0bcc235802a85daa08d3bdaf2903029a52fd210ab77523d65d4f5e421e81f92f"
+        },
+        {
+          "url": "/images/editorial/responsive/clay-mask-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 17976,
+          "sha256": "b7d6c6dd5e08f2cabf0c54128168f1a19abf1b0e4e8e9c2fe07d566ff80e227c"
+        },
+        {
+          "url": "/images/editorial/responsive/clay-mask-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 36384,
+          "sha256": "7e113df7fdf46ad13a7242232e071ef30cf452e7462a232268b6e5fc21fce11a"
+        }
+      ]
+    },
+    "/images/editorial/cleanser.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 106334,
+      "sourceSha256": "0179f95d49bbf6757f977e94be90399ee973253078dad37852b5c25495fcb167",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/cleanser-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 6830,
+          "sha256": "c977bd4fea731f46db63ee262eaaf277b6f2dedc1a8b2feb31bda37d1b002d5d"
+        },
+        {
+          "url": "/images/editorial/responsive/cleanser-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 13120,
+          "sha256": "f93b01b64ef131e5c179908de3b48ad9c8f7fbdd1282a82edb07f271f5c24fec"
+        },
+        {
+          "url": "/images/editorial/responsive/cleanser-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 27604,
+          "sha256": "ade3512474e87f9b62143d15c87965a13dd850c4467bc62839df9daf17aa5e08"
+        }
+      ]
+    },
+    "/images/editorial/clear-gloss.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 109914,
+      "sourceSha256": "145541c6ce83183acca82fe127f567e9b5d28d00465ed89ba38fb5cb531744ae",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/clear-gloss-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 6954,
+          "sha256": "a074e02b4cfb7d0d69dc7c222cb8b31edd25a289dd2bf081a7a06fe6ab3ab200"
+        },
+        {
+          "url": "/images/editorial/responsive/clear-gloss-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 13550,
+          "sha256": "afc43890a8647b9c67d5a28473218fc01b65f3855477074ca41a777c94ec27a4"
+        },
+        {
+          "url": "/images/editorial/responsive/clear-gloss-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 28674,
+          "sha256": "68a6b449122339d650df276d35790ae93d2bbe131950c81a462eefc79e9ca873"
+        }
+      ]
+    },
+    "/images/editorial/detangling-comb.webp": {
+      "width": 1254,
+      "height": 1254,
+      "bytes": 377506,
+      "sourceSha256": "3e9a21772227bef68172bb6fa3622ea4b322e74ae70c492a78257c8d3253e605",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/detangling-comb-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 13700,
+          "sha256": "8b060354efccc80b773754f18cac388384427f742b64ef98525935d85edbaa61"
+        },
+        {
+          "url": "/images/editorial/responsive/detangling-comb-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 27212,
+          "sha256": "c2da6a7c909ae932aca10592fad260c00966b76b663500b34fd9df4d5dd33a2c"
+        },
+        {
+          "url": "/images/editorial/responsive/detangling-comb-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 60984,
+          "sha256": "3595624b08055c6a4206b1094dff6c17083c0f46f306bb33c06274376ecad4df"
+        }
+      ]
+    },
+    "/images/editorial/everyday-beauty.webp": {
+      "width": 900,
+      "height": 1350,
+      "bytes": 147510,
+      "sourceSha256": "f12a260d148ce25766a795f6a45446515b9c4956e03f5e2472589bfe3abd8d30",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/everyday-beauty-320.webp",
+          "width": 320,
+          "height": 480,
+          "bytes": 7408,
+          "sha256": "f62efc5989aed5bc3fe9c340e0ae70fbbb0697d525b3e67b7d07600ca851e20e"
+        },
+        {
+          "url": "/images/editorial/responsive/everyday-beauty-480.webp",
+          "width": 480,
+          "height": 720,
+          "bytes": 14208,
+          "sha256": "7f7228dfe30baaf565103ac3e086bcc41ef7f5f8cbe926b586f7b259e8fd4c63"
+        },
+        {
+          "url": "/images/editorial/responsive/everyday-beauty-768.webp",
+          "width": 768,
+          "height": 1152,
+          "bytes": 33146,
+          "sha256": "442e4d227320ae913ba979d626aeac584fb99f8cde541c9cf6d36c2ad51034da"
+        }
+      ]
+    },
+    "/images/editorial/foundation.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 119790,
+      "sourceSha256": "11ebc7453fcf5c334f7625b0271eb091d3459059206f22656ad3ea6dc861e0f0",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/foundation-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 7592,
+          "sha256": "05180b28c33a2674c3ee6bba95b6427f2ebe59e04f3ec744d896f531c6c7598d"
+        },
+        {
+          "url": "/images/editorial/responsive/foundation-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 14092,
+          "sha256": "9977ba8457878b9deb1111a8eed68384a9618b08ca11de5d1cf9f78dda6ddea8"
+        },
+        {
+          "url": "/images/editorial/responsive/foundation-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 29286,
+          "sha256": "4ef9e68f043324fab5ea316b4637fff67d77c0a0b309a7809c5163ca3631f387"
+        }
+      ]
+    },
+    "/images/editorial/green-ritual.webp": {
+      "width": 1254,
+      "height": 1254,
+      "bytes": 194178,
+      "sourceSha256": "37cf9ff3a022963a8e2f3b1b653d8230fc9aeb48f46a08636bcad807933b76fa",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/green-ritual-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 12798,
+          "sha256": "07282129bb187ef80dd6a26e786a91abe89c1ff98cb169e5377d0d8b32f68343"
+        },
+        {
+          "url": "/images/editorial/responsive/green-ritual-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 22508,
+          "sha256": "8ad64ae3bd0cf308351d52ec2fb678aa387a6856935bb1979fce26aa3411b2a3"
+        },
+        {
+          "url": "/images/editorial/responsive/green-ritual-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 42394,
+          "sha256": "296cd8e2174b3da28b68eb2764ae000e684f65736d71d8bba35e545725a7edd8"
+        }
+      ]
+    },
+    "/images/editorial/hibiscus-ritual.webp": {
+      "width": 1600,
+      "height": 701,
+      "bytes": 172546,
+      "sourceSha256": "d6133a84b7ebf48f593db361ef7b814066296d5b734dff2cdbce4e6c9f2a393f",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/hibiscus-ritual-320.webp",
+          "width": 320,
+          "height": 140,
+          "bytes": 6336,
+          "sha256": "6887c73f85ebdfce9c548a16d5a77ffe0f15dbedd9416eaed76003c4c086cf0e"
+        },
+        {
+          "url": "/images/editorial/responsive/hibiscus-ritual-480.webp",
+          "width": 480,
+          "height": 210,
+          "bytes": 12746,
+          "sha256": "2344465d59f07fede2cb3b11d4a335c88b46ac3c94292b5222a8d2d3970a026e"
+        },
+        {
+          "url": "/images/editorial/responsive/hibiscus-ritual-768.webp",
+          "width": 768,
+          "height": 336,
+          "bytes": 27176,
+          "sha256": "c723ebefb4105d8faa3d3a988d23b54f542c8f8d1c7b48c63d5209cd1358458c"
+        }
+      ]
+    },
+    "/images/editorial/lip-hue.webp": {
+      "width": 1254,
+      "height": 1254,
+      "bytes": 171320,
+      "sourceSha256": "ea8f7d84b259ac7c7b45ebd396915cd87bfc02aff11a73a8a951ec27b2d9527d",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/lip-hue-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 6460,
+          "sha256": "296154e63c98248d8bd2d53b9f17e89218c0e92d3e7c721403e616fb072e945e"
+        },
+        {
+          "url": "/images/editorial/responsive/lip-hue-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 12606,
+          "sha256": "dace0d883fd0352a6cfb2f496dc3e01d0501f4ccda5c405699239896904b0543"
+        },
+        {
+          "url": "/images/editorial/responsive/lip-hue-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 31646,
+          "sha256": "ebd15f4d28b325f69bf1618ca3a8945152991d12ccc568d54a6cdd7dfe30ffa6"
+        }
+      ]
+    },
+    "/images/editorial/makeup-bag.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 231246,
+      "sourceSha256": "7ab60065bacc91505eea6f18012b49aaaa63fcc968f10d39a584038c90633fa1",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/makeup-bag-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 13282,
+          "sha256": "93ae8d0da1aa9c5a1879624e7cd54bb6c147fa814d7123645c2a0a009d24e4aa"
+        },
+        {
+          "url": "/images/editorial/responsive/makeup-bag-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 27242,
+          "sha256": "53fd022d4a9cc9768486beefe21a0cd910aa28a088796806a06f77d6d5a2d416"
+        },
+        {
+          "url": "/images/editorial/responsive/makeup-bag-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 61256,
+          "sha256": "3d6fa9c67d247303e5ca8d7b7da03e71955b8bc44538a99406ef04a1d13433cf"
+        }
+      ]
+    },
+    "/images/editorial/makeup-sponges.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 178328,
+      "sourceSha256": "55cc25dc577f51d7afeeb6c6f2ad989fcf80bbdae89a4cfb6e29daa5cc4c3442",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/makeup-sponges-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 8914,
+          "sha256": "0bc1efc8809d7e92d27111de0518dce85a751fb1169a35bc918dcce616c6bc55"
+        },
+        {
+          "url": "/images/editorial/responsive/makeup-sponges-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 18800,
+          "sha256": "89eb610f652d1d1ec18d2e854282d9c048bd45abcc4aa624583fd4ecc27c300c"
+        },
+        {
+          "url": "/images/editorial/responsive/makeup-sponges-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 43520,
+          "sha256": "11812a600a5f75eeae0232447835d4f4e85d24cc40cef20e87fb5fe5d2d404e9"
+        }
+      ]
+    },
+    "/images/editorial/mascara.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 100210,
+      "sourceSha256": "c2b0564c0f222dc6200c80bcf2c60b859293612fd23b6d2314b184b52afe90b2",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/mascara-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 5972,
+          "sha256": "5ee993659ec500cbd053b0b97d80df7abfee7c073eedd699f70620b6e19134e7"
+        },
+        {
+          "url": "/images/editorial/responsive/mascara-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 11686,
+          "sha256": "064e759c27a7ca6161acd2352cfdd7043ed63003321afc188e602732c9aace39"
+        },
+        {
+          "url": "/images/editorial/responsive/mascara-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 23826,
+          "sha256": "f363fce4c567b97e2b70d72fdc09035b8646930ed8247b7c2427e54229ddd593"
+        }
+      ]
+    },
+    "/images/editorial/perfume.webp": {
+      "width": 1254,
+      "height": 1254,
+      "bytes": 196600,
+      "sourceSha256": "db79ae675f5d7ac477c86e63cb225860fb9cb2bd05e8c77ca2d8f07555613e19",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/perfume-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 10172,
+          "sha256": "55ea026b40e0190dc77b9b3f90e36cca9438ba973596e8b04ff4856f6911522a"
+        },
+        {
+          "url": "/images/editorial/responsive/perfume-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 20026,
+          "sha256": "22d3996f577c9792780ee5dcb0790d9301f1066bf703f1ab29a4002a31ab4001"
+        },
+        {
+          "url": "/images/editorial/responsive/perfume-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 41278,
+          "sha256": "c655f30a6b4e05399c4b1e52338b5cdeda392f04aea37fd9c8de8628128a87d7"
+        }
+      ]
+    },
+    "/images/editorial/roll-on.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 73746,
+      "sourceSha256": "236f8cbc9b67833d4bbe994945bd342ce3217ac33a104592ca0dac3d20334ed2",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/roll-on-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 5396,
+          "sha256": "55c3abe72993d6081a888bf0b7daf8dd9733b9e706d15f80afda218895ea45f6"
+        },
+        {
+          "url": "/images/editorial/responsive/roll-on-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 9494,
+          "sha256": "2c6b35473ba014680b37f139da88f58c2334a1b3501fa9abc6d019f12c80583b"
+        },
+        {
+          "url": "/images/editorial/responsive/roll-on-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 18844,
+          "sha256": "2d87bbbda1e75b1a34e96f96da245f75df9d620fbd01faa0cae4bd88463ccc8c"
+        }
+      ]
+    },
+    "/images/editorial/sun-cream.webp": {
+      "width": 1024,
+      "height": 1024,
+      "bytes": 82812,
+      "sourceSha256": "35a4dc1370cb6cc6c7eb32b8d3cb7c97c0c9ed0be4bc242a62be89c204f857be",
+      "variants": [
+        {
+          "url": "/images/editorial/responsive/sun-cream-320.webp",
+          "width": 320,
+          "height": 320,
+          "bytes": 5956,
+          "sha256": "ba721b8b83f4cf19d0016e020ce0e2466704a6458f387581ac14521e380dad0a"
+        },
+        {
+          "url": "/images/editorial/responsive/sun-cream-480.webp",
+          "width": 480,
+          "height": 480,
+          "bytes": 11086,
+          "sha256": "bb8f6a20366b8cf08d2b2f26bdfd9292729f65f56c8240c6346c9c61d87ce066"
+        },
+        {
+          "url": "/images/editorial/responsive/sun-cream-768.webp",
+          "width": 768,
+          "height": 768,
+          "bytes": 21846,
+          "sha256": "b15a195a294d50fdeeef20e8a4ed96c71c3982a3c69c940b88cc51b574c817c5"
+        }
+      ]
+    }
+  }
+}

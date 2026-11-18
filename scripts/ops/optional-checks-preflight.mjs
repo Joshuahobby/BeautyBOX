@@ -53,9 +53,22 @@ const report = {
     command: "npm run delivery:check-google",
   },
   sms: {
-    realProvider: "NOT_IMPLEMENTED_OR_CONFIGURED",
+    realProvider: "IMPLEMENTED_OFFLINE_TESTED",
+    sendingEnabled:
+      (process.env.AFRICASTALKING_SEND_ENABLED ||
+        fileValues.AFRICASTALKING_SEND_ENABLED) === "true",
+    required: Object.fromEntries(
+      [
+        "AFRICASTALKING_USERNAME",
+        "AFRICASTALKING_API_KEY",
+        "AFRICASTALKING_SENDER_ID",
+      ].map((name) => [name, runtimeHas(name)]),
+    ),
+    liveVerification:
+      "PENDING_OWNER_ACCOUNT_SENDER_CREDIT_COPY_AND_DELIVERY_CHECK",
     localSimulation: "AVAILABLE",
-    realMessagesSent: 0,
+    messagesSentByThisCheck: 0,
+    deliveryVerification: "NOT_CHECKED_BY_PREFLIGHT",
   },
   backupRestore: {
     scope: "LOCAL_TEST_ONLY",

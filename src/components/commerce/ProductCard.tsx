@@ -13,7 +13,13 @@ import styles from "./Commerce.module.css";
  * always say "Choose shade/options"; unavailable items cannot be added. No ratings,
  * urgency or discount badges.
  */
-export function ProductCard({ product }: { product: PublicProduct }) {
+export function ProductCard({
+  product,
+  imageSizes,
+}: {
+  product: PublicProduct;
+  imageSizes?: string;
+}) {
   const prices = product.variants.map((v) => v.priceRwf);
   const min = Math.min(...prices);
   const available = product.variants.some((v) => v.isAvailable);
@@ -31,6 +37,7 @@ export function ProductCard({ product }: { product: PublicProduct }) {
           url={image?.url ?? null}
           alt={image?.alt}
           title={product.title}
+          sizes={imageSizes}
         />
         <div className={styles.cardMeta}>
           <p className={styles.cardBrand}>{product.brand}</p>
@@ -65,15 +72,17 @@ export function ProductCard({ product }: { product: PublicProduct }) {
 export function ProductGrid({
   products,
   label,
+  imageSizes,
 }: {
   products: PublicProduct[];
   label: string;
+  imageSizes?: string;
 }) {
   return (
     <ul className={styles.grid} aria-label={label}>
       {products.map((p) => (
         <li key={p.id}>
-          <ProductCard product={p} />
+          <ProductCard product={p} imageSizes={imageSizes} />
         </li>
       ))}
     </ul>

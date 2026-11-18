@@ -8,6 +8,7 @@ import { PAWAPAY_BASE_URLS, PawapayPaymentAdapter } from "./payments/pawapay";
 import { GooglePlacesAdapter, GoogleRoutingAdapter } from "./routing/google";
 import { FakePlacesAdapter, FakeRoutingAdapter } from "./routing/fake";
 import { DisabledSmsAdapter, FakeSmsAdapter } from "./sms/fake";
+import { AfricasTalkingSmsAdapter } from "./sms/africastalking";
 import path from "node:path";
 import type { MediaStorage } from "./storage/types";
 import { LocalMediaStorage } from "./storage/local";
@@ -26,12 +27,6 @@ type Overrides = {
 };
 let overrides: Overrides = {};
 let cache: Required<Overrides> | undefined;
-
-function notImplemented(name: string): never {
-  throw new Error(
-    `${name} adapter is not available in this build; keep the fake/disabled adapter until its gate passes`,
-  );
-}
 
 function build(): Required<Overrides> {
   const env = serverEnv();
@@ -69,9 +64,16 @@ function build(): Required<Overrides> {
     sms:
       env.SMS_PROVIDER === "fake"
         ? new FakeSmsAdapter()
-        : env.SMS_PROVIDER === "disabled"
+        : env.SMS_PROVIDER === "disabled" || !env.AFRICASTALKING_SEND_ENABLED
           ? new DisabledSmsAdapter()
-          : notImplemented("Africa's Talking"),
+          : new AfricasTalkingSmsAdapter({
+              sendEnabled: env.AFRICASTALKING_SEND_ENABLED,
+              mode: env.AFRICASTALKING_MODE,
+              appEnv: env.APP_ENV,
+              username: env.AFRICASTALKING_USERNAME,
+              apiKey: env.AFRICASTALKING_API_KEY,
+              senderId: env.AFRICASTALKING_SENDER_ID,
+            }),
     media:
       env.MEDIA_STORAGE === "local"
         ? new LocalMediaStorage(

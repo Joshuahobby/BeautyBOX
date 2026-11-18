@@ -117,7 +117,9 @@ function start() {
   // `npm run setup:local -- --reset` regenerates, and per-test table resets were
   // dominated by disk syncs. Never use these settings for staging or production.
   const durability = process.env.LOCAL_PG_DURABLE === "1" ? "-c fsync=on" : "-c fsync=off -c synchronous_commit=off -c full_page_writes=off";
-  const opts = `-p ${port} -c listen_addresses=${host} -c shared_buffers=32MB -c max_connections=80 ${durability} -c timezone=UTC`;
+  // All project clients use loopback TCP. Do not depend on permission to a system
+  // Unix-socket directory (for example /var/run/postgresql on GitHub's runners).
+  const opts = `-p ${port} -c listen_addresses=${host} -c unix_socket_directories= -c shared_buffers=32MB -c max_connections=80 ${durability} -c timezone=UTC`;
   // stdio must not be piped: on Windows the server inherits the pipe handles and
   // spawnSync would wait for them to close (i.e. until the server stops).
   const started = spawnSync(bin("pg_ctl"), ["start", "-D", dataDir, "-l", logFile, "-w", "-t", "60", "-o", opts], {

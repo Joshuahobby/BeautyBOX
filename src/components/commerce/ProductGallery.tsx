@@ -5,6 +5,7 @@ import { ProductMedia } from "./ProductMedia";
 import { productImage } from "@/lib/product-imagery";
 import type { PublicProduct } from "@/modules/catalog/catalog";
 import styles from "./ProductGallery.module.css";
+import { responsiveImage } from "@/lib/responsive-image";
 
 export function ProductGallery({
   product,
@@ -42,7 +43,14 @@ export function ProductGallery({
               aria-pressed={index === i}
               onClick={() => setIndex(i)}
             >
-              <img src={image.url} alt="" width={90} height={90} />
+              <img
+                src={image.url}
+                alt=""
+                width={90}
+                height={90}
+                {...responsiveImage(image.url, "90px")}
+                loading="lazy"
+              />
             </button>
           ))}
         </div>
