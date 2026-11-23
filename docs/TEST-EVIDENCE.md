@@ -1,5 +1,13 @@
 # Test evidence
 
+## Readiness completion — 23 November 2026
+
+The six readiness improvements in merged [PR #7](https://github.com/Joshuahobby/BeautyBOX/pull/7) have one fresh, clean local validation chain for application head `ab880612199b017113dbffb189962bbce0b33550`: `npm run verify` passed tokens, the pinned API contract, responsive-image hashes, generated Next types, TypeScript, ESLint and **195 unit tests**; real-PostgreSQL integration passed **192 cases**, with six explicitly opt-in external cases skipped; and the production-build Chromium suite passed **all 72 browser cases in one run**.
+
+Twelve direct PNG captures cover the storefront and product at phone/desktop widths, staff product editing at 320/360 px, ready and uncertain stock imports, staff loading/read recovery, an order action, and Finance-only refund approval. Capture checks found no horizontal overflow or broken images. The controlled three-run mobile comparison measured median LCP **5,704 → 1,068 ms**, image transfer **942,371 → 131,712 bytes**, and unchanged CLS **0.00251346**. GitHub [Quality run 43924106773](https://github.com/Joshuahobby/BeautyBOX/actions/runs/43924106773) and its Vercel status succeeded for the application head.
+
+Evidence: [readiness ledger](READINESS-IMPROVEMENTS.md), [machine-readable results](evidence/readiness/verification.json), [capture metadata](evidence/readiness/captures.json), [optional preflight](evidence/readiness/optional-preflight.json). The preflight made zero provider requests and changed no settings. Two Supabase Storage and four pawaPay sandbox cases remain unexecuted because this checkout has no current isolated credentials. Google live routing and real SMS delivery remain owner-gated; Africa's Talking sending is disabled. No real payment/SMS, hosted data/settings change or cloud publication was performed in completing this evidence.
+
 ## Staging merge candidate — 16 November 2026
 
 Fresh complete checks for [PR #6](https://github.com/Joshuahobby/BeautyBOX/pull/6): `npm run verify` passed tokens, pinned v1.2 contract, types, lint and **132 unit tests**; real-PostgreSQL integration passed **185 cases**, with six isolated external-service cases skipped; a fresh production build and **all 59 Chromium browser cases passed in one run**. This supersedes the earlier audit's split browser-run count below. The staging settings helper also passed a placeholder-only dry run and four-setting local CLI imitation, verifying secret flags and excluded owner credentials with zero Vercel requests.

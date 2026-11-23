@@ -1,0 +1,71 @@
+{
+  "recordedAt": "2026-11-23T09:21:26.596Z",
+  "applicationCommit": "ab880612199b017113dbffb189962bbce0b33550",
+  "mergeCommit": "9249ab6d8a215a341befa0e66aa6448d024a8cd8",
+  "local": {
+    "node": "22.23.1",
+    "postgresql": "17",
+    "chromium": "155.0.8059.79",
+    "verify": {
+      "status": "PASS",
+      "unitPassed": 195,
+      "unitFailed": 0,
+      "tokenContractTypesLintAndImageHashes": "PASS"
+    },
+    "integration": {
+      "status": "PASS",
+      "passed": 192,
+      "skippedExternalOptIn": 6,
+      "failed": 0
+    },
+    "browser": {
+      "status": "PASS",
+      "passedInOneRun": 72,
+      "failed": 0,
+      "buildMode": "production",
+      "providers": "fake"
+    },
+    "captures": {
+      "directPngs": 12,
+      "horizontalOverflowFindings": 0,
+      "brokenImages": 0,
+      "metadata": "captures.json"
+    }
+  },
+  "github": {
+    "workflow": "Quality checks",
+    "runId": 43924106773,
+    "runNumber": 9,
+    "conclusion": "success",
+    "vercelStatus": "success"
+  },
+  "performance": {
+    "runsPerBuild": 3,
+    "viewportCssPixels": "390x844",
+    "deviceScaleFactor": 2,
+    "cpuSlowdown": 4,
+    "latencyMs": 100,
+    "downloadBytesPerSecond": 200000,
+    "cacheDisabled": true,
+    "beforeCommit": "cab19df5b5966656bb4f3e60109f2f58f99a9627",
+    "afterCommit": "ab880612199b017113dbffb189962bbce0b33550",
+    "beforeMedians": {
+      "lcpMs": 5704,
+      "cls": 0.0025134630403816924,
+      "imageBytes": 942371
+    },
+    "afterMedians": {
+      "lcpMs": 1068,
+      "cls": 0.0025134630403816924,
+      "imageBytes": 131712
+    }
+  },
+  "limits": {
+    "externalCasesNotRun": 6,
+    "providerRequestsByPreflight": 0,
+    "hostedSettingsOrDataChanged": false,
+    "realPaymentsSent": 0,
+    "realSmsSent": 0,
+    "smsSendingEnabled": false
+  }
+}

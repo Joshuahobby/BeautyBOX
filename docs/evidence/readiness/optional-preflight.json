@@ -1,0 +1,48 @@
+{
+  "checkedAt": "2026-11-23T09:21:26.596Z",
+  "providerRequests": 0,
+  "settingsChanged": false,
+  "optionalSuites": [
+    {
+      "suite": "storage-supabase.test.ts",
+      "cases": 2,
+      "status": "MISSING_CREDENTIALS",
+      "required": {
+        "NEXT_PUBLIC_SUPABASE_URL": false,
+        "SUPABASE_SECRET_KEY": false
+      }
+    },
+    {
+      "suite": "pawapay-sandbox.test.ts",
+      "cases": 4,
+      "status": "MISSING_SANDBOX_CONFIGURATION",
+      "required": {
+        "PAWAPAY_API_TOKEN": false,
+        "sandboxMode": false,
+        "customEndpointAbsent": true
+      }
+    }
+  ],
+  "google": {
+    "serverKeyPresent": false,
+    "separateBrowserEmbedKeyPresent": false,
+    "liveCoverage": "PENDING_BILLING_AND_EXPLICIT_LIVE_CHECK"
+  },
+  "sms": {
+    "realProvider": "IMPLEMENTED_OFFLINE_TESTED",
+    "sendingEnabled": false,
+    "required": {
+      "AFRICASTALKING_USERNAME": false,
+      "AFRICASTALKING_API_KEY": false,
+      "AFRICASTALKING_SENDER_ID": false
+    },
+    "liveVerification": "PENDING_OWNER_ACCOUNT_SENDER_CREDIT_COPY_AND_DELIVERY_CHECK",
+    "messagesSentByThisCheck": 0,
+    "deliveryVerification": "NOT_CHECKED_BY_PREFLIGHT"
+  },
+  "backupRestore": {
+    "scope": "LOCAL_TEST_ONLY",
+    "hostedRestore": "REQUIRES_SEPARATE_HOSTED_REHEARSAL"
+  },
+  "note": "Missing optional credentials are not passed live tests. Put credentials in private environment settings, never chat or Git."
+}

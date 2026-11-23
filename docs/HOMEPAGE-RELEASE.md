@@ -25,3 +25,7 @@ Prepared 16 November 2026 from the current GitHub main commit `f74ff554462a49836
 No database schema, migrations, inventory reseed, dependencies or hosted settings change. Keep the existing access wall, public holding page, staging/demo environment, payment sandbox, fake routing and disabled SMS. Policies remain unapproved drafts. This release does not open public ordering.
 
 After merging through the authenticated repository owner, confirm the merge SHA's Vercel status and the protected storefront's revision header. Verify the new content, three slides, navigation and cart against the hosted catalogue. Hosted products and photographs can differ from local reference data; do not reset staging to reproduce screenshots.
+
+## Readiness follow-up
+
+The readiness PR preserves this homepage update and the approved carousel, menus, product/cart journey and business decisions. It adds responsive copies of the existing artwork without replacing originals or real SKU photographs, plus loading/read recovery. Current measurements, verification and direct PNG previews are in [READINESS-IMPROVEMENTS.md](READINESS-IMPROVEMENTS.md). Existing Vercel PR preview automation is observed; no hosted configuration/data change or public launch is authorized.
