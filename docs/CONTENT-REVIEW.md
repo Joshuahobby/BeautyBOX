@@ -54,4 +54,4 @@ This review is not legal advice. Before an administrator sets `policiesApproved`
 4. Accept the seven-day change-of-mind return policy as written.
 5. Make sure `care@beautyboxmarket.com` actually receives and is monitored.
 
-Still to supply: the **delivery promise** (a required setting, for example the usual delivery time in Kigali), and whether riders deliver at all hours or only support is 24/7. When order e-mail is built (DR-057), the privacy notice must name the e-mail provider before the first message is sent.
+Also supplied on 24 November: the **delivery promise** "Delivered within 3 hours in Kigali", and **riders deliver 24/7**, so the dispatch hours are 24/7 too. Both go into Staff → Settings with the support contact. The policies keep pointing to "the delivery window shown for the order", so they stay true if the promise changes. Before launch, operations should be sure 3 hours holds at night and in rain. When order e-mail is built (DR-057), the privacy notice must name the e-mail provider before the first message is sent.
