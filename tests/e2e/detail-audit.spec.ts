@@ -154,12 +154,17 @@ test("home section spacing survives the shared container rule at phone and deskt
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    const gap = await page
-      .locator('section[aria-labelledby="edit-heading"]')
-      .evaluate((node) =>
-        Number.parseFloat(getComputedStyle(node).paddingBlockStart),
-      );
-    expect(gap).toBeGreaterThanOrEqual(28);
+    const section = page.locator('section[aria-labelledby="edit-heading"]');
+    await expect(section).toBeVisible();
+    // A single read can land while the streamed page swaps the section, which
+    // gives an empty computed style (NaN, main CI run 45151009162); poll it.
+    await expect
+      .poll(() =>
+        section.evaluate((node) =>
+          Number.parseFloat(getComputedStyle(node).paddingBlockStart),
+        ),
+      )
+      .toBeGreaterThanOrEqual(28);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth - innerWidth,

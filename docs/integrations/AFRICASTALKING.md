@@ -21,3 +21,21 @@ Only a single exact recipient with a recognized acceptance status is ACCEPTED. K
 The durable outbox records SEND_IN_PROGRESS **before** contacting the provider. A recovered worker encountering that marker, or a recorded UNKNOWN result, must never blindly resend. Investigate in the provider dashboard and with the customer before any separately authorized new message. SMS results cannot alter payment, refund, stock or fulfillment truth. ACCEPTED has no delivery-report integration in this scope; staff must not describe it as delivered.
 
 Before a future live enablement, the owner must supply the approved Rwanda account and sender, credit, reviewed message copy (including private-link and multipart behavior), contact/privacy approvals and a controlled real delivery check. Confirm sender/account coverage with Africa's Talking. Enabling live SMS is a separate owner action; do not change hosted settings under this PR. `npm run audit:optional` reports readiness without provider requests. Tests in `africastalking-adapter.test.ts`, `env-sms.test.ts` and the database outbox regressions are offline evidence only.
+
+## Open work for the SMS phase after launch
+
+On 24 November the founder moved SMS to a phase after launch (DR-057), because Africa's Talking's account verification is slow. Production launches with `SMS_PROVIDER=disabled`, and order e-mail takes SMS's place. The work below waits for that phase.
+
+Open [PR #3](https://github.com/Joshuahobby/BeautyBOX/pull/3) (`i11-africastalking-sms`, DR-048, DR-049) was written before this adapter and now conflicts with `main` in 15 files, including this page. It adds what this adapter lacks:
+
+- **Delivery reports:** a token-protected callback, migration `20261101000000`, and the staff view "not delivered to phone".
+- **One-part messages:** a GSM-7 renderer and `/o#<token>` short links, so every production message is one part (one charge). The handoff requires checking SMS length, cost and actual delivery before SMS goes live.
+
+Reconcile the two before enabling sending:
+
+- Keep this adapter's send switch, mode rules, response cap and outcome rules (DR-054).
+- Port PR #3's reports and one-part wording.
+- Renumber PR #3's contract change from CC-21 to CC-22.
+- Apply its migration to staging before merging.
+
+The opt-in sandbox test then needs `AFRICASTALKING_USERNAME=sandbox` and the sandbox key in `.env.local`. The founder adds them.

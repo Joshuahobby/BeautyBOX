@@ -6,6 +6,8 @@ Updated on 16 November 2026, following the owner's request to preserve completed
 
 The selected storefront/catalogue, product/shade/cart and checkout presentation, Silverback/Kigali configuration and server-only Google adapters are rebuilt on `codex/beautybox-storefront-rebuild`. The subsequent full-detail audit addressed fifteen findings, added opt-in street-map preview and stronger local media restoration, and recorded 19 fresh screen states. See [DETAIL-AUDIT.md](DETAIL-AUDIT.md), [SCOPE-COVERAGE.md](SCOPE-COVERAGE.md) and [TEST-EVIDENCE.md](TEST-EVIDENCE.md). The original recovery record below explains the starting point; it is not the current source status.
 
+Update, 23 November: all of this is now on `main` (PRs #6–#9), and the current launch position is kept in [PROGRESS.md](PROGRESS.md#where-phase-1-stands--24-november-2026). The Africa's Talking adapter has since been built with sending off (DR-054); reconciling it with PR #3 replaces "implement real SMS" below.
+
 Remaining work is explicit: reopen Google billing and verify motorcycle coverage with bounded calls; supply isolated storage/sandbox credentials for six optional external cases; implement/configure real SMS; provide approved inventory/photos/copy, contacts/hours, delivery windows/parcel measurements and legal policies; rehearse hosted recovery separately. Deals, shop following, wishlist/reviews and later business-plan capabilities remain their own product decisions. No release or hosting action is implied by this audit.
 
 ## Original design-reference recovery checkpoint (historical)

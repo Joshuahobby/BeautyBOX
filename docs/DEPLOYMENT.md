@@ -1,8 +1,12 @@
 # Staging deployment on beautyboxmarket.com (DR-044)
 
-## Prepared design update — 16 November 2026
+## What is deployed — 23 November 2026
 
-[PR #6](https://github.com/Joshuahobby/BeautyBOX/pull/6) prepares the reviewed storefront and purchase-flow update for `main`. See [STAGING-MERGE.md](STAGING-MERGE.md) for the exact merge route, Vercel author-authorization failure, unchanged hosted data/settings, fresh checks and post-merge review. The feature branch itself has not updated staging. No new schema migration or Google billing activation is required to view this design with the existing staging configuration.
+PRs #6, #8, #7 and #9 were merged on 16, 16, 18 and 23 November. Each merge to `main` deployed, and on 23 November `beautyboxmarket.com` and `staging.beautyboxmarket.com` both answered with `X-Beautybox-Revision: 3986f28…` (PR #9's merge). The wall held: both hosts showed "Launching soon", `/shop` showed the wall, and the API answered 401 without the access code. Pages behind the code were not opened in that check.
+
+These PRs added no schema migration and changed no hosted settings or data. Staging therefore keeps its earlier dispatch point, tariff and synthetic catalogue (checked read-only on 24 November: settings version 1, demo pin, RWF 300/km demo tariff, no support contact; see TEST-EVIDENCE); the Silverback Mall, Kigali boundary and tariff settings (DR-050, DR-051) exist only in local databases. To review Kigali delivery on staging, an administrator enters them in Staff → Settings as a new settings version. Never reset or reseed the hosted database for this. Staging keeps `ROUTING_PROVIDER=fake` and `SMS_PROVIDER=disabled`. The new settings (`AFRICASTALKING_SEND_ENABLED`, the Google keys and `GOOGLE_TWO_WHEELER_COVERAGE_APPROVED`) default to off. PR #6's merge route and post-merge checks are in [STAGING-MERGE.md](STAGING-MERGE.md).
+
+To check which build a host serves: `curl -sI https://staging.beautyboxmarket.com/ | grep -i x-beautybox-revision`.
 
 What this sets up, at no cost until launch:
 
