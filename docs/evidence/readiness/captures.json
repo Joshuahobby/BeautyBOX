@@ -1,0 +1,115 @@
+{
+  "capturedAt": "2026-11-23T09:19:53.236Z",
+  "sourceCommit": "ab880612199b017113dbffb189962bbce0b33550",
+  "mode": "local production build; isolated TEST data and fake providers",
+  "captures": [
+    {
+      "name": "home-mobile",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "home-desktop",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "product-mobile",
+      "viewport": {
+        "width": 360,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-product-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-import-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-import-uncertain-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-product-360",
+      "viewport": {
+        "width": 360,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-import-360",
+      "viewport": {
+        "width": 360,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-loading",
+      "viewport": {
+        "width": 360,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-recovery",
+      "viewport": {
+        "width": 360,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-order-dialog-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    },
+    {
+      "name": "staff-finance-dialog-320",
+      "viewport": {
+        "width": 320,
+        "height": 844
+      },
+      "overflow": 0,
+      "brokenImages": []
+    }
+  ]
+}

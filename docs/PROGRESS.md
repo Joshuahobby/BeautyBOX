@@ -1,5 +1,13 @@
 # Implementation progress
 
+## Readiness improvements completed — 23 November 2026
+
+The six authorized improvements are implemented in application head `ab88061` and were merged by the repository owner through [PR #7](https://github.com/Joshuahobby/BeautyBOX/pull/7) on 18 November. Reliable stock CSV intake, PR automation, deep 320/360 px staff workflows, safe loading/read recovery, hash-verified responsive images, and the disabled-by-default Africa's Talking adapter are complete with runbooks and offline regression coverage.
+
+Fresh completion evidence passes **195 unit, 192 integration and all 72 browser cases**; six external-account cases remain explicitly skipped. Twelve inspected PNGs have no detected overflow or broken images. Three-run cold mobile measurement records median LCP 5,704 → 1,068 ms and image transfer 942,371 → 131,712 bytes with CLS unchanged at 0.00251346. GitHub Quality and Vercel checks succeeded for the application head. See [READINESS-IMPROVEMENTS.md](READINESS-IMPROVEMENTS.md) and [TEST-EVIDENCE.md](TEST-EVIDENCE.md).
+
+This closes the authorized offline implementation, not the launch gates. Real stock/photography/content, optional Supabase and pawaPay credentials, Google billing/coverage, Africa's Talking account/sender/copy/credit/handset delivery, hosted recovery and real-device review remain owner inputs. SMS stays disabled; evidence completion made no hosted configuration/data change and sent no real payment or message.
+
 ## Staging merge preparation — 16 November 2026
 
 [PR #6](https://github.com/Joshuahobby/BeautyBOX/pull/6) prepares the reviewed design and purchase flows for `main`. Fresh full checks passed **132 unit, 185 integration and 59 browser cases**; six external-service cases remain skipped. No schema migration or hosted database reset/reseed is needed. The optional Google settings are now included in the staging template/deployment helper, with server keys marked sensitive; no hosted settings were pushed. See [STAGING-MERGE.md](STAGING-MERGE.md) for Vercel authorization, the owner-account checkpoint, merge instructions, unchanged staging safeguards and post-merge review.

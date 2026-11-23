@@ -3,6 +3,8 @@ import fs from "node:fs";
 import { execFileSync } from "node:child_process";
 import { chromium, expect, type Page } from "@playwright/test";
 import { ownerQuery, staffMember } from "../../tests/e2e/readiness-support";
+import { STOCK_CSV_HEADER } from "../../src/lib/stock-csv";
+import { randomUUID } from "node:crypto";
 const origin = process.env.BEAUTYBOX_PREVIEW_ORIGIN ?? "http://localhost:3100";
 if (!["localhost", "127.0.0.1"].includes(new URL(origin).hostname))
   throw new Error("Local TEST capture only.");
@@ -72,6 +74,12 @@ try {
   const product = await ownerQuery(
     "SELECT id FROM commerce.products WHERE slug LIKE 'readiness-serum-%' ORDER BY created_at DESC LIMIT 1",
   );
+  const variant = product.rows[0]
+    ? await ownerQuery(
+        "SELECT sku FROM commerce.variants WHERE product_id=$1 ORDER BY sort_order LIMIT 1",
+        [product.rows[0].id],
+      )
+    : null;
   for (const width of [320, 360]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(
@@ -82,7 +90,47 @@ try {
     );
     await capture(page, `staff-product-${width}`);
     await page.goto("/staff/stock/import", { waitUntil: "networkidle" });
+    if (variant?.rows[0]) {
+      const csv = `${STOCK_CSV_HEADER.join(",")}\n${variant.rows[0].sku},1,OWNED,,,REVIEW-${randomUUID().slice(0, 8)},2028-02-29,500\n`;
+      await page.getByLabel("CSV rows", { exact: true }).fill(csv);
+      await page
+        .getByRole("button", { name: "Preview import", exact: true })
+        .click();
+      await expect(
+        page.getByText("READY: 1 of 1 rows valid", { exact: true }),
+      ).toBeVisible();
+      await page
+        .getByLabel("Reason / count reference")
+        .fill("Isolated TEST evidence; not a launch count");
+    }
     await capture(page, `staff-import-${width}`);
+    if (width === 320 && variant?.rows[0]) {
+      let calls = 0;
+      await page.route(
+        "**/api/v1/staff/inventory/import-previews/*/apply",
+        async (route) => {
+          const response = await route.fetch();
+          if (++calls === 1) await route.abort("failed");
+          else await route.fulfill({ response });
+        },
+      );
+      await page
+        .getByRole("button", { name: "Apply import", exact: true })
+        .click();
+      await expect(
+        page.getByRole("button", { name: "Check import outcome", exact: true }),
+      ).toBeVisible();
+      await capture(page, "staff-import-uncertain-320");
+      await page
+        .getByRole("button", { name: "Check import outcome", exact: true })
+        .click();
+      await expect(
+        page.getByText("APPLIED: 1 of 1 rows valid", { exact: true }),
+      ).toBeVisible();
+      if (calls !== 2)
+        throw new Error("Unexpected import recovery request count.");
+      await page.unroute("**/api/v1/staff/inventory/import-previews/*/apply");
+    }
   }
   await page.goto("/staff/feedback-preview?fail=1&delay=1500", {
     waitUntil: "commit",
