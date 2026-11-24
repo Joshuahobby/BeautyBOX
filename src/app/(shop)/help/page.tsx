@@ -5,6 +5,7 @@ import { messages } from "@/messages";
 import { currentSettings } from "@/modules/settings/settings";
 import { beautybox, helpTopics } from "@/content/beautybox";
 import styles from "./help.module.css";
+import { DeliveryDetails } from "./DeliveryDetails";
 
 export const metadata: Metadata = { title: "Help" };
 export const dynamic = "force-dynamic";
@@ -68,6 +69,7 @@ export default async function HelpPage() {
             <h2 id={`${topic.id}-heading`} className="section-title">
               {topic.title}
             </h2>
+            {topic.id === "delivery-help" && <DeliveryDetails settings={settings} />}
             {topic.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
             ))}
