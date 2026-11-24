@@ -70,3 +70,7 @@ Reason: SMS moves to a phase after launch (DR-057), so e-mail carries the order 
 ## CC-24 — Customer-messages switch in staff settings (v1.2, DR-060)
 
 Adds `notificationsEnabled` (boolean) to the `Settings` schema of `GET /staff/settings` and `PUT /staff/settings`. It is always returned. On update it is optional, and leaving it out keeps the current value, so existing clients are unaffected. It is the switch the job runner already reads before sending customer order messages (e-mail, or SMS when e-mail is off). Before this change, only the seed could set it.
+
+## CC-25 — Receipt launch check (DR-062)
+
+Staff settings can return `CUSTOMER_MESSAGES_DISABLED` in the existing string array `publicationBlocks`. It follows the saved Customer messages switch independently of `EMAIL_ADAPTER_NOT_LIVE`. Production checkout uses the same checks.

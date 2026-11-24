@@ -292,6 +292,27 @@ test("T16 in the browser: an administrator disables a member, who is refused on 
   await leaver.context.close();
 });
 
+test("receipt warning follows the saved Customer messages switch on both staff pages", async ({ browser }) => {
+  const { context, page } = await staffPage(browser, "ADMIN");
+  const warning = page.getByText("Order receipts are paused. Turn on Customer messages in Staff settings.", { exact: true });
+  await page.goto("/staff/settings");
+  const messages = page.getByRole("checkbox", { name: /^Customer messages/ });
+  const original = await messages.isChecked();
+  for (const enabled of [!original, original]) {
+    await messages.setChecked(enabled);
+    await page.getByLabel("Reason for this change").fill("Rehearse the receipt launch check");
+    await page.getByRole("button", { name: "Save new version" }).click();
+    await expect(page.getByText("Saved as a new settings version.").filter({ visible: true })).toBeVisible();
+    for (const path of ["/staff", "/staff/settings"]) {
+      await page.goto(path);
+      await expect(page.getByRole("heading", { name: path === "/staff" ? "Overview" : "Settings", exact: true })).toBeVisible();
+      if (enabled) await expect(warning).toBeHidden();
+      else await expect(warning.filter({ visible: true })).toBeVisible();
+    }
+  }
+  await context.close();
+});
+
 test("A07: an administrator saves a new settings version; finance can only read it", async ({ browser }) => {
   const { context, page: admin } = await staffPage(browser, "ADMIN");
   await admin.goto("/staff/settings");

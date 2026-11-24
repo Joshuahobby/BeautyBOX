@@ -1,5 +1,7 @@
 # Release checklist (G0–G5)
 
+Receipt release check (DR-062). Confirm Resend and Customer messages are enabled and reconcile a staging receipt with its paid order.
+
 **Status on 24 November 2026** (reviewed against `main` `3986f28`): G0 done; G1 partly done (pawaPay sandbox and staging done; Google live checks blocked by closed billing; SMS moved to after launch and replaced by order e-mail, not yet built, DR-057); G2 policies completed and ready for the founder's approval once the NCSA steps are confirmed (DR-058); G3, G4 and G5 wait mainly on founder, operations and adviser inputs. The ordered list of what blocks launch, with owners, is in [PROGRESS.md](PROGRESS.md#where-phase-1-stands--24-november-2026).
 
 Readiness engineering is tracked in [READINESS-IMPROVEMENTS.md](READINESS-IMPROVEMENTS.md). The Africa's Talking adapter is offline-tested with `AFRICASTALKING_SEND_ENABLED=false`; account/sender approval, credit, approved copy and a real handset delivery check remain open. The six optional external tests and Google billing/coverage evidence are separate from local/CI checks. This PR does not authorize release or alter these gates.

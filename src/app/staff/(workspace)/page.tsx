@@ -20,6 +20,7 @@ const BLOCK_TEXT: Record<string, string> = {
   LIVE_PAYMENTS_DISABLED: "Live payments are off.",
   PAYMENT_ADAPTER_NOT_LIVE: "Payments use the simulator, not pawaPay.",
   ROUTING_ADAPTER_NOT_LIVE: "Delivery distances use the simulator, not live routing.",
+  CUSTOMER_MESSAGES_DISABLED: "Order receipts are paused. Turn on Customer messages in Staff settings.",
   EMAIL_ADAPTER_NOT_LIVE: "Order e-mails are not sent (EMAIL_PROVIDER is not resend).",
 };
 

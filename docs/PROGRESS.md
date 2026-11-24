@@ -1,5 +1,7 @@
 # Implementation progress
 
+Local receipt launch check (DR-062). Customer messages must be enabled before production checkout opens.
+
 ## Where Phase 1 stands — 24 November 2026
 
 Reviewed on 23 November against GitHub `main` at `3986f28` (PR #9), after Codex's PRs #6–#9 (16–23 November) and Claude's PR #5 (6 November); updated on 24 November with the founder's decisions (DR-057, DR-058) and a read-only check of the staging database. The local checkouts on the development machine were behind `main` until this review.

@@ -6643,7 +6643,8 @@
             "type": "array",
             "items": {
               "type": "string"
-            }
+            },
+            "description": "Server-computed reasons public checkout must stay closed. CUSTOMER_MESSAGES_DISABLED means the Customer messages switch is off, independently of the e-mail provider."
           },
           "parcelLimits": {
             "anyOf": [
