@@ -5,6 +5,7 @@ import { POLICIES, type PolicyTopic } from "@/content/policies";
 import { messages } from "@/messages";
 import { currentSettings } from "@/modules/settings/settings";
 import { serverEnv } from "@/server/env";
+import { DeliveryDetails } from "../DeliveryDetails";
 
 export const dynamic = "force-dynamic";
 
@@ -34,6 +35,7 @@ export default async function PolicyPage({ params }: { params: Params }) {
         ) : (
           <>
             {!approved ? <Notice tone="warning" title={messages.demo.draftPolicy} /> : null}
+            {topic === "delivery-returns" && <DeliveryDetails settings={settings} />}
             {policy.sections.map((section) => (
               <section key={section.heading} className="stack-3">
                 <h2 className="section-title">{section.heading}</h2>
