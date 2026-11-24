@@ -154,10 +154,13 @@ test("home section spacing survives the shared container rule at phone and deskt
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    const section = page.locator('section[aria-labelledby="edit-heading"]');
+    // While the page streams, React briefly holds a second, hidden copy of the section
+    // (CI runs 45151009162, 45291924231): read only the visible one, and poll in case
+    // it is swapped mid-read.
+    const section = page
+      .locator('section[aria-labelledby="edit-heading"]')
+      .filter({ visible: true });
     await expect(section).toBeVisible();
-    // A single read can land while the streamed page swaps the section, which
-    // gives an empty computed style (NaN, main CI run 45151009162); poll it.
     await expect
       .poll(() =>
         section.evaluate((node) =>
