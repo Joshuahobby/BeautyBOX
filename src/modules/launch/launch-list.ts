@@ -19,7 +19,7 @@ import { normalizeHost } from "@/server/site-gate";
 // The answer never reveals whether someone was already on the list.
 
 /** Version of the wording people agree to; bump it when the notice or the checkbox text changes. */
-export const LAUNCH_CONSENT_VERSION = "2026-10-25";
+export const LAUNCH_CONSENT_VERSION = "2026-11-24";
 
 /** The privacy notice's limit: details are deleted at the latest this long after the latest sign-up. */
 export const LAUNCH_RETENTION_DAYS = 365;

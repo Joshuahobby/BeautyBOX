@@ -56,7 +56,7 @@ describe("launch list", () => {
     expect(rows).toHaveLength(3);
     const raw = JSON.stringify(rows);
     for (const clear of ["ama@example.test", "0781234567", "+250781234567", "both@example.test", "+250721234567"]) expect(raw).not.toContain(clear);
-    expect(rows.every((r) => r.consentVersion === "2026-10-25" && r.sourceHost === HOLDING)).toBe(true);
+    expect(rows.every((r) => r.consentVersion === "2026-11-24" && r.sourceHost === HOLDING)).toBe(true);
     expect(await exportLaunchList()).toEqual([
       expect.objectContaining({ email: "ama@example.test", phone: null }),
       expect.objectContaining({ email: null, phone: "+250781234567" }),

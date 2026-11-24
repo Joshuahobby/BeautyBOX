@@ -48,7 +48,7 @@ The founder asked for the legal and privacy drafts to be reviewed, completed and
 
 This review is not legal advice. Before an administrator sets `policiesApproved`, the founder must:
 
-1. Confirm the registered business name. The notices say "BeautyBOX"; if the registered name differs, the notices must use it.
+1. Complete on 24 November 2026. The founder confirmed BeautyBOX LTD as the registered seller and data controller.
 2. Register BeautyBOX with NCSA as a data controller.
 3. Hold NCSA's authorization to store personal data outside Rwanda. The privacy notice already commits to this.
 4. Accept the seven-day change-of-mind return policy as written.

@@ -70,7 +70,7 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
       {
         heading: "Shopping with BeautyBOX",
         paragraphs: [
-          `The seller is BeautyBOX, ${beautybox.location}. To reach us, ${CONTACT}.`,
+          `The seller is ${beautybox.registeredName}, ${beautybox.location}. To reach us, ${CONTACT}.`,
           "These terms describe purchases from the BeautyBOX shop in Kigali, Rwanda. BeautyBOX handles the products, basket and fulfilment offered through this storefront. Supplier arrangements are managed by BeautyBOX and do not create separate customer deliveries.",
           "You can check out as a guest. Provide accurate recipient details, a reachable delivery number and a confirmed destination. Keep your private order page confidential because it provides access to your order information.",
         ],
@@ -112,7 +112,7 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
       {
         heading: "Who we are",
         paragraphs: [
-          `BeautyBOX, ${beautybox.location}, decides how the personal information used by this shop is handled (the data controller). For any privacy question or request, ${CONTACT}.`,
+          `${beautybox.registeredName}, ${beautybox.location}, decides how the personal information used by this shop is handled (the data controller). For any privacy question or request, ${CONTACT}.`,
           "This notice explains what we collect when you shop, why, who receives it, where it is stored, how long we keep it and the rights you have under Rwanda's Law No 058/2021 on the protection of personal data and privacy.",
         ],
       },

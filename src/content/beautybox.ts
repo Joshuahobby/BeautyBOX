@@ -9,6 +9,7 @@ export const businessContact = {
   hours: "24 hours a day, 7 days a week",
 } as const;
 export const beautybox = {
+  registeredName: "BeautyBOX LTD",
   aboutTitle: "About BeautyBOX",
   headline: "Everyday beauty, closer to home.",
   intro:

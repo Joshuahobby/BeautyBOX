@@ -2,14 +2,16 @@
 // LAUNCH_CONSENT_VERSION (src/modules/launch/launch-list.ts) in step with any change.
 // {contact} is replaced with LAUNCH_LIST_CONTACT_EMAIL.
 
+import { beautybox } from "./beautybox";
+
 export const LAUNCH_PRIVACY = {
   title: "Launch list privacy notice",
-  updated: "25 October 2026",
+  updated: "24 November 2026",
   sections: [
     {
       heading: "Who we are",
       paragraphs: [
-        "BeautyBOX is a beauty and personal-care shop in Kigali, Rwanda, preparing to open online. For the launch list, BeautyBOX decides why and how your details are used. You can reach us about it at {contact}.",
+        `${beautybox.registeredName} operates the BeautyBOX shop in Kigali, Rwanda, and decides why and how your launch list details are used. You can reach us at {contact}.`,
       ],
     },
     {
