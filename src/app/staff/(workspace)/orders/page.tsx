@@ -205,6 +205,6 @@ function orderFlags(
     o.cancellationRequested ? "Cancellation requested" : null,
     o.attentionFlag ? `Payment ${humanize(o.attentionFlag)}` : null,
     o.holdReason ? `Hold: ${humanize(o.holdReason)}` : null,
-    o.smsProblem ? "SMS problem" : null,
+    o.smsProblem ? "Message problem" : null,
   ].filter((flag): flag is string => flag !== null);
 }

@@ -1,5 +1,13 @@
 // Customer-facing copy grounded in the Phase 1 brief and the owner's Kigali
 // decisions in docs/CONTINUATION-PLAN.md. Operational facts stay in settings.
+
+// Founder-supplied contact (2026-11-24, DR-058), quoted in the policies. The Help
+// page reads the same details from the settings' support contact; keep both equal.
+export const businessContact = {
+  phone: "+250 788 641 811",
+  email: "care@beautyboxmarket.com",
+  hours: "24 hours a day, 7 days a week",
+} as const;
 export const beautybox = {
   aboutTitle: "About BeautyBOX",
   headline: "Everyday beauty, closer to home.",

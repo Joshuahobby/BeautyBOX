@@ -334,6 +334,7 @@ async function purchase() {
         recipient: {
           name: "Contract Recipient",
           phone: "+250788555111",
+          email: "buyer@example.com",
           landmark: "Blue gate",
         },
         destination: DEST_5KM,

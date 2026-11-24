@@ -199,6 +199,10 @@ export const en = {
     recipientName: "Recipient name",
     recipientPhone: "Delivery phone",
     recipientPhoneHelp: "Used to coordinate your delivery.",
+    recipientEmail: "E-mail address",
+    recipientEmailHelp:
+      "We e-mail your order confirmation and a private link to follow your order.",
+    emailInvalid: "Enter an e-mail address where we can send your order link.",
     noAccount:
       "No account needed. Your paying number can be different from your delivery number.",
     continueToDelivery: "Continue to delivery",

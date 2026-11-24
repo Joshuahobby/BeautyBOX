@@ -701,6 +701,7 @@ model Checkout {
   state                  CheckoutState @default(EDITING)
   recipientName          String?       @map("recipient_name")
   recipientPhone         String?       @map("recipient_phone")
+  recipientEmail         String?       @map("recipient_email")
   landmark               String?
   instructions           String?
   destinationLat         Decimal?      @map("destination_lat") @db.Decimal(9, 6)
@@ -768,6 +769,7 @@ model Order {
   version              Int               @default(1)
   recipientName        String            @map("recipient_name")
   recipientPhone       String            @map("recipient_phone")
+  recipientEmail       String?           @map("recipient_email")
   landmark             String?
   instructions         String?
   destinationLat       Decimal           @map("destination_lat") @db.Decimal(9, 6)

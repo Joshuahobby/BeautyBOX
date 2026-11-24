@@ -1,6 +1,12 @@
 // Complete staging drafts, created with the owner's authorization from the Phase 1
 // brief/FSD and current implementation. Publication still depends on the existing
 // policiesApproved setting. See docs/CONTENT-REVIEW.md for facts and proposals.
+// Reviewed and completed 2026-11-24 against Rwanda's Law No 058/2021 on personal
+// data protection (DR-058); that review is not legal advice.
+import { beautybox, businessContact } from "./beautybox";
+
+const CONTACT = `call ${businessContact.phone} or e-mail ${businessContact.email}, ${businessContact.hours}`;
+
 export type PolicyTopic = "delivery-returns" | "terms" | "privacy";
 
 type Policy = {
@@ -37,7 +43,7 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
       {
         heading: "Damaged, incorrect or defective products",
         paragraphs: [
-          "Contact support as soon as you notice a problem, using your order reference and a description of what happened. Keep the item and its packaging, and provide photos where useful. We will review the issue and explain the appropriate next step, which may include a replacement, return or refund.",
+          `Contact support as soon as you notice a problem: ${CONTACT}. Give your order reference and a description of what happened. Keep the item and its packaging, and provide photos where useful. We will review the issue and explain the appropriate next step, which may include a replacement, return or refund.`,
           "Do not send products back before receiving return instructions. We inspect returned goods before deciding whether they can be restocked. No substitute product is sent without your agreement.",
         ],
       },
@@ -64,6 +70,7 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
       {
         heading: "Shopping with BeautyBOX",
         paragraphs: [
+          `The seller is BeautyBOX, ${beautybox.location}. To reach us, ${CONTACT}.`,
           "These terms describe purchases from the BeautyBOX shop in Kigali, Rwanda. BeautyBOX handles the products, basket and fulfilment offered through this storefront. Supplier arrangements are managed by BeautyBOX and do not create separate customer deliveries.",
           "You can check out as a guest. Provide accurate recipient details, a reachable delivery number and a confirmed destination. Keep your private order page confidential because it provides access to your order information.",
         ],
@@ -94,7 +101,7 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
         heading: "Questions and your rights",
         paragraphs: [
           "If something goes wrong, explain the issue through the available support channel so BeautyBOX can investigate the order and proposed resolution. Payment, fulfilment and refund records are checked before a financial status is marked complete.",
-          "These terms are intended for BeautyBOX purchases in Rwanda. They do not exclude rights that apply under relevant law. Updates to the shop's published terms do not silently change the recorded contents or total of an existing order.",
+          "These terms are intended for BeautyBOX purchases in Rwanda and are governed by the laws of Rwanda. They do not exclude rights that apply under relevant law, including consumer protection law. Updates to the shop's published terms do not silently change the recorded contents or total of an existing order.",
         ],
       },
     ],
@@ -103,10 +110,25 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
     title: "Privacy",
     sections: [
       {
+        heading: "Who we are",
+        paragraphs: [
+          `BeautyBOX, ${beautybox.location}, decides how the personal information used by this shop is handled (the data controller). For any privacy question or request, ${CONTACT}.`,
+          "This notice explains what we collect when you shop, why, who receives it, where it is stored, how long we keep it and the rights you have under Rwanda's Law No 058/2021 on the protection of personal data and privacy.",
+        ],
+      },
+      {
         heading: "Information used to handle your order",
         paragraphs: [
-          "BeautyBOX uses the information you provide to operate the shop and handle your purchases: recipient name and delivery phone, delivery pin and instructions, products and options, order and payment references, paying phone where needed, and support or return information you choose to provide.",
-          "A guest session connects your browser with its cart, checkout and private order access. The site uses essential session cookies for these functions. This checkout does not require a customer account. BeautyBOX does not collect your mobile-money PIN.",
+          "BeautyBOX uses the information you provide to operate the shop and handle your purchases: recipient name, delivery phone and e-mail address, delivery pin and instructions, products and options, order and payment references, paying phone where needed, and support or return information you choose to provide.",
+          "A guest session connects your browser with its cart, checkout and private order access. The site uses essential session cookies for these functions only; it does not use advertising or tracking cookies. This checkout does not require a customer account. BeautyBOX never collects your mobile-money PIN.",
+        ],
+      },
+      {
+        heading: "Why we may use it",
+        paragraphs: [
+          "We use order information because it is needed to perform the purchase you ask for: checking availability, quoting and agreeing delivery, verifying payment, preparing and delivering the order, providing private status updates and handling cancellations, returns and refunds.",
+          "We keep payment, refund and order records because the law requires business and tax records. We use limited technical information, such as rate limits and security logs, in our legitimate interest in keeping the shop and customers' payments safe. Browser location is used only if you allow it, and you can withdraw that permission at any time in your browser.",
+          "We do not sell your information, use it for advertising or make decisions about you by automated means alone.",
         ],
       },
       {
@@ -117,25 +139,38 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
         ],
       },
       {
-        heading: "How the information is used and shared",
+        heading: "Who receives it",
         paragraphs: [
-          "Order information is used to validate availability, calculate and agree delivery, verify payment, prepare and deliver the order, provide private status updates, handle support and refunds, and keep operational and financial records. We do not use a payment PIN to perform any of these tasks.",
-          "Necessary information is handled by authorized BeautyBOX staff and the providers supporting the relevant function. This includes pawaPay and the selected mobile-money network for payment, hosting and data-storage providers for the website, and a delivery partner for fulfilment. The delivery partner receives the information needed to deliver, rather than the contents of your private payment or support history.",
-          "The website uses Vercel hosting and Supabase data services. Their service locations can be outside Rwanda. The business's hosting, transfer and retention arrangements are part of the privacy review before public ordering opens. Transactional notifications, when enabled, use the delivery contact for the message needed to support the order.",
+          "Necessary information is handled by authorized BeautyBOX staff and by providers acting for us under their data-processing terms: pawaPay and your mobile-money network (MTN or Airtel) for payment, Vercel for website hosting, Supabase for the database and photo storage, Resend for order e-mails, Google for place search and routing when enabled, and our delivery rider for fulfilment. The rider receives only what is needed to deliver, not your payment or support history.",
+          "We e-mail your order confirmation, delivery and refund updates and private order links to the address you give at checkout, through Resend. We do not use your e-mail address for marketing. Order updates are also shown on your private order page. We do not send SMS yet; this notice will name the SMS provider before any SMS is sent.",
+          "We disclose information to public authorities only where the law requires it.",
         ],
       },
       {
-        heading: "Keeping information and protecting access",
+        heading: "Where it is stored",
         paragraphs: [
-          "Order, payment, delivery and support records are kept where needed to fulfil purchases, investigate problems, reconcile transactions and meet applicable record-keeping obligations. A deletion request may require some records to be retained; BeautyBOX will explain the relevant reason when responding.",
-          "Keep your private order link confidential and use the site's supported access-link process when opening an order on another device. Staff access is restricted by role. If you believe an order link or personal information has been exposed, contact support with enough information to investigate, without sending a wallet PIN.",
+          "Our database is hosted by Supabase in the European Union (Ireland), our website runs on Vercel servers in Ireland, and Resend sends our e-mail from its European Union (Ireland) region. Google may process location requests outside Rwanda. BeautyBOX stores and transfers personal information outside Rwanda only as Law No 058/2021 permits, including the authorization it requires, and only with providers bound to protect it.",
         ],
       },
       {
-        heading: "Privacy questions and requests",
+        heading: "How long we keep it",
         paragraphs: [
-          "Use the support contact on the Help page to ask about information held for your order, request a correction, or raise an access or deletion request. Include your order reference where relevant. We may need to verify your connection to the order before disclosing or changing personal information.",
-          "This notice covers the shop's ordering experience. The opening-day notification list has its own privacy notice and consent flow. Joining that list is separate from buying products and is not a condition of checkout.",
+          "Order, payment and refund records are kept for as long as Rwandan tax and accounting law requires. Delivery details, support messages and return information are kept only as long as needed to complete the order and deal with any claim about it, then deleted or anonymised. A deletion request may require some records to be retained; BeautyBOX will explain the reason when responding.",
+        ],
+      },
+      {
+        heading: "Keeping information safe",
+        paragraphs: [
+          "Connections to the shop are encrypted, payer phone numbers are stored encrypted, and staff access is limited by role and protected by an authenticator app. Keep your private order link confidential and use the site's access-link process when opening an order on another device.",
+          "If a breach of personal data is likely to affect you, we will tell you and the National Cyber Security Authority as the law requires. If you believe an order link or personal information has been exposed, contact us straight away, without sending a wallet PIN.",
+        ],
+      },
+      {
+        heading: "Your rights",
+        paragraphs: [
+          "You can ask to see the personal information we hold about you, to correct it, to delete it, to restrict or object to its use, and to receive it in a form you can pass to someone else. You can also object to decisions made by automated means alone. Include your order reference where relevant; we may need to verify your connection to an order before disclosing or changing information.",
+          `To use these rights, ${CONTACT}. We answer without charge. If you are not satisfied with our answer, you can complain to the National Cyber Security Authority (NCSA), Rwanda's data protection supervisory authority.`,
+          "This notice covers the shop's ordering experience. The opening-day notification list has its own privacy notice and consent flow. Joining that list is separate from buying products and is not a condition of checkout. We will update this notice when our processing changes and show the date of the latest version. Last updated: 24 November 2026.",
         ],
       },
     ],

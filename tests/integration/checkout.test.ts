@@ -181,7 +181,7 @@ describe("delivery quote (DEL-01..07, AT04-AT06, T13, T14)", () => {
     const ready = await readyCheckout(c);
     await updateCheckout(c, ready.checkout.id, {
       expectedRevision: ready.checkout.revision,
-      recipient: { name: "Test Recipient", phone: "+250788555111" },
+      recipient: { name: "Test Recipient", phone: "+250788555111", email: "buyer@example.com" },
       destination: DEST_3KM,
       destinationConfirmed: "CUSTOMER_CONFIRMED",
     }, key());
@@ -243,11 +243,11 @@ describe("delivery quote (DEL-01..07, AT04-AT06, T13, T14)", () => {
     const cart = await getCartView(c);
     const checkout = await createOrReuseCheckout(c, { cartId: cart.id, expectedCartVersion: cart.version }, key());
     await expectDomainError(updateCheckout(c, checkout.id, {
-      expectedRevision: checkout.revision, recipient: { name: "X", phone: "+250701234567" },
+      expectedRevision: checkout.revision, recipient: { name: "X", phone: "+250701234567", email: "buyer@example.com" },
       destination: DEST_5KM, destinationConfirmed: "CUSTOMER_CONFIRMED",
     }, key()), "VALIDATION_ERROR");
     await expectDomainError(updateCheckout(c, checkout.id, {
-      expectedRevision: checkout.revision, recipient: { name: "X", phone: "+250788555111" },
+      expectedRevision: checkout.revision, recipient: { name: "X", phone: "+250788555111", email: "buyer@example.com" },
       destination: { lat: 51.5, lng: -0.12 }, destinationConfirmed: "CUSTOMER_CONFIRMED",
     }, key()), "OUTSIDE_COVERAGE");
     const quoteWithoutPin = requestQuote(c, checkout.id, { expectedRevision: checkout.revision }, key());

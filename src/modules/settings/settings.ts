@@ -55,7 +55,8 @@ export type PublicationBlock =
   | "DELIVERY_PROMISE_MISSING"
   | "LIVE_PAYMENTS_DISABLED"
   | "PAYMENT_ADAPTER_NOT_LIVE"
-  | "ROUTING_ADAPTER_NOT_LIVE";
+  | "ROUTING_ADAPTER_NOT_LIVE"
+  | "EMAIL_ADAPTER_NOT_LIVE";
 
 /**
  * Server-owned list of reasons a public paid checkout must stay closed (G2-G5).
@@ -89,6 +90,8 @@ export function publicationBlocks(ctx: OperatingContext): PublicationBlock[] {
     !env.GOOGLE_TWO_WHEELER_COVERAGE_APPROVED
   )
     blocks.push("ROUTING_ADAPTER_NOT_LIVE");
+  // DR-057: e-mail is the launch channel for the order confirmation and private link.
+  if (env.EMAIL_PROVIDER !== "resend") blocks.push("EMAIL_ADAPTER_NOT_LIVE");
   return blocks;
 }
 

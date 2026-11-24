@@ -266,6 +266,7 @@ describe("Google motorcycle quote integration (mock HTTP; no billable calls)", (
         recipient: {
           name: "Test Recipient",
           phone: "+250788555111",
+          email: "buyer@example.com",
           landmark: "Blue gate",
         },
         destination: { lat: -1.93, lng: 30.23 },

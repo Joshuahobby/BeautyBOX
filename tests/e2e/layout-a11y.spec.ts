@@ -104,6 +104,7 @@ for (const width of WIDTHS) {
     await axe(page);
     await page.getByLabel("Recipient name").fill("Demo Recipient");
     await page.getByLabel("Delivery phone").fill("0788 555 111");
+    await page.getByLabel("E-mail address").fill("buyer@example.com");
     await page.getByRole("button", { name: "Continue to delivery" }).click();
     await page.getByLabel(/Search for a place/).fill("Kicukiro");
     await page.getByRole("button", { name: /Kicukiro Centre/ }).click();

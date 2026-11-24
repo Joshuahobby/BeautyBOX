@@ -36,3 +36,22 @@ Before public launch, the business must supply/confirm:
 5. Delivery operating hours, rider arrangements, final service promises and the production release prerequisites already listed in RELEASE-CHECKLIST.md.
 
 No policiesApproved, checkout/payment, live-routing, SMS, launch-list or access-wall setting is changed by this release. Direct contacts display only if configured. No guessed telephone number, email address, opening hours, tax identifier or merchant readiness claim is introduced.
+
+## Update — 24 November 2026 (DR-058)
+
+The founder supplied the support contact: **+250 788 641 811**, **care@beautyboxmarket.com**, open **24 hours a day, 7 days a week**. The policies now quote it (`businessContact` in `src/content/beautybox.ts`). The Help page still shows the support contact from the settings, so an administrator enters the same three values in Staff → Settings. Points 1 and 3 above are therefore mostly closed.
+
+The founder asked for the legal and privacy drafts to be reviewed, completed and approved. They were checked against Rwanda's Law No 058/2021, and the gaps were filled:
+
+- **Privacy notice:** the data controller and contact; the reason for each use (contract, legal obligation, security, consent for location); the named processors (pawaPay with MTN and Airtel, Vercel, Supabase, Google, the delivery rider); storage in Ireland, with the commitment to store abroad only as the law permits; retention tied to tax and accounting law; security and breach notice to customers and NCSA; the full list of rights, free of charge; the right to complain to NCSA; no sale, advertising use or solely automated decisions; and a "last updated" date.
+- **Terms and delivery/returns:** the seller and its contact, and the laws of Rwanda as governing law.
+
+This review is not legal advice. Before an administrator sets `policiesApproved`, the founder must:
+
+1. Confirm the registered business name. The notices say "BeautyBOX"; if the registered name differs, the notices must use it.
+2. Register BeautyBOX with NCSA as a data controller.
+3. Hold NCSA's authorization to store personal data outside Rwanda. The privacy notice already commits to this.
+4. Accept the seven-day change-of-mind return policy as written.
+5. Make sure `care@beautyboxmarket.com` actually receives and is monitored.
+
+Also supplied on 24 November: the **delivery promise** "Delivered within 3 hours in Kigali", and **riders deliver 24/7**, so the dispatch hours are 24/7 too. Both go into Staff → Settings with the support contact. The policies keep pointing to "the delivery window shown for the order", so they stay true if the promise changes. Before launch, operations should be sure 3 hours holds at night and in rain. When order e-mail is built (DR-057), the privacy notice must name the e-mail provider before the first message is sent.

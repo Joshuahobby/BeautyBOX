@@ -22,7 +22,7 @@ export type StaffOrderView = {
   deliveryRwf: number;
   totalRwf: number;
   currency: "RWF";
-  recipient: { name: string; phone: string; landmark?: string; instructions?: string };
+  recipient: { name: string; phone: string; email?: string; landmark?: string; instructions?: string };
   /** Null for roles without contact access (CC-11). */
   destination: { lat: number; lng: number } | null;
   createdAt: string;
@@ -193,6 +193,7 @@ export async function getStaffOrder(staff: StaffIdentity, orderId: string): Prom
       ? {
           name: order.recipientName,
           phone: order.recipientPhone,
+          ...(order.recipientEmail ? { email: order.recipientEmail } : {}),
           ...(order.landmark ? { landmark: order.landmark } : {}),
           ...(order.instructions ? { instructions: order.instructions } : {}),
         }

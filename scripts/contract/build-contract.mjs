@@ -49,9 +49,27 @@ replacement.requestBody = {
   },
 };
 contract.paths["/cart/lines/{variantId}"].patch = replacement;
+// CC-22 (DR-059): the recipient's e-mail address. Optional where a recipient is returned
+// (checkouts and orders made before it have none); required when a checkout is updated.
+const schemas = contract.components.schemas;
+schemas.Recipient.properties.email = {
+  type: "string",
+  format: "email",
+  maxLength: 254,
+  description:
+    "CC-22: where the order confirmation and private order link are e-mailed. Absent on checkouts and orders made before it was collected.",
+};
+schemas.RecipientInput = structuredClone(schemas.Recipient);
+schemas.RecipientInput.required = [...schemas.Recipient.required, "email"];
+schemas.RecipientInput.description =
+  "CC-22: the recipient as sent when a checkout is updated; email is required.";
+schemas.CheckoutPatch.properties.recipient = {
+  $ref: "#/components/schemas/RecipientInput",
+};
 contract.info.version = "1.2.0";
 contract.info.description +=
-  "\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged.";
+  "\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged." +
+  "\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated.";
 const output = JSON.stringify(contract, null, 2) + "\n";
 const target = path.join(root, "docs/api/API-Contract-v1.2.openapi.json");
 if (process.argv.includes("--check")) {

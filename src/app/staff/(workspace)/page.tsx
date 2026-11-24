@@ -20,6 +20,7 @@ const BLOCK_TEXT: Record<string, string> = {
   LIVE_PAYMENTS_DISABLED: "Live payments are off.",
   PAYMENT_ADAPTER_NOT_LIVE: "Payments use the simulator, not pawaPay.",
   ROUTING_ADAPTER_NOT_LIVE: "Delivery distances use the simulator, not live routing.",
+  EMAIL_ADAPTER_NOT_LIVE: "Order e-mails are not sent (EMAIL_PROVIDER is not resend).",
 };
 
 // Operational overview: work needing attention first (A01 default), plus the release
@@ -73,7 +74,7 @@ export default async function StaffOverviewPage() {
           </>
         ) : null}
         <div className={styles.card}>
-          <span className="label-text muted">Customer SMS not confirmed sent</span>
+          <span className="label-text muted">Customer message not confirmed sent</span>
           <span className={styles.metric}>{smsProblems}</span>
         </div>
       </div>

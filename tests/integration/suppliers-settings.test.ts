@@ -204,7 +204,7 @@ describe("settings (A07)", () => {
       policiesApproved: true,
     });
     expect(approved.status).toBe(200);
-    expect(approved.body.publicationBlocks).toEqual(["LIVE_PAYMENTS_DISABLED", "PAYMENT_ADAPTER_NOT_LIVE", "ROUTING_ADAPTER_NOT_LIVE"]);
+    expect(approved.body.publicationBlocks).toEqual(["LIVE_PAYMENTS_DISABLED", "PAYMENT_ADAPTER_NOT_LIVE", "ROUTING_ADAPTER_NOT_LIVE", "EMAIL_ADAPTER_NOT_LIVE"]);
     expect(approved.body).toMatchObject({ originApproved: true, policiesApproved: true, dispatchHours: "Mon-Sat 09:00-18:00", parcelLimits: { maxItems: 10, maxWeightGrams: 5000, allowedClasses: ["STANDARD"] } });
     const location = await db().dispatchLocation.findFirstOrThrow();
     expect(location.version).toBe(2);

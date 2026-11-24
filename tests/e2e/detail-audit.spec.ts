@@ -10,6 +10,7 @@ async function delivery(page: Page) {
   await page.getByRole("button", { name: "Continue to checkout" }).click();
   await page.getByLabel("Recipient name").fill("Audit Recipient");
   await page.getByLabel("Delivery phone").fill("0788 555 111");
+  await page.getByLabel("E-mail address").fill("buyer@example.com");
   await page.getByRole("button", { name: "Continue to delivery" }).click();
 }
 
@@ -154,12 +155,20 @@ test("home section spacing survives the shared container rule at phone and deskt
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
-    const gap = await page
+    // While the page streams, React briefly holds a second, hidden copy of the section
+    // (CI runs 45151009162, 45291924231): read only the visible one, and poll in case
+    // it is swapped mid-read.
+    const section = page
       .locator('section[aria-labelledby="edit-heading"]')
-      .evaluate((node) =>
-        Number.parseFloat(getComputedStyle(node).paddingBlockStart),
-      );
-    expect(gap).toBeGreaterThanOrEqual(28);
+      .filter({ visible: true });
+    await expect(section).toBeVisible();
+    await expect
+      .poll(() =>
+        section.evaluate((node) =>
+          Number.parseFloat(getComputedStyle(node).paddingBlockStart),
+        ),
+      )
+      .toBeGreaterThanOrEqual(28);
     expect(
       await page.evaluate(
         () => document.documentElement.scrollWidth - innerWidth,

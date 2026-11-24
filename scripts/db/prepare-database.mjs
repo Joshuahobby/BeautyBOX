@@ -52,6 +52,7 @@ ALTER TABLE devsim.deposits OWNER TO bb_owner;
 ALTER TABLE devsim.refunds OWNER TO bb_owner;
 ALTER TABLE devsim.settings OWNER TO bb_owner;
 ALTER TABLE devsim.sms_messages OWNER TO bb_owner;
+ALTER TABLE devsim.email_messages OWNER TO bb_owner;
 GRANT USAGE ON SCHEMA devsim TO beautybox_runtime;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA devsim TO beautybox_runtime;
 INSERT INTO commerce.deployment_profile (id, environment, demo_data_allowed, updated_at)

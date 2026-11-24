@@ -5,6 +5,7 @@ import { now } from "@/modules/shared/clock";
 import { DomainError, notFound } from "@/modules/shared/errors";
 import { toRwf, sumRwf } from "@/modules/shared/money";
 import { normalizeRwandaMobile } from "@/modules/shared/phone";
+import { z } from "zod";
 import {
   claimIdempotencyKey,
   completeIdempotencyKey,
@@ -17,6 +18,7 @@ import type { GuestSession } from "@/modules/session/guest-session";
 export type RecipientInput = {
   name: string;
   phone: string;
+  email: string;
   landmark?: string;
   instructions?: string;
 };
@@ -30,6 +32,7 @@ export type CheckoutView = {
   recipient: {
     name: string;
     phone: string;
+    email?: string;
     landmark?: string;
     instructions?: string;
   } | null;
@@ -125,6 +128,9 @@ export async function buildCheckoutView(
         ? {
             name: checkout.recipientName,
             phone: checkout.recipientPhone,
+            ...(checkout.recipientEmail
+              ? { email: checkout.recipientEmail }
+              : {}),
             ...(checkout.landmark ? { landmark: checkout.landmark } : {}),
             ...(checkout.instructions
               ? { instructions: checkout.instructions }
@@ -248,9 +254,12 @@ const RWANDA_BOUNDS = {
   maxLng: 30.95,
 };
 
+const recipientEmailSchema = z.email().max(254);
+
 export function validateRecipient(input: RecipientInput): {
   name: string;
   phone: string;
+  email: string;
   landmark: string | null;
   instructions: string | null;
 } {
@@ -266,6 +275,13 @@ export function validateRecipient(input: RecipientInput): {
     fieldErrors.push({
       field: "recipient.phone",
       message: "Enter a phone number we can use for delivery.",
+    });
+  // DR-059: required, because e-mail carries the order confirmation and private link.
+  const email = input.email.trim().toLowerCase();
+  if (!recipientEmailSchema.safeParse(email).success)
+    fieldErrors.push({
+      field: "recipient.email",
+      message: "Enter an e-mail address where we can send your order link.",
     });
   const landmark = input.landmark?.trim() || null;
   const instructions = input.instructions?.trim() || null;
@@ -287,7 +303,7 @@ export function validateRecipient(input: RecipientInput): {
       { fieldErrors },
     );
   }
-  return { name, phone: phone.e164, landmark, instructions };
+  return { name, phone: phone.e164, email, landmark, instructions };
 }
 
 export function validateDestination(point: PointInput): PointInput {
@@ -357,6 +373,7 @@ export async function updateCheckout(
     const unchanged =
       checkout.recipientName === recipient.name &&
       checkout.recipientPhone === recipient.phone &&
+      checkout.recipientEmail === recipient.email &&
       (checkout.landmark ?? null) === recipient.landmark &&
       (checkout.instructions ?? null) === recipient.instructions &&
       checkout.destinationLat !== null &&
@@ -369,6 +386,7 @@ export async function updateCheckout(
         data: {
           recipientName: recipient.name,
           recipientPhone: recipient.phone,
+          recipientEmail: recipient.email,
           landmark: recipient.landmark,
           instructions: recipient.instructions,
           destinationLat: destination.lat,

@@ -1,8 +1,23 @@
 # Staging deployment on beautyboxmarket.com (DR-044)
 
-## Prepared design update — 16 November 2026
+## What is deployed — 23 November 2026
 
-[PR #6](https://github.com/Joshuahobby/BeautyBOX/pull/6) prepares the reviewed storefront and purchase-flow update for `main`. See [STAGING-MERGE.md](STAGING-MERGE.md) for the exact merge route, Vercel author-authorization failure, unchanged hosted data/settings, fresh checks and post-merge review. The feature branch itself has not updated staging. No new schema migration or Google billing activation is required to view this design with the existing staging configuration.
+PRs #6, #8, #7 and #9 were merged on 16, 16, 18 and 23 November. Each merge to `main` deployed, and on 23 November `beautyboxmarket.com` and `staging.beautyboxmarket.com` both answered with `X-Beautybox-Revision: 3986f28…` (PR #9's merge). The wall held: both hosts showed "Launching soon", `/shop` showed the wall, and the API answered 401 without the access code. Pages behind the code were not opened in that check.
+
+These PRs added no schema migration and changed no hosted settings or data. Staging therefore keeps its earlier dispatch point, tariff and synthetic catalogue (checked read-only on 24 November: settings version 1, demo pin, RWF 300/km demo tariff, no support contact; see TEST-EVIDENCE); the Silverback Mall, Kigali boundary and tariff settings (DR-050, DR-051) exist only in local databases. To review Kigali delivery on staging, an administrator enters them in Staff → Settings as a new settings version. Never reset or reseed the hosted database for this. Staging keeps `ROUTING_PROVIDER=fake` and `SMS_PROVIDER=disabled`. The new settings (`AFRICASTALKING_SEND_ENABLED`, the Google keys and `GOOGLE_TWO_WHEELER_COVERAGE_APPROVED`) default to off. PR #6's merge route and post-merge checks are in [STAGING-MERGE.md](STAGING-MERGE.md).
+
+To check which build a host serves: `curl -sI https://staging.beautyboxmarket.com/ | grep -i x-beautybox-revision`.
+
+## Order e-mail on staging (DR-059)
+
+The order e-mail change adds migration `20261124000000_order_recipient_email`, and the new code reads its column. Do these steps **in this order**, because merging to `main` deploys:
+
+1. Before merging, apply the migration to staging: `npm run staging:bootstrap` (it uses the owner connection in `.env.staging.local`). The migration only adds two nullable columns.
+2. Merge. With `EMAIL_PROVIDER` unset, staging keeps working and sends no e-mail.
+3. In Resend, create an API key with **sending access** for `beautyboxmarket.com` only. Put it in `.env.staging.local` yourself as `RESEND_API_KEY=` (never in chat or Git), and set `EMAIL_PROVIDER=resend` and `EMAIL_REPLY_TO=care@beautyboxmarket.com`. Then run `npm run staging:env-push -- --target production` (the Vercel project's production target is staging; the key is sent as a sensitive value) and redeploy.
+4. On staging, place a sandbox order using your own e-mail address. The confirmation should arrive from `orders@beautyboxmarket.com`, and its link should open the order once.
+
+Staging sends real e-mails, so only use addresses you control. Replies to `care@beautyboxmarket.com` arrive in the Resend inbox "BeautyBOX customer care".
 
 What this sets up, at no cost until launch:
 

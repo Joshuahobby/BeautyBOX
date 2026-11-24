@@ -3,7 +3,7 @@
   "info": {
     "title": "BeautyBOX Phase 1 application API",
     "version": "1.2.0",
-    "description": "Design contract, not an implemented service. Server-derived money; RWF integer amounts. API prefix /api/v1. ISO UTC timestamps, opaque cursor pagination. Cookie auth requires origin/CSRF defense. All mutations use version checks where specified; idempotent intent keys claimed atomically. Staff roles are server DB records plus active MFA session. Error status mapping: validation400/422, auth401/403, private-not-found404, state/idempotency409, rate429, unavailable503. Unknown financial outcomes stay pending. Provider wire payloads are defined by official provider schemas, not this internal contract.\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-20 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed.\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged."
+    "description": "Design contract, not an implemented service. Server-derived money; RWF integer amounts. API prefix /api/v1. ISO UTC timestamps, opaque cursor pagination. Cookie auth requires origin/CSRF defense. All mutations use version checks where specified; idempotent intent keys claimed atomically. Staff roles are server DB records plus active MFA session. Error status mapping: validation400/422, auth401/403, private-not-found404, state/idempotency409, rate429, unavailable503. Unknown financial outcomes stay pending. Provider wire payloads are defined by official provider schemas, not this internal contract.\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-20 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed.\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged.\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated."
   },
   "servers": [
     {
@@ -4011,6 +4011,12 @@
           "instructions": {
             "type": "string",
             "maxLength": 500
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254,
+            "description": "CC-22: where the order confirmation and private order link are e-mailed. Absent on checkouts and orders made before it was collected."
           }
         },
         "required": [
@@ -4604,7 +4610,7 @@
             "maximum": 9007199254740991
           },
           "recipient": {
-            "$ref": "#/components/schemas/Recipient"
+            "$ref": "#/components/schemas/RecipientInput"
           },
           "destination": {
             "$ref": "#/components/schemas/Point"
@@ -7678,6 +7684,42 @@
           "secondary"
         ],
         "additionalProperties": false
+      },
+      "RecipientInput": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+2507[0-9]{8}$",
+            "description": "Canonical Rwanda E.164; validate current operator rules server-side, not just this format."
+          },
+          "landmark": {
+            "type": "string",
+            "maxLength": 240
+          },
+          "instructions": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254,
+            "description": "CC-22: where the order confirmation and private order link are e-mailed. Absent on checkouts and orders made before it was collected."
+          }
+        },
+        "required": [
+          "name",
+          "phone",
+          "email"
+        ],
+        "additionalProperties": false,
+        "description": "CC-22: the recipient as sent when a checkout is updated; email is required."
       }
     },
     "parameters": {

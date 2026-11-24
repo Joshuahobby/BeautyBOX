@@ -37,6 +37,8 @@ export const pointSchema = z.strictObject({
 export const recipientSchema = z.strictObject({
   name: z.string().min(1).max(120),
   phone: rwPhone,
+  // CC-22 (DR-059): required for new checkouts; the domain checks the format.
+  email: z.string().max(320),
   landmark: z.string().max(240).optional(),
   instructions: z.string().max(500).optional(),
 });
