@@ -1,5 +1,9 @@
 # Test evidence
 
+## Customer-facing delivery details — 24 November 2026
+
+Local Chromium check for the page change in `8391864`: `playwright test --grep "customer help pages follow"` passed (1 test). The browser saved hours and a promise through Staff Settings on the test database, checked Help and Delivery & returns with the values configured and then cleared, and restored the original values. The test used a production build. Hosted verification is a separate release check.
+
 Receipt gate tested locally on 24 November 2026 against eb3137a plus DR-062. All 218 unit tests and 27 targeted integration tests passed. A Chromium test saved both switch positions and checked Staff Overview and Settings.
 
 ## Order e-mail on staging — first real e-mail, 24 November 2026
