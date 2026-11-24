@@ -116,14 +116,20 @@ test("an out-of-stock product cannot be added and points back to its category", 
   page,
 }) => {
   await page.goto("/products/ember-perfume");
+  // While the page streams, React can briefly hold a second, hidden copy of this
+  // content (CI run 45362920532): assert on the visible one.
   await expect(
-    page.getByText("This item cannot be added to your cart right now."),
+    page
+      .getByText("This item cannot be added to your cart right now.")
+      .filter({ visible: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("button", { name: "Add to cart", exact: true }),
   ).toHaveCount(0);
   await expect(
-    page.getByRole("link", { name: "Browse Fragrance" }),
+    page
+      .getByRole("link", { name: "Browse Fragrance" })
+      .filter({ visible: true }),
   ).toBeVisible();
 });
 
