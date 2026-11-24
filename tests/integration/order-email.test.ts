@@ -68,6 +68,9 @@ describe("order e-mail (DR-059)", () => {
     expect(sent.subject).toContain(order.reference);
     expect(sent.text).toMatch(/\/order-access#token=[A-Za-z0-9_-]{43}/);
     expect(sent.html).toContain("View your order");
+    // DR-061: the confirmation lists the order's own lines and total.
+    expect(sent.text).toMatch(/1 x .+: RWF [\d,]+/);
+    expect(sent.text).toContain(`Total paid: RWF`);
     const links = await db().privateOrderLink.findMany({
       where: { orderId: order.id, reason: "Sent with e-mail ORDER_CONFIRMED" },
     });
