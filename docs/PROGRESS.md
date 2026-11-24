@@ -15,7 +15,7 @@ Reviewed on 23 November against GitHub `main` at `3986f28` (PR #9), after Codex'
 Work moves from Claude Code to Codex on another computer. Pick up here. `AGENTS.md` has the rules for keeping these docs current.
 
 1. **Staging receipt passed on 24 November 2026.** The confirmation reached the founder’s Gmail inbox. The RWF 6,500 total and the linked paid order BB-7D78-KCK3 matched checkout. [Test evidence](TEST-EVIDENCE.md#staging-receipt--24-november-2026)
-2. **Staging operating details saved on 24 November 2026 (settings version 5).** Customer Help displayed both contact links. Customer Help and Delivery & returns did not display the configured dispatch hours or delivery promise. Customer visibility for those two fields remains open.
+2. **Staging operating details saved on 24 November 2026 (settings version 5).** Customer Help displayed both contact links. Customer Help and Delivery & returns did not display the configured dispatch hours or delivery promise; the local branch now renders both fields, and the targeted browser check passes (see TEST-EVIDENCE). Staging still needs the release.
    - Support phone `+250 788 641 811` and e-mail `care@beautyboxmarket.com`.
    - Delivery promise "Delivered within 3 hours in Kigali" and dispatch hours 24/7.
    - "Customer messages" stays on.

@@ -1,5 +1,11 @@
 # Test evidence
 
+## Baseline reconciliation — 24 November 2026
+
+The local work was preserved in three commits on `wip/2026-11-24-local-reconcile` and rebased onto `origin/main` `3008d1a`. The branch adds the registered name, the customer help delivery details and the receipt evidence; the receipt implementation and contract change are already on `main` (PR #13).
+
+On `e7bb88d` (this entry is a docs-only follow-up): `npm run verify` passed the token, contract and image checks, type checking, lint and all **218** unit tests. The targeted `suppliers-settings`, `order-email` and `launch` integration suites passed all **27** cases. The targeted Chromium tests for the customer help pages and the receipt warning passed on a production build. Not run: the full integration suite, the full browser suite and any hosted check. The first production build was stopped by Next.js's security-advisory reminder and continued on retry; the advisory remains open.
+
 Receipt gate tested locally on 24 November 2026 against eb3137a plus DR-062. All 218 unit tests and 27 targeted integration tests passed. A Chromium test saved both switch positions and checked Staff Overview and Settings.
 
 ## Staging support and delivery settings — 24 November 2026
