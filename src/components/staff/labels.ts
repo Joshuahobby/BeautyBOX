@@ -21,8 +21,8 @@ export const EXCEPTION_LABEL: Record<string, string> = {
   REFUND_AMOUNT_MISMATCH: "The provider confirmed a refund for a different amount. Finance must review it.",
   REFUND_NEEDS_REVIEW: "The provider's records for a refund differ from ours. Finance must check the payment with the provider before refunding again.",
   CANCELLATION_REQUESTED: "The customer asked to cancel. Decide before handover.",
-  SMS_FAILED: "An SMS to the customer could not be sent.",
-  SMS_OUTCOME_UNKNOWN: "An SMS may or may not have been sent. Check before contacting the customer again.",
+  SMS_FAILED: "A message (e-mail or SMS) to the customer could not be sent.",
+  SMS_OUTCOME_UNKNOWN: "A message (e-mail or SMS) may or may not have been sent. Check before contacting the customer again.",
 };
 
 export const humanize = (value: string) => value.toLowerCase().replaceAll("_", " ");

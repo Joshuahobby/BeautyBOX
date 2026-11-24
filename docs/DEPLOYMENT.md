@@ -8,6 +8,17 @@ These PRs added no schema migration and changed no hosted settings or data. Stag
 
 To check which build a host serves: `curl -sI https://staging.beautyboxmarket.com/ | grep -i x-beautybox-revision`.
 
+## Order e-mail on staging (DR-059)
+
+The order e-mail change adds migration `20261124000000_order_recipient_email`, and the new code reads its column. Do these steps **in this order**, because merging to `main` deploys:
+
+1. Before merging, apply the migration to staging: `npm run staging:bootstrap` (it uses the owner connection in `.env.staging.local`). The migration only adds two nullable columns.
+2. Merge. With `EMAIL_PROVIDER` unset, staging keeps working and sends no e-mail.
+3. In Resend, create an API key with **sending access** for `beautyboxmarket.com` only. Put it in `.env.staging.local` yourself as `RESEND_API_KEY=` (never in chat or Git), and set `EMAIL_PROVIDER=resend` and `EMAIL_REPLY_TO=care@beautyboxmarket.com`. Then run `npm run staging:env-push -- --target production` (the Vercel project's production target is staging; the key is sent as a sensitive value) and redeploy.
+4. On staging, place a sandbox order using your own e-mail address. The confirmation should arrive from `orders@beautyboxmarket.com`, and its link should open the order once.
+
+Staging sends real e-mails, so only use addresses you control. Replies to `care@beautyboxmarket.com` arrive in the Resend inbox "BeautyBOX customer care".
+
 What this sets up, at no cost until launch:
 
 | Address | What visitors see |

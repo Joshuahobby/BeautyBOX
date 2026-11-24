@@ -252,6 +252,7 @@ export default async function StaffOrderPage({ params }: { params: Promise<{ ord
           <strong>{order.recipient.name}</strong> · {order.recipient.phone}
           {order.recipient.landmark ? ` · ${order.recipient.landmark}` : ""}
         </p>
+        {order.recipient.email ? <p>E-mail: {order.recipient.email}</p> : null}
         {order.recipient.instructions ? <p>Instructions: {order.recipient.instructions}</p> : null}
         {order.contactVisible && order.destination ? (
           <p className="label-text">
@@ -549,7 +550,7 @@ export default async function StaffOrderPage({ params }: { params: Promise<{ ord
               title="Send a new private order link"
               summary={[
                 `Order ${order.reference}`,
-                "Use only after verifying the customer. Every earlier link and order session stops working, and a new one-time link is sent by SMS to the order's contact number. You will not see the link.",
+                "Use only after verifying the customer. Every earlier link and order session stops working, and a new one-time link is sent to the order's contact: by e-mail when the order has an address, otherwise by SMS. You will not see the link.",
               ]}
               endpoint={`/staff/orders/${order.id}/access-links`}
               staticBody={{ expectedVersion: order.version }}

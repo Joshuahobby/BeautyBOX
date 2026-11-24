@@ -3,6 +3,9 @@ import { serverEnv } from "@/server/env";
 import type { PaymentAdapter } from "./payments/types";
 import type { PlacesAdapter, RoutingAdapter } from "./routing/types";
 import type { SmsAdapter } from "./sms/types";
+import type { EmailAdapter } from "./email/types";
+import { DisabledEmailAdapter, FakeEmailAdapter } from "./email/fake";
+import { ResendEmailAdapter } from "./email/resend";
 import { FakePaymentAdapter } from "./payments/fake";
 import { PAWAPAY_BASE_URLS, PawapayPaymentAdapter } from "./payments/pawapay";
 import { GooglePlacesAdapter, GoogleRoutingAdapter } from "./routing/google";
@@ -23,6 +26,7 @@ type Overrides = {
   routing?: RoutingAdapter;
   places?: PlacesAdapter;
   sms?: SmsAdapter;
+  email?: EmailAdapter;
   media?: MediaStorage;
 };
 let overrides: Overrides = {};
@@ -74,6 +78,16 @@ function build(): Required<Overrides> {
               apiKey: env.AFRICASTALKING_API_KEY,
               senderId: env.AFRICASTALKING_SENDER_ID,
             }),
+    email:
+      env.EMAIL_PROVIDER === "fake"
+        ? new FakeEmailAdapter()
+        : env.EMAIL_PROVIDER === "resend"
+          ? new ResendEmailAdapter({
+              apiKey: env.RESEND_API_KEY!,
+              from: env.EMAIL_FROM,
+              replyTo: env.EMAIL_REPLY_TO,
+            })
+          : new DisabledEmailAdapter(),
     media:
       env.MEDIA_STORAGE === "local"
         ? new LocalMediaStorage(
@@ -98,6 +112,7 @@ export const paymentAdapter = () => adapters().payments;
 export const routingAdapter = () => adapters().routing;
 export const placesAdapter = () => adapters().places;
 export const smsAdapter = () => adapters().sms;
+export const emailAdapter = () => adapters().email;
 export const mediaStorage = () => adapters().media;
 
 /** Test hook: replace adapters (e.g. a fault-injecting payment provider). */

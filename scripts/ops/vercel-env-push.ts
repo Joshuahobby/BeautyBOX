@@ -31,6 +31,10 @@ const APP_SETTINGS = [
   "GOOGLE_TWO_WHEELER_COVERAGE_APPROVED",
   "NEXT_PUBLIC_GOOGLE_MAPS_EMBED_KEY",
   "SMS_PROVIDER",
+  "EMAIL_PROVIDER",
+  "RESEND_API_KEY",
+  "EMAIL_FROM",
+  "EMAIL_REPLY_TO",
   "DEMO_CATALOG_VISIBLE",
   "STAFF_AUTH_PROVIDER",
   "NEXT_PUBLIC_SUPABASE_URL",
@@ -49,6 +53,7 @@ const APP_SETTINGS = [
 
 /** Stored as Vercel "Secret" values (not readable back in the dashboard or CLI). */
 const SECRETS = new Set([
+  "RESEND_API_KEY",
   "DATABASE_URL",
   "DATA_ENCRYPTION_KEY",
   "TOKEN_HASH_SECRET",

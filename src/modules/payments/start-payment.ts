@@ -213,14 +213,15 @@ async function upsertOrderSnapshot(
   },
 ) {
   const { checkout, quote, ctx, basket } = input;
-  if (!checkout.recipientName || !checkout.recipientPhone || checkout.destinationLat === null || checkout.destinationLng === null) {
-    throw new DomainError("VALIDATION_ERROR", "Recipient and delivery pin are required.");
+  if (!checkout.recipientName || !checkout.recipientPhone || !checkout.recipientEmail || checkout.destinationLat === null || checkout.destinationLng === null) {
+    throw new DomainError("VALIDATION_ERROR", "Recipient, e-mail address and delivery pin are required.");
   }
   const existingRows = await tx.$queryRaw<{ id: string }[]>`
     SELECT id FROM commerce.orders WHERE checkout_id = ${checkout.id}::uuid FOR UPDATE`;
   const snapshot = {
     recipientName: checkout.recipientName,
     recipientPhone: checkout.recipientPhone,
+    recipientEmail: checkout.recipientEmail,
     landmark: checkout.landmark,
     instructions: checkout.instructions,
     destinationLat: checkout.destinationLat,

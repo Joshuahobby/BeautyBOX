@@ -44,3 +44,15 @@ CREATE TABLE IF NOT EXISTS devsim.sms_messages (
   outcome           text        NOT NULL,
   created_at        timestamptz NOT NULL DEFAULT now()
 );
+
+-- Simulated mailbox for the fake e-mail adapter (DR-059), like the SMS inbox above.
+-- Never exists outside LOCAL/TEST.
+CREATE TABLE IF NOT EXISTS devsim.email_messages (
+  id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  message_intent_id uuid        NOT NULL,
+  recipient         text        NOT NULL,
+  subject           text        NOT NULL,
+  body              text        NOT NULL,
+  outcome           text        NOT NULL,
+  created_at        timestamptz NOT NULL DEFAULT now()
+);

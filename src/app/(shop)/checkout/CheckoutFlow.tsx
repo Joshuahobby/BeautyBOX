@@ -23,6 +23,9 @@ import {
   newIdempotencyKey,
 } from "@/lib/api-client";
 import { displayRwandaPhone, toCanonicalRwandaPhone } from "@/lib/phone-input";
+
+// A quick browser check; the server validates the address properly (DR-059).
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 import type {
   Checkout,
   PaymentAttempt,
@@ -94,6 +97,7 @@ export function CheckoutFlow({
   // Contact (U06)
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [contactIssues, setContactIssues] = useState<FieldIssue[]>([]);
 
   // Destination (U07)
@@ -154,6 +158,7 @@ export function CheckoutFlow({
       if (current.recipient) {
         setName(current.recipient.name);
         setPhone(displayRwandaPhone(current.recipient.phone));
+        setEmail(current.recipient.email ?? "");
         setPayerPhone((p) => p || displayRwandaPhone(current.recipient!.phone));
         setLandmark(current.recipient.landmark ?? "");
         setInstructions(current.recipient.instructions ?? "");
@@ -244,6 +249,11 @@ export function CheckoutFlow({
         fieldId: "recipient-phone",
         message: messages.checkout.phoneInvalid,
       });
+    if (!EMAIL_PATTERN.test(email.trim()))
+      issues.push({
+        fieldId: "recipient-email",
+        message: messages.checkout.emailInvalid,
+      });
     setContactIssues(issues);
     if (issues.length > 0) {
       window.requestAnimationFrame(() => summaryRef.current?.focus());
@@ -252,7 +262,8 @@ export function CheckoutFlow({
     if (!payerPhone) setPayerPhone(phone);
     const recipientChanged =
       checkout?.recipient?.name !== name.trim().replace(/\s+/g, " ") ||
-      checkout?.recipient?.phone !== toCanonicalRwandaPhone(phone);
+      checkout?.recipient?.phone !== toCanonicalRwandaPhone(phone) ||
+      (checkout?.recipient?.email ?? "") !== email.trim().toLowerCase();
     if (recipientChanged) setQuote(null);
     goTo("delivery");
   }
@@ -342,7 +353,7 @@ export function CheckoutFlow({
         message: messages.checkout.pinRequired,
       });
     setDestinationIssues(issues);
-    if (!canonical || !name.trim()) {
+    if (!canonical || !name.trim() || !EMAIL_PATTERN.test(email.trim())) {
       goTo("contact");
       return;
     }
@@ -360,6 +371,7 @@ export function CheckoutFlow({
           recipient: {
             name: name.trim(),
             phone: canonical,
+            email: email.trim().toLowerCase(),
             ...(landmark.trim() ? { landmark: landmark.trim() } : {}),
             ...(instructions.trim()
               ? { instructions: instructions.trim() }
@@ -392,7 +404,9 @@ export function CheckoutFlow({
             fieldId:
               f.field === "recipient.name"
                 ? "recipient-name"
-                : "recipient-phone",
+                : f.field === "recipient.email"
+                  ? "recipient-email"
+                  : "recipient-phone",
             message: f.message,
           })),
         );
@@ -572,6 +586,21 @@ export function CheckoutFlow({
               help={messages.checkout.recipientPhoneHelp}
               error={
                 contactIssues.find((i) => i.fieldId === "recipient-phone")
+                  ?.message
+              }
+            />
+            <TextField
+              id="recipient-email"
+              label={messages.checkout.recipientEmail}
+              type="email"
+              inputMode="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              maxLength={254}
+              help={messages.checkout.recipientEmailHelp}
+              error={
+                contactIssues.find((i) => i.fieldId === "recipient-email")
                   ?.message
               }
             />
@@ -1039,6 +1068,7 @@ function DeliveryAddress({
         <strong>{recipient.name}</strong> ·{" "}
         {displayRwandaPhone(recipient.phone)}
       </p>
+      {recipient.email ? <p>{recipient.email}</p> : null}
       {placeLabel ? <p>{placeLabel}</p> : null}
       <p className="label-text">
         Confirmed pin:{" "}

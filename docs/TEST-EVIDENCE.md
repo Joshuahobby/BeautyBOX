@@ -1,5 +1,12 @@
 # Test evidence
 
+## Order e-mail (DR-059) — 24 November 2026
+
+- **Run on the development machine (Windows, Node 22):** `npm run verify` passed: tokens, contract (v1.2 with CC-22 regenerated from the pinned baseline), image hashes, `next typegen` plus TypeScript, ESLint on the whole repository, and **217 unit tests** (27 files). That includes the new `resend-adapter.test.ts` (fixed endpoint, key only in the header, refusals versus unknown outcomes, 409, timeout, 64 KiB cap, no call without a key), `email-templates.test.ts` (every event has wording; link, contact and PIN warning; HTML escaping) and `env-email.test.ts`.
+- **Not run on this machine:** the PostgreSQL integration suite (including the new `order-email.test.ts`) and the browser suite. The local test cluster was stopped and this worktree has no `.env.test`. GitHub Quality on the pull request runs both from a fresh PostgreSQL 16, and that run is the evidence for them.
+- **Resend account (read through the connector, 24 November):** `beautyboxmarket.com` is verified in `eu-west-1` (DKIM `resend._domainkey`, SPF through `send` and `rsend`, MX to Resend). Usage was 0 of 100 a day and 0 of 3,000 a month. An inbox for `care@beautyboxmarket.com` was created. No e-mail was sent and no API key was created.
+- **DNS finding (1.1.1.1, 24 November):** `_dmarc.beautyboxmarket.com` has **two** TXT records, `p=none` and `p=reject; sp=reject; adkim=s; aspf=s`. DMARC allows only one; the founder should delete one in Cloudflare (see PROGRESS).
+
 ## `main` after PR #9, and the live hosts — 23 November 2026
 
 - **GitHub Quality on `main` `3986f28`** ([run 45151009162](https://github.com/Joshuahobby/BeautyBOX/actions/runs/45151009162)): tokens, contract, types, lint, unit and database integration passed. Browser: **71 passed, 1 failed**. The failure was `detail-audit.spec.ts` › "home section spacing survives the shared container rule at phone and desktop widths": `Expected: >= 28, Received: NaN`. PR #9's head `207c624` has the identical tree (`git diff 207c624 3986f28` is empty) and passed all 72 in [run 45146766125](https://github.com/Joshuahobby/BeautyBOX/actions/runs/45146766125), so this is timing, not a regression. A computed style reads as empty, giving `NaN`, when the element is replaced while the streamed page settles. The check now waits for the section to be visible and polls the padding. It has not been rerun from this machine; the next CI run on this change is the evidence.

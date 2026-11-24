@@ -19,6 +19,7 @@ const BLOCK_TEXT: Record<string, string> = {
   LIVE_PAYMENTS_DISABLED: "Live payments are off.",
   PAYMENT_ADAPTER_NOT_LIVE: "Payments use the simulator, not pawaPay (deployment setting).",
   ROUTING_ADAPTER_NOT_LIVE: "Delivery distances use the simulator, not live routing (deployment setting).",
+  EMAIL_ADAPTER_NOT_LIVE: "Order e-mails are not sent: set EMAIL_PROVIDER=resend with a key (deployment setting).",
 };
 
 // A07 settings: dispatch pin, delivery area, tariff, hours, parcel limits, quote expiry,

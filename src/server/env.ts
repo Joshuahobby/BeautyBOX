@@ -68,6 +68,17 @@ const schema = z
     PAYMENT_PROVIDER: z.enum(["fake", "pawapay"]),
     ROUTING_PROVIDER: z.enum(["fake", "google"]),
     SMS_PROVIDER: z.enum(["disabled", "fake", "africastalking"]),
+    // Order e-mail (DR-057, DR-059): the launch channel for confirmations and private links.
+    EMAIL_PROVIDER: z.enum(["disabled", "fake", "resend"]).default("disabled"),
+    RESEND_API_KEY: unsetIfEmpty(z.string().min(10)),
+    EMAIL_FROM: z
+      .string()
+      .regex(
+        /^([^<>\r\n]{1,78} <[^\s@<>]+@[^\s@<>]+>|[^\s@<>]+@[^\s@<>]+)$/,
+        "an address, or a name and <address>",
+      )
+      .default("BeautyBOX <orders@beautyboxmarket.com>"),
+    EMAIL_REPLY_TO: unsetIfEmpty(z.email()),
     AFRICASTALKING_SEND_ENABLED: bool,
     AFRICASTALKING_MODE: z.enum(["sandbox", "live"]).default("sandbox"),
     AFRICASTALKING_USERNAME: unsetIfEmpty(z.string().min(1).max(100)),
@@ -273,6 +284,8 @@ const schema = z
     }
     // Implemented adapters only: an unbuilt provider would take down payments and photos too.
 
+    if (env.EMAIL_PROVIDER === "resend" && !env.RESEND_API_KEY)
+      problem("RESEND_API_KEY", "required when EMAIL_PROVIDER=resend");
     if (env.AFRICASTALKING_MODE === "live" && env.APP_ENV !== "production")
       problem("AFRICASTALKING_MODE", "live mode requires APP_ENV=production");
     if (env.AFRICASTALKING_SEND_ENABLED) {
@@ -323,6 +336,11 @@ const schema = z
           "SMS_PROVIDER",
           "staging uses SMS_PROVIDER=disabled until a real SMS provider exists (the simulator's tables exist only locally)",
         );
+      if (env.EMAIL_PROVIDER === "fake")
+        problem(
+          "EMAIL_PROVIDER",
+          "staging uses EMAIL_PROVIDER=resend or disabled (the simulated mailbox exists only locally)",
+        );
     }
     if (env.APP_ENV === "production") {
       if (env.PAYMENT_PROVIDER === "fake")
@@ -334,6 +352,8 @@ const schema = z
         problem("ROUTING_PROVIDER", "fake routing is forbidden in production");
       if (env.SMS_PROVIDER === "fake")
         problem("SMS_PROVIDER", "fake SMS is forbidden in production");
+      if (env.EMAIL_PROVIDER === "fake")
+        problem("EMAIL_PROVIDER", "fake e-mail is forbidden in production");
       if (env.DEMO_CATALOG_VISIBLE)
         problem(
           "DEMO_CATALOG_VISIBLE",

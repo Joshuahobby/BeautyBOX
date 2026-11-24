@@ -1,6 +1,9 @@
 import "server-only";
+import type { Notification, Order } from "@/generated/prisma/client";
 import { db, transaction } from "@/server/db";
-import { smsAdapter } from "@/adapters/registry";
+import { emailAdapter, smsAdapter } from "@/adapters/registry";
+import { channelOf } from "./intents";
+import { renderEmail } from "./email-templates";
 import { formatRwf } from "@/modules/shared/money";
 import { serverEnv } from "@/server/env";
 import { backoffSeconds, type ClaimedJob, type JobOutcome } from "@/modules/jobs/outbox";
@@ -16,6 +19,7 @@ import { resolveOperations } from "@/modules/operations/operations";
 
 const SEND_IN_PROGRESS = "SEND_IN_PROGRESS";
 const UNKNOWN_OUTCOME = "We could not confirm the SMS was sent. Check with the customer before sending another link.";
+const EMAIL_UNKNOWN_OUTCOME = "We could not confirm the e-mail was sent. Check with the customer before sending another link.";
 const MAX_SEND_ATTEMPTS = 3;
 
 type TemplateInput = { reference: string; amount: string; link: string | null; help: string; contact: string | null };
@@ -43,12 +47,14 @@ export async function handleNotificationSend(job: ClaimedJob): Promise<JobOutcom
   if (!notification) return { kind: "DONE" };
   if (notification.state === "UNKNOWN" && notification.lastErrorCode === SEND_IN_PROGRESS) {
     // A previous worker claimed this message and never recorded the outcome (crash, lost
-    // lease, exception): the SMS may have gone out. Never resend blindly (T17).
+    // lease, exception): the message may have gone out. Never resend blindly (T17).
     await db().notification.update({ where: { id: notification.id }, data: { lastErrorCode: "SEND_OUTCOME_UNKNOWN" } });
-    if (notification.operationId) await resolveOperations(db(), { id: notification.operationId }, "FAILED", UNKNOWN_OUTCOME);
+    const unknownText = channelOf(notification.templateId) === "email" ? EMAIL_UNKNOWN_OUTCOME : UNKNOWN_OUTCOME;
+    if (notification.operationId) await resolveOperations(db(), { id: notification.operationId }, "FAILED", unknownText);
     return { kind: "NEEDS_REVIEW", errorCode: "SEND_OUTCOME_UNKNOWN" };
   }
   if (notification.state !== "PENDING") return { kind: "DONE" };
+  if (channelOf(notification.templateId) === "email") return sendEmail(job, notification);
 
   const adapter = smsAdapter();
   const template = TEMPLATES[notification.event];
@@ -120,5 +126,102 @@ export async function handleNotificationSend(job: ClaimedJob): Promise<JobOutcom
   }
   await db().notification.update({ where: { id: notification.id }, data: { state: "UNKNOWN", lastErrorCode: "SEND_OUTCOME_UNKNOWN" } });
   if (notification.operationId) await resolveOperations(db(), { id: notification.operationId }, "FAILED", UNKNOWN_OUTCOME);
+  return { kind: "NEEDS_REVIEW", errorCode: "SEND_OUTCOME_UNKNOWN" };
+}
+
+// ---------------------------------------------------------------- e-mail (DR-059)
+
+type NotificationWithOrder = Notification & { order: Order };
+
+function supportContactParts(raw: unknown): { phone: string | null; email: string | null; hours: string | null } {
+  if (!raw || typeof raw !== "object") return { phone: null, email: null, hours: null };
+  const c = raw as { phone?: unknown; email?: unknown; hours?: unknown };
+  const text = (v: unknown) => (typeof v === "string" && v.trim() ? v.trim() : null);
+  return { phone: text(c.phone), email: text(c.email), hours: text(c.hours) };
+}
+
+/** Same outbox rules as SMS: claim first, retry only definite refusals, never resend an unknown. */
+async function sendEmail(job: ClaimedJob, notification: NotificationWithOrder): Promise<JobOutcome> {
+  const adapter = emailAdapter();
+  const settings = await currentSettings();
+  const to = notification.order.recipientEmail;
+  const suppressedBecause =
+    adapter.provider === "DISABLED"
+      ? "EMAIL_NOT_ENABLED"
+      : !settings.notificationsEnabled
+        ? "NOTIFICATIONS_SWITCHED_OFF"
+        : !to
+          ? "NO_EMAIL_ADDRESS"
+          : serverEnv().APP_ENV === "production" && adapter.provider !== "RESEND"
+            ? "EMAIL_NOT_ENABLED"
+            : null;
+  if (suppressedBecause || !to) {
+    await db().notification.update({ where: { id: notification.id }, data: { state: "SUPPRESSED", lastErrorCode: suppressedBecause ?? "NO_EMAIL_ADDRESS" } });
+    if (notification.operationId) {
+      await resolveOperations(db(), { id: notification.operationId }, "FAILED", "E-mail is switched off, so the link was not sent.");
+    }
+    return { kind: "DONE" };
+  }
+
+  let amountRwf = Number(notification.order.totalRwf);
+  if (notification.event === "REFUND_CONFIRMED" && notification.intentKey) {
+    const refund = await db().refund.findUnique({ where: { id: notification.intentKey } });
+    if (refund) amountRwf = Number(refund.amountRwf);
+  }
+  const contact = supportContactParts(settings.supportContact);
+  const needsLink = ["ORDER_CONFIRMED", "ORDER_DISPATCHED", "ACCESS_LINK"].includes(notification.event);
+  // The raw link token exists only in this message; only its hash is stored.
+  const link = needsLink
+    ? privateLinkUrl((await transaction((tx) => issuePrivateLink(tx, notification.orderId, { reason: `Sent with e-mail ${notification.event}` }))).token)
+    : null;
+  const message = renderEmail(notification.event, {
+    recipientName: notification.order.recipientName,
+    reference: notification.order.reference,
+    amount: formatRwf(amountRwf),
+    link,
+    supportPhone: contact.phone,
+    supportEmail: contact.email,
+    supportHours: contact.hours,
+  });
+  if (!message) {
+    await db().notification.update({ where: { id: notification.id }, data: { state: "SUPPRESSED", lastErrorCode: "NO_TEMPLATE" } });
+    if (notification.operationId) await resolveOperations(db(), { id: notification.operationId }, "FAILED", "No e-mail wording exists for this message.");
+    return { kind: "DONE" };
+  }
+
+  const claimed = await db().notification.updateMany({
+    where: { id: notification.id, state: "PENDING" },
+    data: { state: "UNKNOWN", lastErrorCode: SEND_IN_PROGRESS },
+  });
+  if (claimed.count !== 1) return { kind: "DONE" };
+  // Sent to the order's own contact address only. The key changes per attempt because each
+  // attempt carries a new single-use link.
+  const result = await adapter.sendTransactional({
+    messageIntentId: notification.id,
+    idempotencyKey: `${notification.id}:${job.attempts}`,
+    to,
+    ...message,
+  });
+
+  if (result.kind === "ACCEPTED") {
+    await db().notification.update({ where: { id: notification.id }, data: { state: "ACCEPTED", providerMessageId: result.providerMessageId, lastErrorCode: null } });
+    if (notification.operationId) {
+      await resolveOperations(db(), { id: notification.operationId }, "SUCCEEDED", "A new private link was e-mailed to the order's contact address.");
+    }
+    return { kind: "DONE" };
+  }
+  if (result.kind === "FAILED") {
+    if (job.attempts < MAX_SEND_ATTEMPTS) {
+      await db().notification.update({ where: { id: notification.id }, data: { state: "PENDING", lastErrorCode: result.code } });
+      return { kind: "RETRY", afterSeconds: backoffSeconds(job.attempts, 30, 600), errorCode: `EMAIL_${result.code}` };
+    }
+    await db().notification.update({ where: { id: notification.id }, data: { state: "FAILED", lastErrorCode: result.code } });
+    if (notification.operationId) {
+      await resolveOperations(db(), { id: notification.operationId }, "FAILED", "The e-mail could not be handed to the provider. Check the address with the customer.");
+    }
+    return { kind: "NEEDS_REVIEW", errorCode: `EMAIL_FAILED_${result.code}` };
+  }
+  await db().notification.update({ where: { id: notification.id }, data: { state: "UNKNOWN", lastErrorCode: "SEND_OUTCOME_UNKNOWN" } });
+  if (notification.operationId) await resolveOperations(db(), { id: notification.operationId }, "FAILED", EMAIL_UNKNOWN_OUTCOME);
   return { kind: "NEEDS_REVIEW", errorCode: "SEND_OUTCOME_UNKNOWN" };
 }

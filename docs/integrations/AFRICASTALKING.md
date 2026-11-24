@@ -35,7 +35,7 @@ Reconcile the two before enabling sending:
 
 - Keep this adapter's send switch, mode rules, response cap and outcome rules (DR-054).
 - Port PR #3's reports and one-part wording.
-- Renumber PR #3's contract change from CC-21 to CC-22.
+- Renumber PR #3's contract change from CC-21 to CC-23 (CC-22 is the recipient e-mail).
 - Apply its migration to staging before merging.
 
 The opt-in sandbox test then needs `AFRICASTALKING_USERNAME=sandbox` and the sandbox key in `.env.local`. The founder adds them.

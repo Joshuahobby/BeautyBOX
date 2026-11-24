@@ -119,7 +119,7 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
       {
         heading: "Information used to handle your order",
         paragraphs: [
-          "BeautyBOX uses the information you provide to operate the shop and handle your purchases: recipient name and delivery phone, delivery pin and instructions, products and options, order and payment references, paying phone where needed, and support or return information you choose to provide.",
+          "BeautyBOX uses the information you provide to operate the shop and handle your purchases: recipient name, delivery phone and e-mail address, delivery pin and instructions, products and options, order and payment references, paying phone where needed, and support or return information you choose to provide.",
           "A guest session connects your browser with its cart, checkout and private order access. The site uses essential session cookies for these functions only; it does not use advertising or tracking cookies. This checkout does not require a customer account. BeautyBOX never collects your mobile-money PIN.",
         ],
       },
@@ -141,15 +141,15 @@ export const POLICIES: Record<PolicyTopic, Policy> = {
       {
         heading: "Who receives it",
         paragraphs: [
-          "Necessary information is handled by authorized BeautyBOX staff and by providers acting for us under their data-processing terms: pawaPay and your mobile-money network (MTN or Airtel) for payment, Vercel for website hosting, Supabase for the database and photo storage, Google for place search and routing when enabled, and our delivery rider for fulfilment. The rider receives only what is needed to deliver, not your payment or support history.",
-          "Order updates are shown on your private order page. When order messages by e-mail or SMS are introduced, this notice will name the provider that sends them before any message is sent.",
+          "Necessary information is handled by authorized BeautyBOX staff and by providers acting for us under their data-processing terms: pawaPay and your mobile-money network (MTN or Airtel) for payment, Vercel for website hosting, Supabase for the database and photo storage, Resend for order e-mails, Google for place search and routing when enabled, and our delivery rider for fulfilment. The rider receives only what is needed to deliver, not your payment or support history.",
+          "We e-mail your order confirmation, delivery and refund updates and private order links to the address you give at checkout, through Resend. We do not use your e-mail address for marketing. Order updates are also shown on your private order page. We do not send SMS yet; this notice will name the SMS provider before any SMS is sent.",
           "We disclose information to public authorities only where the law requires it.",
         ],
       },
       {
         heading: "Where it is stored",
         paragraphs: [
-          "Our database is hosted by Supabase in the European Union (Ireland), and our website runs on Vercel servers in Ireland. Google may process location requests outside Rwanda. BeautyBOX stores and transfers personal information outside Rwanda only as Law No 058/2021 permits, including the authorization it requires, and only with providers bound to protect it.",
+          "Our database is hosted by Supabase in the European Union (Ireland), our website runs on Vercel servers in Ireland, and Resend sends our e-mail from its European Union (Ireland) region. Google may process location requests outside Rwanda. BeautyBOX stores and transfers personal information outside Rwanda only as Law No 058/2021 permits, including the authorization it requires, and only with providers bound to protect it.",
         ],
       },
       {

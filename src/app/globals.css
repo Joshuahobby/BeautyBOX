@@ -250,6 +250,9 @@ hr.rule {
 .u-break-word {
   word-break: break-word !important;
 }
+.u-pre-line {
+  white-space: pre-line !important;
+}
 .u-flex-wrap-3 {
   display: flex !important;
   gap: var(--space-3) !important;

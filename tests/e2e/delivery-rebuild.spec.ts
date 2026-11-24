@@ -8,6 +8,7 @@ async function startDelivery(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: "Continue to checkout" }).click();
   await page.getByLabel("Recipient name").fill("Demo Recipient");
   await page.getByLabel("Delivery phone").fill("0788 555 111");
+  await page.getByLabel("E-mail address").fill("buyer@example.com");
   await page.getByRole("button", { name: "Continue to delivery" }).click();
   const heading = page.getByRole("heading", {
     name: "Where should we deliver?",

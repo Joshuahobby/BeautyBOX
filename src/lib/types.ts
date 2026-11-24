@@ -29,7 +29,7 @@ export type Cart = {
   checkoutId: string | null;
 };
 
-export type Recipient = { name: string; phone: string; landmark?: string; instructions?: string };
+export type Recipient = { name: string; phone: string; email?: string; landmark?: string; instructions?: string };
 export type Point = { lat: number; lng: number };
 
 export type Checkout = {

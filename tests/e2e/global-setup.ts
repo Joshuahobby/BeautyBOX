@@ -21,7 +21,7 @@ export default async function globalSetup() {
     const { rows } = await client.query(
       `SELECT tablename FROM pg_tables WHERE schemaname = 'commerce' AND tablename NOT IN ('deployment_profile', '_prisma_migrations')`,
     );
-    await client.query(`TRUNCATE ${rows.map((r: { tablename: string }) => `commerce."${r.tablename}"`).join(", ")}, devsim.refunds, devsim.deposits, devsim.sms_messages RESTART IDENTITY CASCADE`);
+    await client.query(`TRUNCATE ${rows.map((r: { tablename: string }) => `commerce."${r.tablename}"`).join(", ")}, devsim.refunds, devsim.deposits, devsim.sms_messages, devsim.email_messages RESTART IDENTITY CASCADE`);
     await client.query(`UPDATE devsim.settings SET enabled_methods = ARRAY['MTN_MOMO_RWA', 'AIRTEL_RWA']`);
     await client.query(`UPDATE commerce.deployment_profile SET environment = 'TEST', demo_data_allowed = true`);
   } finally {
