@@ -42,6 +42,7 @@ export function SettingsEditor({ settings, canEdit }: { settings: SettingsView; 
     policiesApproved: settings.policiesApproved,
     checkoutEnabled: settings.checkoutEnabled,
     livePaymentsEnabled: settings.livePaymentsEnabled,
+    notificationsEnabled: settings.notificationsEnabled ?? false,
     reason: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -81,6 +82,7 @@ export function SettingsEditor({ settings, canEdit }: { settings: SettingsView; 
       tariff: { baseRwf: num(f.baseRwf), includedMetres: num(f.includedMetres), extraRwfPerKm: num(f.extraRwfPerKm), roundingRwf: num(f.roundingRwf), approved: f.tariffApproved },
       checkoutEnabled: f.checkoutEnabled,
       livePaymentsEnabled: f.livePaymentsEnabled,
+      notificationsEnabled: f.notificationsEnabled,
       parcelLimits: { maxItems: num(f.maxItems), maxWeightGrams: f.maxWeightGrams ? num(f.maxWeightGrams) : null, allowedClasses: ["STANDARD"] },
       quoteTtlSeconds: num(f.quoteTtlSeconds),
       originApproved: f.originApproved,
@@ -114,7 +116,7 @@ export function SettingsEditor({ settings, canEdit }: { settings: SettingsView; 
     }
   }
 
-  const check = (k: "originApproved" | "tariffApproved" | "policiesApproved" | "checkoutEnabled" | "livePaymentsEnabled", label: string) => (
+  const check = (k: "originApproved" | "tariffApproved" | "policiesApproved" | "checkoutEnabled" | "livePaymentsEnabled" | "notificationsEnabled", label: string) => (
     <label className={styles.row}>
       <input type="checkbox" checked={f[k]} disabled={!canEdit} onChange={(e) => set(k, e.target.checked)} /> {label}
     </label>
@@ -177,6 +179,7 @@ export function SettingsEditor({ settings, canEdit }: { settings: SettingsView; 
         <legend className="u-w-600">Selling</legend>
         {check("checkoutEnabled", "Checkout open (untick to pause new payments)")}
         {check("livePaymentsEnabled", "Live payments (production only after every release gate passes)")}
+        {check("notificationsEnabled", "Customer messages: send order confirmations, delivery updates and private links by e-mail (by SMS when e-mail is off)")}
       </fieldset>
 
       {canEdit ? (

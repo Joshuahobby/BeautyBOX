@@ -202,8 +202,12 @@ describe("settings (A07)", () => {
       parcelLimits: { maxWeightGrams: 5000, maxItems: 10, allowedClasses: ["STANDARD"] },
       originApproved: true,
       policiesApproved: true,
+      notificationsEnabled: true,
     });
     expect(approved.status).toBe(200);
+    // CC-24: the customer-messages switch is saved with the new settings version.
+    expect(approved.body.notificationsEnabled).toBe(true);
+    expect((await db().settingsVersion.findFirstOrThrow({ orderBy: { version: "desc" } })).notificationsEnabled).toBe(true);
     expect(approved.body.publicationBlocks).toEqual(["LIVE_PAYMENTS_DISABLED", "PAYMENT_ADAPTER_NOT_LIVE", "ROUTING_ADAPTER_NOT_LIVE", "EMAIL_ADAPTER_NOT_LIVE"]);
     expect(approved.body).toMatchObject({ originApproved: true, policiesApproved: true, dispatchHours: "Mon-Sat 09:00-18:00", parcelLimits: { maxItems: 10, maxWeightGrams: 5000, allowedClasses: ["STANDARD"] } });
     const location = await db().dispatchLocation.findFirstOrThrow();

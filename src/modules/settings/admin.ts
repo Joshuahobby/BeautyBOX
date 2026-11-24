@@ -51,6 +51,7 @@ export type SettingsView = {
   } | null;
   checkoutEnabled: boolean;
   livePaymentsEnabled: boolean;
+  notificationsEnabled: boolean;
   publicationBlocks: string[];
   parcelLimits: {
     maxWeightGrams: number | null;
@@ -65,9 +66,15 @@ export type SettingsView = {
 
 export type SettingsInput = Omit<
   SettingsView,
-  "version" | "publicationBlocks" | "tariff" | "coverageGeoJson"
+  | "version"
+  | "publicationBlocks"
+  | "tariff"
+  | "coverageGeoJson"
+  | "notificationsEnabled"
 > & {
   version?: number;
+  /** CC-24: left out, the current value is kept. */
+  notificationsEnabled?: boolean;
   /** Validated server-side: one GeoJSON Polygon ([lng, lat]) inside Rwanda. */
   coverageGeoJson: Record<string, unknown> | null;
   publicationBlocks?: string[];
@@ -179,6 +186,7 @@ export function settingsView(ctx: OperatingContext): SettingsView {
     },
     checkoutEnabled: ctx.settings.checkoutEnabled,
     livePaymentsEnabled: ctx.settings.livePaymentsEnabled,
+    notificationsEnabled: ctx.settings.notificationsEnabled,
     publicationBlocks: publicationBlocks(ctx),
     parcelLimits:
       parcel.maxTotalUnits > 0
@@ -394,6 +402,8 @@ export async function updateSettings(
         activeTariffId: tariffId,
         checkoutEnabled: s.checkoutEnabled,
         livePaymentsEnabled: s.livePaymentsEnabled,
+        notificationsEnabled:
+          s.notificationsEnabled ?? ctx.settings.notificationsEnabled,
         quoteTtlSeconds: s.quoteTtlSeconds,
         deliveryPromise: s.deliveryPromise?.trim() || null,
         supportContact,

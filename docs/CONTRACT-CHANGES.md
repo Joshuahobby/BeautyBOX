@@ -66,3 +66,7 @@ The active contract is now `docs/api/API-Contract-v1.2.openapi.json`, generated 
 Adds `email` (string, format `email`, at most 254 characters) to the `Recipient` schema. It is returned with checkouts, customer orders and staff orders (staff roles without contact access still see the masked recipient, without the address) whenever one was collected; checkouts and orders made before it was collected have none. A new `RecipientInput` schema, used by `CheckoutPatch.recipient`, makes `email` required: updating a checkout without a valid address answers 422 `VALIDATION_ERROR` with the field `recipient.email`. The server trims and lower-cases the address. Starting a payment on a checkout that has no address (one saved before this change) is refused until the recipient is saved again. No other request or response field changes.
 
 Reason: SMS moves to a phase after launch (DR-057), so e-mail carries the order confirmation and the private order link (DR-059). PR #3's delivery-report change, which was drafted as CC-21 and then as CC-22, becomes **CC-23** when it is merged.
+
+## CC-24 — Customer-messages switch in staff settings (v1.2, DR-060)
+
+Adds `notificationsEnabled` (boolean) to the `Settings` schema of `GET /staff/settings` and `PUT /staff/settings`. It is always returned. On update it is optional, and leaving it out keeps the current value, so existing clients are unaffected. It is the switch the job runner already reads before sending customer order messages (e-mail, or SMS when e-mail is off). Before this change, only the seed could set it.

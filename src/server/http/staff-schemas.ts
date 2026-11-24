@@ -276,6 +276,9 @@ export const settingsInput = z.strictObject({
     .nullable(),
   checkoutEnabled: z.boolean(),
   livePaymentsEnabled: z.boolean(),
+  // CC-24: customer order messages (e-mail, or SMS when e-mail is off). Optional on input;
+  // when left out, the current value is kept.
+  notificationsEnabled: z.boolean().optional(),
   publicationBlocks: z.array(z.string().max(60)).max(50).optional(),
   parcelLimits: z
     .strictObject({

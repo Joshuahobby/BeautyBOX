@@ -66,10 +66,17 @@ schemas.RecipientInput.description =
 schemas.CheckoutPatch.properties.recipient = {
   $ref: "#/components/schemas/RecipientInput",
 };
+// CC-24: the customer-messages switch in staff settings. Always returned; optional on
+// update, where leaving it out keeps the current value.
+schemas.Settings.properties.notificationsEnabled = {
+  type: "boolean",
+  description:
+    "CC-24: send customer order messages (e-mail, or SMS when e-mail is off). Optional on update; left out, the current value is kept.",
+};
 contract.info.version = "1.2.0";
 contract.info.description +=
   "\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged." +
-  "\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated.";
+  "\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated. CC-24 adds the customer-messages switch to staff settings.";
 const output = JSON.stringify(contract, null, 2) + "\n";
 const target = path.join(root, "docs/api/API-Contract-v1.2.openapi.json");
 if (process.argv.includes("--check")) {

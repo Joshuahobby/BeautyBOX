@@ -3,7 +3,7 @@
   "info": {
     "title": "BeautyBOX Phase 1 application API",
     "version": "1.2.0",
-    "description": "Design contract, not an implemented service. Server-derived money; RWF integer amounts. API prefix /api/v1. ISO UTC timestamps, opaque cursor pagination. Cookie auth requires origin/CSRF defense. All mutations use version checks where specified; idempotent intent keys claimed atomically. Staff roles are server DB records plus active MFA session. Error status mapping: validation400/422, auth401/403, private-not-found404, state/idempotency409, rate429, unavailable503. Unknown financial outcomes stay pending. Provider wire payloads are defined by official provider schemas, not this internal contract.\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-20 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed.\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged.\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated."
+    "description": "Design contract, not an implemented service. Server-derived money; RWF integer amounts. API prefix /api/v1. ISO UTC timestamps, opaque cursor pagination. Cookie auth requires origin/CSRF defense. All mutations use version checks where specified; idempotent intent keys claimed atomically. Staff roles are server DB records plus active MFA session. Error status mapping: validation400/422, auth401/403, private-not-found404, state/idempotency409, rate429, unavailable503. Unknown financial outcomes stay pending. Provider wire payloads are defined by official provider schemas, not this internal contract.\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-20 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed.\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged.\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated. CC-24 adds the customer-messages switch to staff settings."
   },
   "servers": [
     {
@@ -6699,6 +6699,10 @@
           "policiesApproved": {
             "type": "boolean",
             "description": "CC-16 addition"
+          },
+          "notificationsEnabled": {
+            "type": "boolean",
+            "description": "CC-24: send customer order messages (e-mail, or SMS when e-mail is off). Optional on update; left out, the current value is kept."
           }
         },
         "required": [
