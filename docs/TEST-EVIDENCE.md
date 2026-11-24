@@ -2,6 +2,20 @@
 
 Receipt gate tested locally on 24 November 2026 against eb3137a plus DR-062. All 218 unit tests and 27 targeted integration tests passed. A Chromium test saved both switch positions and checked Staff Overview and Settings.
 
+## Staging support and delivery settings — 24 November 2026
+
+Saved settings version 5 through Staff → Settings. The saved form showed dispatch hours of 24/7 and “Delivered within 3 hours in Kigali”. Customer Help displayed working-format phone and email links pointing to `tel:+250788641811` and `mailto:care@beautyboxmarket.com`. Neither Help nor Delivery & returns displayed the hours or the promise. No call or email was sent during this display check.
+
+## Staging receipt — 24 November 2026
+
+Staging revision `3008d1a`. A browser checkout for one Detangling Comb showed RWF 3,000 plus RWF 3,500 delivery. After sandbox payment, the confirmation for **BB-7D78-KCK3** arrived in the founder’s Gmail inbox. The receipt item, delivery fee and total paid of **RWF 6,500** matched checkout. Clicking **View your order** opened the staging customer page showing the same reference, payment confirmation and amounts. This customer-path check used the browser. Gmail category, message authentication headers, reissue and duplicate handling were outside this run.
+
+## Local receipt launch check — 24 November 2026
+
+The targeted Chromium test in `orders-staff.spec.ts` passed on the production build against the local test database. It saved both positions, checked the warning on Staff Overview and Settings, and restored the initial test setting. The local terms, shop privacy and launch-list privacy pages all returned HTTP 200 and displayed BeautyBOX LTD.
+
+Working tree based on `eb3137a`, with DR-062 and CC-25. `npm run verify` passed type checking, lint, token, contract and image checks, and all 218 unit tests. The targeted `suppliers-settings`, `order-email` and `launch` integration suites passed all 27 cases against the local test database. The new case saves both switch positions via the staff API and exercises the production sale guard with Resend configured. With messages off, the switch was the only remaining blocker and checkout was refused. With messages on, the otherwise-ready configuration passed. These checks did not send mail or exercise hosted services.
+
 ## Order e-mail on staging — first real e-mail, 24 November 2026
 
 - The e-mail settings were pushed to the staging deployment with `npm run staging:env-push -- --target production`, after `serverEnv()` was checked against `.env.staging.local` ("valid staging resend"). The site was redeployed with `vercel redeploy` and was Ready in about 2 minutes. Both hosts served `efe383c`, and the wall still held.
