@@ -1,5 +1,18 @@
 # Test evidence
 
+## Order e-mail on staging — first real e-mail, 24 November 2026
+
+- The e-mail settings were pushed to the staging deployment with `npm run staging:env-push -- --target production`, after `serverEnv()` was checked against `.env.staging.local` ("valid staging resend"). The site was redeployed with `vercel redeploy` and was Ready in about 2 minutes. Both hosts served `efe383c`, and the wall still held.
+- Test order **BB-GHNG-VHHP** (built-in browser, pawaPay sandbox MTN 0783 456 789, RWF 6,900, e-mail gashua02@gmail.com) was paid. Its notification was written as `email.order_confirmed` but `SUPPRESSED` (`NOTIFICATIONS_SWITCHED_OFF`), because staging was seeded with customer messages off. See DR-060.
+- With the founder's approval, settings version 2 (a copy of version 1 with messages on) was inserted. Test order **BB-P9J2-GX4B** was then paid the same way. A minute later its notification was `ACCEPTED` with a provider id, and one private link was issued (reason "Sent with e-mail ORDER_CONFIRMED"). Resend's log shows "Order BB-P9J2-GX4B confirmed - BeautyBOX" to gashua02@gmail.com, **delivered** at 2026-11-24 10:27:17 UTC. The founder checks the inbox and the link.
+
+## PR #11 merged and staging migrated — 24 November 2026
+
+- `npm run staging:bootstrap`, run from a checkout of PR #11 (no SMS migration), applied only `20261124000000_order_recipient_email`. The runtime role kept its password. A read-only query then showed `recipient_email` (nullable) on `commerce.checkouts` and `commerce.orders`, and both hosts still answered 200.
+- GitHub Quality on PR #11 ([run 45362946418](https://github.com/Joshuahobby/BeautyBOX/actions/runs/45362946418)) passed: verify, integration (including `order-email.test.ts`) and all 72 browser cases. PR #10's own run (45362920532) failed one browser case, `purchase.spec.ts` "an out-of-stock product cannot be added". That was a strict-mode match on a hidden streamed duplicate, unrelated to the change, and the identical code passed in run 45362946418. It is fixed in the follow-up.
+- PR #11 was merged as `efe383c`, which also merged PR #10. About 80 seconds later, `staging.beautyboxmarket.com` answered `X-Beautybox-Revision: efe383c…`. The wall held: the shop root answered 200, the catalogue API 401 without the code, and `beautyboxmarket.com` 200.
+- DNS (1.1.1.1): `_dmarc.beautyboxmarket.com` now has one record, `p=reject; sp=reject; adkim=s; aspf=s`.
+
 ## Order e-mail (DR-059) — 24 November 2026
 
 - **Run on the development machine (Windows, Node 22):** `npm run verify` passed: tokens, contract (v1.2 with CC-22 regenerated from the pinned baseline), image hashes, `next typegen` plus TypeScript, ESLint on the whole repository, and **217 unit tests** (27 files). That includes the new `resend-adapter.test.ts` (fixed endpoint, key only in the header, refusals versus unknown outcomes, 409, timeout, 64 KiB cap, no call without a key), `email-templates.test.ts` (every event has wording; link, contact and PIN warning; HTML escaping) and `env-email.test.ts`.

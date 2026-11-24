@@ -53,6 +53,24 @@ describe("order e-mail wording (DR-059)", () => {
     expect(m.html).toContain("&lt;img");
   });
 
+  it("reads as a plain receipt: order lines and total, a text link, no button or coloured card (DR-061)", () => {
+    const m = renderEmail("ORDER_CONFIRMED", {
+      ...base,
+      lines: [{ title: "Makeup Sponge Pair", quantity: 1, total: "RWF 4,000" }],
+      products: "RWF 4,000",
+      delivery: "RWF 2,900",
+      amount: "RWF 6,900",
+    })!;
+    expect(m.subject).toBe("Your BeautyBOX order BB-TEST-0001 is confirmed");
+    expect(m.text).toContain("1 x Makeup Sponge Pair: RWF 4,000");
+    expect(m.text).toContain("Total paid: RWF 6,900");
+    expect(m.html).toContain("1 x Makeup Sponge Pair: RWF 4,000");
+    expect(m.html).not.toMatch(/background|border-radius|<img|<table/i);
+    // Other messages carry no order summary.
+    const dispatched = renderEmail("ORDER_DISPATCHED", base)!;
+    expect(dispatched.text).not.toContain("Total paid");
+  });
+
   it("omits the help block when no contact is configured", () => {
     const m = renderEmail("ORDER_ON_HOLD", {
       ...base,

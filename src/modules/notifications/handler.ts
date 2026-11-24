@@ -174,6 +174,15 @@ async function sendEmail(job: ClaimedJob, notification: NotificationWithOrder): 
   const link = needsLink
     ? privateLinkUrl((await transaction((tx) => issuePrivateLink(tx, notification.orderId, { reason: `Sent with e-mail ${notification.event}` }))).token)
     : null;
+  // The confirmation lists what was bought (DR-061): the order's current snapshot lines.
+  const orderLines =
+    notification.event === "ORDER_CONFIRMED"
+      ? await db().orderLine.findMany({
+          where: { orderId: notification.orderId, snapshotRevision: notification.order.snapshotRevision },
+          orderBy: { title: "asc" },
+          select: { title: true, quantity: true, lineTotalRwf: true },
+        })
+      : [];
   const message = renderEmail(notification.event, {
     recipientName: notification.order.recipientName,
     reference: notification.order.reference,
@@ -182,6 +191,9 @@ async function sendEmail(job: ClaimedJob, notification: NotificationWithOrder): 
     supportPhone: contact.phone,
     supportEmail: contact.email,
     supportHours: contact.hours,
+    lines: orderLines.map((l) => ({ title: l.title, quantity: l.quantity, total: formatRwf(Number(l.lineTotalRwf)) })),
+    products: formatRwf(Number(notification.order.productsRwf)),
+    delivery: formatRwf(Number(notification.order.deliveryRwf)),
   });
   if (!message) {
     await db().notification.update({ where: { id: notification.id }, data: { state: "SUPPRESSED", lastErrorCode: "NO_TEMPLATE" } });

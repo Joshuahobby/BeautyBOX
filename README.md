@@ -9,10 +9,11 @@ One BeautyBOX storefront that sells only stock held at the BeautyBOX shop:
 
 The original handoff is not present in this checkout. The reproducible API baseline is pinned under `docs/api/baseline`; the active additive contract is `docs/api/API-Contract-v1.2.openapi.json`. Current decisions and recovery scope are recorded in `docs/CONTINUATION-PLAN.md`.
 
-**Status (24 November 2026):** Phase 1 is built and tested with synthetic data. SMS moves to after launch; order e-mail replaces it (DR-057). Staging has been live at `staging.beautyboxmarket.com` since 25 October, behind an access code, with pawaPay sandbox, simulated routing and SMS off. `beautyboxmarket.com` shows "Launching soon". Public checkout stays closed until every release gate (G1–G5) passes and the founder authorizes launch. **Where things stand and what blocks launch:** `docs/PROGRESS.md` (top section) and `docs/RELEASE-CHECKLIST.md`.
+**Status (24 November 2026):** Phase 1 is built and tested with synthetic data. SMS moves to after launch; order e-mail through Resend replaces it and works on staging (DR-057, DR-059). Staging has been live at `staging.beautyboxmarket.com` since 25 October, behind an access code, with pawaPay sandbox, simulated routing and SMS off. `beautyboxmarket.com` shows "Launching soon". Public checkout stays closed until every release gate (G1–G5) passes and the founder authorizes launch. **Where things stand and what blocks launch:** `docs/PROGRESS.md` (top section) and `docs/RELEASE-CHECKLIST.md`.
 
 | Read                                   | For                                                                                          |
 | -------------------------------------- | -------------------------------------------------------------------------------------------- |
+| `AGENTS.md`                            | Rules for coding agents: what to read, which docs to update with every change, safety rules  |
 | `docs/PROGRESS.md`                     | **Start here:** where Phase 1 stands, launch blockers with owners, history of work           |
 | `docs/RELEASE-CHECKLIST.md`            | Release gates G0–G5 and their evidence                                                       |
 | `docs/READINESS-IMPROVEMENTS.md`       | PR #7: stock CSV, CI checks, phone staff flows, recovery, images, SMS adapter                |

@@ -2,6 +2,13 @@
 // message wording is approved (B09). Rules carried over from the handoff's message rules:
 // no full address, payer number or sensitive refund reason; the private link is sent only
 // to the order's own contact; BeautyBOX never asks for a wallet PIN.
+//
+// Written as a plain receipt, not a newsletter (DR-061): personal subject, the order's
+// own lines and total, an ordinary text link, no coloured card, button or images. Gmail
+// filed the first styled version under Promotions; plain transactional mail with real
+// order content is what mail providers expect from an order confirmation.
+
+export type EmailOrderLine = { title: string; quantity: number; total: string };
 
 export type EmailTemplateInput = {
   recipientName: string;
@@ -12,12 +19,21 @@ export type EmailTemplateInput = {
   supportPhone: string | null;
   supportEmail: string | null;
   supportHours: string | null;
+  /** The order's current lines and totals, shown in the confirmation. */
+  lines?: EmailOrderLine[];
+  products?: string;
+  delivery?: string;
 };
 
-type Rendered = { subject: string; paragraphs: string[]; linkLabel?: string };
+type Rendered = {
+  subject: string;
+  paragraphs: string[];
+  linkLabel?: string;
+  showOrder?: boolean;
+};
 
 const LINK_NOTE =
-  "This private link opens your order once and works for 7 days. After you open it, this browser keeps access to the order for 7 days. Do not forward it: anyone with the link can see your order.";
+  "This private link opens your order once and works for 7 days. After you open it, this browser keeps access to the order for 7 days. Please do not forward it: anyone with the link can see your order.";
 
 export const EMAIL_TEMPLATES: Record<
   string,
@@ -26,18 +42,19 @@ export const EMAIL_TEMPLATES: Record<
   ORDER_CONFIRMED: {
     needsLink: true,
     render: (v) => ({
-      subject: `Order ${v.reference} confirmed - BeautyBOX`,
+      subject: `Your BeautyBOX order ${v.reference} is confirmed`,
       paragraphs: [
         `Hello ${v.recipientName},`,
-        `We have received your payment of ${v.amount} for order ${v.reference}. We are preparing it for delivery to the location you confirmed.`,
+        `Thank you for your order. We have received your payment of ${v.amount} for order ${v.reference}, and we are preparing it for delivery to the location you confirmed.`,
       ],
       linkLabel: "View your order",
+      showOrder: true,
     }),
   },
   ORDER_ON_HOLD: {
     needsLink: false,
     render: (v) => ({
-      subject: `We need to contact you about order ${v.reference} - BeautyBOX`,
+      subject: `About your BeautyBOX order ${v.reference}`,
       paragraphs: [
         `Hello ${v.recipientName},`,
         `We need to speak with you about order ${v.reference} before we can continue. Your payment is safe. Please contact us using the details below.`,
@@ -47,7 +64,7 @@ export const EMAIL_TEMPLATES: Record<
   ORDER_DISPATCHED: {
     needsLink: true,
     render: (v) => ({
-      subject: `Order ${v.reference} is on its way - BeautyBOX`,
+      subject: `Your BeautyBOX order ${v.reference} is on its way`,
       paragraphs: [
         `Hello ${v.recipientName},`,
         `Order ${v.reference} has been handed to our rider. Please keep your delivery phone reachable.`,
@@ -58,7 +75,7 @@ export const EMAIL_TEMPLATES: Record<
   DELIVERY_PROBLEM: {
     needsLink: false,
     render: (v) => ({
-      subject: `About the delivery of order ${v.reference} - BeautyBOX`,
+      subject: `Delivery of your BeautyBOX order ${v.reference}`,
       paragraphs: [
         `Hello ${v.recipientName},`,
         `We need to arrange the delivery of order ${v.reference} with you. Please contact us using the details below. We will not charge anything extra without agreeing it with you first.`,
@@ -68,7 +85,7 @@ export const EMAIL_TEMPLATES: Record<
   REFUND_CONFIRMED: {
     needsLink: false,
     render: (v) => ({
-      subject: `Refund for order ${v.reference} confirmed - BeautyBOX`,
+      subject: `Your refund for BeautyBOX order ${v.reference}`,
       paragraphs: [
         `Hello ${v.recipientName},`,
         `Your refund of ${v.amount} for order ${v.reference} has been confirmed. It goes back to the mobile-money account that paid for the order; your provider may take some time to show it.`,
@@ -78,7 +95,7 @@ export const EMAIL_TEMPLATES: Record<
   ACCESS_LINK: {
     needsLink: true,
     render: (v) => ({
-      subject: `Your new link for order ${v.reference} - BeautyBOX`,
+      subject: `Your new link for BeautyBOX order ${v.reference}`,
       paragraphs: [
         `Hello ${v.recipientName},`,
         `As requested, here is a new private link for order ${v.reference}. Earlier links no longer work.`,
@@ -106,6 +123,16 @@ function supportLines(v: EmailTemplateInput): string[] {
   return lines;
 }
 
+function orderLines(v: EmailTemplateInput): string[] {
+  if (!v.lines?.length) return [];
+  return [
+    ...v.lines.map((l) => `${l.quantity} x ${l.title}: ${l.total}`),
+    ...(v.products ? [`Products: ${v.products}`] : []),
+    ...(v.delivery ? [`Delivery: ${v.delivery}`] : []),
+    `Total paid: ${v.amount}`,
+  ];
+}
+
 /** Plain text and a simple, escaped HTML version of the same message. */
 export function renderEmail(
   event: string,
@@ -116,42 +143,37 @@ export function renderEmail(
   if (template.needsLink && !v.link) return null;
   const r = template.render(v);
   const support = supportLines(v);
+  const order = r.showOrder ? orderLines(v) : [];
   const pin = "BeautyBOX never asks for your mobile-money PIN.";
 
   const text = [
     ...r.paragraphs,
+    ...(order.length ? [`Order ${v.reference}`, order.join("\n")] : []),
     ...(r.linkLabel && v.link ? [`${r.linkLabel}: ${v.link}`, LINK_NOTE] : []),
-    ...(support.length ? ["Need help?", ...support] : []),
+    ...(support.length ? ["Need help?", support.join("\n")] : []),
     pin,
     "BeautyBOX, Kigali",
   ].join("\n\n");
 
-  const p = (s: string) =>
-    `<p style="margin:0 0 16px;font:16px/1.5 Arial,sans-serif;color:#2b1a2e">${escapeHtml(s)}</p>`;
-  const button =
-    r.linkLabel && v.link
-      ? `<p style="margin:0 0 16px"><a href="${escapeHtml(v.link)}" style="display:inline-block;padding:12px 20px;background:#4a1f4f;color:#ffffff;text-decoration:none;border-radius:6px;font:600 16px Arial,sans-serif">${escapeHtml(r.linkLabel)}</a></p>` +
-        `<p style="margin:0 0 16px;font:13px/1.5 Arial,sans-serif;color:#5c4a5e">${escapeHtml(LINK_NOTE)}</p>`
-      : "";
-  const help = support.length
-    ? `<p style="margin:0 0 4px;font:600 15px Arial,sans-serif;color:#2b1a2e">Need help?</p>` +
-      support
-        .map(
-          (s) =>
-            `<p style="margin:0;font:15px/1.5 Arial,sans-serif;color:#2b1a2e">${escapeHtml(s)}</p>`,
-        )
-        .join("") +
-      `<p style="margin:0 0 16px"></p>`
-    : "";
+  const p = (s: string) => `<p>${escapeHtml(s)}</p>`;
+  const lines = (items: string[]) =>
+    `<p>${items.map(escapeHtml).join("<br>")}</p>`;
   const html =
-    `<!doctype html><html lang="en"><body style="margin:0;padding:24px;background:#faf6f0">` +
-    `<div style="max-width:560px;margin:0 auto;background:#ffffff;padding:24px;border-radius:8px">` +
-    `<p style="margin:0 0 20px;font:700 20px Arial,sans-serif;color:#4a1f4f">BeautyBOX</p>` +
+    `<!doctype html><html lang="en"><head><meta charset="utf-8"></head>` +
+    `<body style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#222222">` +
     r.paragraphs.map(p).join("") +
-    button +
-    help +
-    `<p style="margin:0;font:13px/1.5 Arial,sans-serif;color:#5c4a5e">${escapeHtml(pin)} BeautyBOX, Kigali.</p>` +
-    `</div></body></html>`;
+    (order.length
+      ? `<p><strong>Order ${escapeHtml(v.reference)}</strong></p>` +
+        lines(order)
+      : "") +
+    (r.linkLabel && v.link
+      ? `<p><a href="${escapeHtml(v.link)}">${escapeHtml(r.linkLabel)}</a></p>` +
+        p(LINK_NOTE)
+      : "") +
+    (support.length ? `<p>Need help?</p>` + lines(support) : "") +
+    p(pin) +
+    p("BeautyBOX, Kigali") +
+    `</body></html>`;
 
   return { subject: r.subject, text, html };
 }
