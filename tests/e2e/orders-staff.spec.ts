@@ -292,6 +292,39 @@ test("T16 in the browser: an administrator disables a member, who is refused on 
   await leaver.context.close();
 });
 
+test("customer help pages follow saved dispatch hours and delivery promise", async ({ browser, page }) => {
+  const staff = await staffPage(browser, "ADMIN");
+  await staff.page.goto("/staff/settings");
+  const hours = staff.page.getByLabel("Dispatch hours", { exact: false });
+  const promise = staff.page.getByLabel("Delivery promise shown to customers", { exact: false });
+  const original = [await hours.inputValue(), await promise.inputValue()] as const;
+  async function save(hoursText: string, promiseText: string) {
+    await hours.fill(hoursText);
+    await promise.fill(promiseText);
+    await staff.page.getByLabel("Reason for this change").fill("Verify customer delivery information");
+    await staff.page.getByRole("button", { name: "Save new version" }).click();
+    await expect(staff.page.getByText("Saved as a new settings version.").filter({ visible: true })).toBeVisible();
+    await staff.page.reload();
+  }
+  try {
+    for (const configured of [true, false]) {
+      await save(configured ? "24/7" : "", configured ? "Delivered within 3 hours in Kigali" : "");
+      for (const path of ["/help", "/help/delivery-returns"]) {
+        await page.goto(path);
+        await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+        for (const text of ["Dispatch hours: 24/7", "Delivered within 3 hours in Kigali"]) {
+          const match = page.getByText(text, { exact: true }).filter({ visible: true });
+          if (configured) await expect(match).toBeVisible();
+          else await expect(match).toHaveCount(0);
+        }
+      }
+    }
+  } finally {
+    await save(original[0], original[1]);
+    await staff.context.close();
+  }
+});
+
 test("receipt warning follows the saved Customer messages switch on both staff pages", async ({ browser }) => {
   const { context, page } = await staffPage(browser, "ADMIN");
   const warning = page.getByText("Order receipts are paused. Turn on Customer messages in Staff settings.", { exact: true });
