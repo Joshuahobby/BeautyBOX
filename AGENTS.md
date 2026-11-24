@@ -24,7 +24,7 @@ BeautyBOX Phase 1 is a Rwanda beauty shop: guest checkout, RWF, pawaPay mobile m
 - **`docs/RELEASE-CHECKLIST.md`:** update a gate's row when its status changes.
 - **A new migration:** list it in the RELEASE-CHECKLIST migration item and in the staging steps of `docs/DEPLOYMENT.md`.
 - **Wording:** plain English. Write dates as absolute dates (for example "24 November 2026"), never "today".
-- **Numbering:** the next decision is **DR-062**. DR-048 and DR-049 are reserved for PR #3. The next contract change is **CC-25**; CC-23 is reserved for PR #3.
+- **Numbering:** the next decision is **DR-063**. DR-048 and DR-049 are reserved for PR #3. The next contract change is **CC-26**; CC-23 is reserved for PR #3.
 
 ## Safety rules
 

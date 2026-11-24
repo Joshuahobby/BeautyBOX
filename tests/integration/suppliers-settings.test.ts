@@ -1,5 +1,7 @@
 import { randomUUID } from "node:crypto";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import * as environment from "@/server/env";
+import { assertSaleFlowOpen, operatingContext, publicationBlocks } from "@/modules/settings/settings";
 import { NextRequest } from "next/server";
 import { db } from "@/server/db";
 import { receiveStock } from "@/modules/dev/fixtures";
@@ -142,6 +144,37 @@ describe("settings (A07)", () => {
     const { version: _v, publicationBlocks: _p, ...rest } = view;
     return rest as Record<string, unknown> & { tariff: Record<string, unknown> };
   }
+
+  it("requires customer messages for production checkout even with Resend configured", async () => {
+    const admin = await staff("ADMIN");
+    const ctx = await operatingContext();
+    // Isolate the receipt gate from the unrelated launch inputs in the demo fixture.
+    ctx.tariff = { ...ctx.tariff, approvalState: "APPROVED", dataOrigin: "VERIFIED" };
+    ctx.location = { ...ctx.location, approvalState: "APPROVED", dataOrigin: "VERIFIED", isActive: true };
+    ctx.settings = { ...ctx.settings, checkoutEnabled: true, livePaymentsEnabled: true, policiesApproved: true,
+      dataOrigin: "VERIFIED", supportContact: { email: "support@example.test" }, deliveryPromise: "Same day" };
+    for (const enabled of [false, true]) {
+      const current = await call(settings.GET, "GET", "/staff/settings", { as: admin.header });
+      const updated = await call(settings.PUT, "PUT", "/staff/settings", { as: admin.header, body: {
+        expectedVersion: current.body.version, settings: { ...editable(current.body), notificationsEnabled: enabled }, reason: "Test receipt readiness",
+      } });
+      expect(updated.status).toBe(200);
+      const saved = await call(settings.GET, "GET", "/staff/settings", { as: admin.header });
+      expect(saved.body.publicationBlocks).toEqual(updated.body.publicationBlocks);
+      expect((saved.body.publicationBlocks as string[]).includes("CUSTOMER_MESSAGES_DISABLED")).toBe(!enabled);
+      ctx.settings.notificationsEnabled = (await operatingContext()).settings.notificationsEnabled;
+      const env = environment.serverEnv();
+      const mock = vi.spyOn(environment, "serverEnv").mockReturnValue({ ...env, APP_ENV: "production",
+        EMAIL_PROVIDER: "resend", PAYMENT_PROVIDER: "pawapay", ROUTING_PROVIDER: "google", GOOGLE_TWO_WHEELER_COVERAGE_APPROVED: true });
+      try {
+        expect(publicationBlocks(ctx)).toEqual(enabled ? [] : ["CUSTOMER_MESSAGES_DISABLED"]);
+        if (enabled) expect(() => assertSaleFlowOpen(ctx)).not.toThrow();
+        else expect(() => assertSaleFlowOpen(ctx)).toThrow("Checkout is not open yet");
+      } finally {
+        mock.mockRestore();
+      }
+    }
+  });
 
   it("is versioned: a tariff change creates a new immutable version, stale quotes are refused and orders keep their fee", async () => {
     const admin = await staff("ADMIN");

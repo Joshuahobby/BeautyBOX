@@ -73,6 +73,8 @@ schemas.Settings.properties.notificationsEnabled = {
   description:
     "CC-24: send customer order messages (e-mail, or SMS when e-mail is off). Optional on update; left out, the current value is kept.",
 };
+schemas.Settings.properties.publicationBlocks.description =
+  "Server-computed reasons public checkout must stay closed. CUSTOMER_MESSAGES_DISABLED means the Customer messages switch is off, independently of the e-mail provider.";
 contract.info.version = "1.2.0";
 contract.info.description +=
   "\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged." +

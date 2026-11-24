@@ -1,5 +1,7 @@
 # Test evidence
 
+Receipt gate tested locally on 24 November 2026 against eb3137a plus DR-062. All 218 unit tests and 27 targeted integration tests passed. A Chromium test saved both switch positions and checked Staff Overview and Settings.
+
 ## Order e-mail on staging — first real e-mail, 24 November 2026
 
 - The e-mail settings were pushed to the staging deployment with `npm run staging:env-push -- --target production`, after `serverEnv()` was checked against `.env.staging.local` ("valid staging resend"). The site was redeployed with `vercel redeploy` and was Ready in about 2 minutes. Both hosts served `efe383c`, and the wall still held.

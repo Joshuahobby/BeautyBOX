@@ -56,7 +56,8 @@ export type PublicationBlock =
   | "LIVE_PAYMENTS_DISABLED"
   | "PAYMENT_ADAPTER_NOT_LIVE"
   | "ROUTING_ADAPTER_NOT_LIVE"
-  | "EMAIL_ADAPTER_NOT_LIVE";
+  | "EMAIL_ADAPTER_NOT_LIVE"
+  | "CUSTOMER_MESSAGES_DISABLED";
 
 /**
  * Server-owned list of reasons a public paid checkout must stay closed (G2-G5).
@@ -91,6 +92,7 @@ export function publicationBlocks(ctx: OperatingContext): PublicationBlock[] {
   )
     blocks.push("ROUTING_ADAPTER_NOT_LIVE");
   // DR-057: e-mail is the launch channel for the order confirmation and private link.
+  if (!ctx.settings.notificationsEnabled) blocks.push("CUSTOMER_MESSAGES_DISABLED");
   if (env.EMAIL_PROVIDER !== "resend") blocks.push("EMAIL_ADAPTER_NOT_LIVE");
   return blocks;
 }
