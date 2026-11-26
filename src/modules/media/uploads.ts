@@ -121,13 +121,52 @@ function finalView(upload: { state: string; storageKey: string | null; purpose: 
 export async function finalizeUpload(staff: StaffIdentity, uploadId: string, alt: string, requestId: string | null): Promise<FinalizeResult> {
   const upload = await ownIntent(staff, uploadId);
   if (upload.state !== "INTENT") return finalView(upload);
-  if (upload.expiresAt <= now()) throw new DomainError("ACTION_NOT_ALLOWED", "This upload expired. Start again.");
   const storage = mediaStorage();
+  const storageKey = `${upload.purpose === "PRODUCT_PHOTO" ? "products" : "evidence"}/${upload.id}.webp`;
+  if (upload.storageKey && upload.storageKey !== storageKey)
+    throw new DomainError("ACTION_NOT_ALLOWED", "This upload already has a different storage key.");
+  const finishStored = async (stored: Buffer): Promise<FinalizeResult> => {
+    // A reserved key can outlive both intent expiry and raw-staging cleanup.
+    // Only a server-created, valid WebP derivative can complete that record.
+    let width: number; let height: number;
+    try {
+      const meta = await sharp(stored, { limitInputPixels: MAX_PIXELS, failOn: "error" }).metadata();
+      if (meta.format !== "webp" || !meta.width || !meta.height || meta.width > DERIVATIVE_EDGE || meta.height > DERIVATIVE_EDGE)
+        throw new Error("Invalid stored derivative");
+      width = meta.width; height = meta.height;
+    } catch {
+      throw new DomainError("ACTION_NOT_ALLOWED", "The stored photo needs staff investigation.");
+    }
+    const cleanAlt = alt.trim().slice(0, 240);
+    const updated = await db().mediaUpload.updateMany({
+      where: { id: upload.id, state: "INTENT", storageKey },
+      data: { state: "FINALIZED", width, height, alt: cleanAlt || null, finalizedAt: now() },
+    });
+    await storage.deleteStaging(upload.stagingKey);
+    if (updated.count !== 1) return finalView(await db().mediaUpload.findUniqueOrThrow({ where: { id: upload.id } }));
+    await db().$transaction((tx) =>
+      audit(tx, { actor: { type: "STAFF", id: staff.staffId }, entityType: "media_upload", entityId: upload.id, action: "MEDIA_FINALIZED", after: { storageKey, width, height }, requestId }),
+    );
+    return finalView(await db().mediaUpload.findUniqueOrThrow({ where: { id: upload.id } }));
+  };
+  if (upload.storageKey) {
+    const stored = await storage.readPrivate(storageKey);
+    if (stored) return finishStored(stored);
+  }
+  if (upload.expiresAt <= now()) throw new DomainError("ACTION_NOT_ALLOWED", "This upload expired without a stored photo. Start again after checking the intent.");
   const bytes = await storage.readStaging(upload.stagingKey);
   if (!bytes) throw new DomainError("VALIDATION_ERROR", "Upload the file before finishing.");
 
   const reject = async (reason: string) => {
-    await db().mediaUpload.updateMany({ where: { id: upload.id, state: "INTENT" }, data: { state: "REJECTED", rejectReason: reason, finalizedAt: now() } });
+    // A concurrent valid finalize may already have reserved the derivative key.
+    // Never reject its intent after that reservation, or its private object could
+    // become unreachable from the upload record.
+    const changed = await db().mediaUpload.updateMany({ where: { id: upload.id, state: "INTENT", storageKey: null }, data: { state: "REJECTED", rejectReason: reason, finalizedAt: now() } });
+    if (changed.count !== 1) {
+      const current = await db().mediaUpload.findUniqueOrThrow({ where: { id: upload.id } });
+      if (current.state !== "INTENT") return finalView(current);
+      throw new DomainError("ACTION_NOT_ALLOWED", "This upload is already being finalized. Retry its upload ID after checking the outcome.");
+    }
     await storage.deleteStaging(upload.stagingKey);
     return rejected(reason);
   };
@@ -155,24 +194,29 @@ export async function finalizeUpload(staff: StaffIdentity, uploadId: string, alt
     return reject("This file could not be read as an image.");
   }
 
-  const storageKey = `${upload.purpose === "PRODUCT_PHOTO" ? "products" : "evidence"}/${randomUUID()}.webp`;
-  // Every derivative is stored privately; a product photo gets a public copy only once it
-  // is approved (src/modules/media/publication.ts).
-  await storage.putPrivate(storageKey, derivative.data, "image/webp");
-  const cleanAlt = alt.trim().slice(0, 240);
-  const updated = await db().mediaUpload.updateMany({
-    where: { id: upload.id, state: "INTENT" },
-    data: { state: "FINALIZED", storageKey, width: derivative.info.width, height: derivative.info.height, alt: cleanAlt || null, finalizedAt: now() },
+  // Bind one immutable derivative key to one upload ID. Reserve it in the DB
+  // before writing bytes: a crash after storage succeeds can be recovered via
+  // the same intent, and two concurrent finalizers cannot mint orphan keys.
+  const reservation = await db().mediaUpload.updateMany({
+    where: { id: upload.id, state: "INTENT", storageKey: null }, data: { storageKey },
   });
-  await storage.deleteStaging(upload.stagingKey);
-  if (updated.count !== 1) {
-    // A concurrent finalize won; its derivative is the one recorded.
-    return finalView(await db().mediaUpload.findUniqueOrThrow({ where: { id: upload.id } }));
+  if (reservation.count !== 1) {
+    const current = await db().mediaUpload.findUniqueOrThrow({ where: { id: upload.id } });
+    if (current.state !== "INTENT") return finalView(current);
+    if (current.storageKey !== storageKey) throw new DomainError("ACTION_NOT_ALLOWED", "This upload already has a different storage key.");
+    const alreadyStored = await storage.readPrivate(storageKey);
+    if (alreadyStored) return finishStored(alreadyStored);
   }
-  await db().$transaction((tx) =>
-    audit(tx, { actor: { type: "STAFF", id: staff.staffId }, entityType: "media_upload", entityId: upload.id, action: "MEDIA_FINALIZED", after: { storageKey, width: derivative.info.width, height: derivative.info.height }, requestId }),
-  );
-  return finalView(await db().mediaUpload.findUniqueOrThrow({ where: { id: upload.id } }));
+  // Both adapters refuse overwrites. If another request won with different
+  // staged bytes, the first validated immutable derivative remains canonical.
+  try {
+    await storage.putPrivate(storageKey, derivative.data, "image/webp");
+  } catch (error) {
+    const existing = await storage.readPrivate(storageKey);
+    if (!existing) throw error;
+    return finishStored(existing);
+  }
+  return finishStored(derivative.data);
 }
 
 /**

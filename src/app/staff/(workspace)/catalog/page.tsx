@@ -28,7 +28,10 @@ export default async function StaffCatalogPage({ searchParams }: { searchParams:
     <div className={styles.stack}>
       <div className={`${styles.row} u-between`}>
         <h1 className="page-title">Catalog</h1>
-        <ButtonLink href="/staff/catalog/new">New product draft</ButtonLink>
+        <div className={styles.row}>
+          <ButtonLink href="/staff/catalog/import" variant="secondary">Bulk import drafts</ButtonLink>
+          <ButtonLink href="/staff/catalog/new">New product draft</ButtonLink>
+        </div>
       </div>
       <div className={styles.tableRegion} role="region" aria-label="Products" tabIndex={0}>
         <table className={styles.table}>
