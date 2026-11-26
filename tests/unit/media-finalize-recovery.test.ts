@@ -93,4 +93,28 @@ describe("server photo finalization recovery", () => {
     expect(recovered.storageKey).toBe(key);
     expect(state.upload).toMatchObject({ state: "FINALIZED", storageKey: key });
   });
+
+  it("refuses an expired intent whose reserved key was never written, without creating any object", async () => {
+    // Crash in the window between the DB reservation and the private write: there
+    // is no derivative to recover, so the retry must stop cleanly instead of
+    // minting a second key or resurrecting the expired intent.
+    state.upload.storageKey = key;
+    state.staging = null;
+    state.upload.expiresAt = new Date(Date.now() - 1000);
+    await expect(finalizeUpload(actor, uploadId, "Photo", null)).rejects.toThrow("expired without a stored photo");
+    expect([...state.privateBytes.keys()]).toEqual([]);
+    expect(state.upload).toMatchObject({ state: "INTENT", storageKey: key });
+  });
+
+  it("keeps the finalized derivative immutable when staging is replaced afterwards", async () => {
+    // A signed staging URL stays valid briefly after finalize; replacing the raw
+    // bytes must never change or duplicate the already-stored derivative.
+    const first = await finalizeUpload(actor, uploadId, "Photo", null);
+    const derivative = state.privateBytes.get(key)!;
+    state.staging = await sharp({ create: { width: 700, height: 700, channels: 3, background: "green" } }).png().toBuffer();
+    const replay = await finalizeUpload(actor, uploadId, "Photo", null);
+    expect(replay.storageKey).toBe(first.storageKey);
+    expect([...state.privateBytes.keys()]).toEqual([key]);
+    expect(state.privateBytes.get(key)).toEqual(derivative);
+  });
 });
