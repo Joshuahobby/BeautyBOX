@@ -1,5 +1,11 @@
 # Implementation progress
 
+## Bulk supplier catalogue preparation — 26 November 2026
+
+The founder authorized a reusable bulk-import workflow, confirmed that Her Majesty permits BeautyBOX to copy/host its website photographs, and approved a **staging-only** deployment after checks pass. In isolated branch `feat/bulk-catalog-import-owner`, the staff bulk page now preflights a local JSON manifest and owned-storage photo uploads, creates audited product drafts, and stops on conflicting existing slugs/SKUs. The private intake folder outside Git contains 43 products, 103 proposed options and 43 local photos; after holding the already-existing Ice Roller draft, 34 products pass draft eligibility and nine remain held (the original eight discrepancies plus Ice Roller). This is **not** a claim of supplier-origin SKUs, independently counted shelf stock, reviewed packaging copy, publication, demo withdrawal or a hosted bulk import. `docs/CATALOG-BULK-IMPORT.md` records the sequence.
+
+Node 22.23.5 was installed locally for this worktree. Next.js 16.4.2 failed a production build due to documented security advisories; the branch now pins 16.4.6. Local `npm run verify` passed (237 unit tests across 30 files, typecheck, lint, design/contract/image checks), Python generator suite passed 4 tests, and `npm run build` passed with the new staff route. The original WIP checkout remains untouched. Deployment, hosted readback, integration/browser CI and review are separate checkpoints.
+
 ## Founder G2 and supplier stock decision — 26 November 2026
 
 The founder declared **G2 passed on their attestation** (DR-063): BeautyBOX LTD has NCSA registration and accepted overseas-storage authorization, and the founder approves the current privacy notice, terms and delivery/returns. Neither regulator document nor adviser review was inspected in this work. The founder explicitly waived the internal upload/adviser checkpoint for G2; hosted `policiesApproved`, launch list, access wall, public checkout and live payments were not changed. The staging supplier catalogue can be prepared; publication still needs reviewed product copy/photos, exact variant/SKU matches and stock lots.

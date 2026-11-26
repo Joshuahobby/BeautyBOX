@@ -15,6 +15,7 @@ import {
 import { productDraftInput } from "@/server/http/staff-schemas";
 import type { StaffProductView } from "@/modules/catalog/admin";
 import styles from "@/components/staff/Staff.module.css";
+import { uploadStaffPhoto } from "@/lib/staff-photo-upload";
 
 type Category = {
   id: string;
@@ -39,62 +40,7 @@ type MediaRow = {
 };
 
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
-
-/** Upload intent -> bytes to the server-chosen target -> server decode/re-encode (finalize). */
-async function uploadPhoto(
-  file: File,
-  alt: string,
-): Promise<{ storageKey: string; url: string } | { rejected: string }> {
-  const intent = await api<{ uploadId: string; uploadUrl: string }>(
-    "/staff/media/upload-intents",
-    {
-      method: "POST",
-      body: {
-        purpose: "PRODUCT_PHOTO",
-        mimeType: file.type,
-        sizeBytes: file.size,
-      },
-    },
-  );
-  let put: Response;
-  try {
-    put = await fetch(intent.uploadUrl, {
-      method: "PUT",
-      body: file,
-      headers: { "Content-Type": file.type },
-      credentials: "same-origin",
-    });
-  } catch {
-    throw new ApiError(
-      0,
-      "NETWORK",
-      "The photo could not be uploaded. Check your connection and try again.",
-    );
-  }
-  if (!put.ok) {
-    const e = (await put.json().catch(() => ({}))) as {
-      code?: string;
-      message?: string;
-    };
-    throw new ApiError(
-      put.status,
-      e.code ?? "INTERNAL_ERROR",
-      e.message ?? "The photo could not be uploaded.",
-    );
-  }
-  const result = await api<{
-    storageKey: string;
-    reviewState: string;
-    url: string | null;
-    rejectReason: string | null;
-  }>(`/staff/media/${intent.uploadId}/finalize`, {
-    method: "POST",
-    body: { alt },
-  });
-  if (result.reviewState === "REJECTED" || !result.url)
-    return { rejected: result.rejectReason ?? "This photo was rejected." };
-  return { storageKey: result.storageKey, url: result.url };
-}
+const uploadPhoto = uploadStaffPhoto;
 
 const ERROR_TEXT: Record<string, string> = {
   SYNTHETIC_RECORD:
