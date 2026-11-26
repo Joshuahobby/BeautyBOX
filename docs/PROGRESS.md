@@ -1,8 +1,14 @@
 # Implementation progress
 
-Local receipt launch check (DR-062). Customer messages must be enabled before production checkout opens.
+## Founder G2 and supplier stock decision — 26 November 2026
+
+The founder declared **G2 passed on their attestation** (DR-063): BeautyBOX LTD has NCSA registration and accepted overseas-storage authorization, and the founder approves the current privacy notice, terms and delivery/returns. Neither regulator document nor adviser review was inspected in this work. The founder explicitly waived the internal upload/adviser checkpoint for G2; hosted `policiesApproved`, launch list, access wall, public checkout and live payments were not changed. The staging supplier catalogue can be prepared; publication still needs reviewed product copy/photos, exact variant/SKU matches and stock lots.
+
+The founder superseded the earlier 20-unit ceiling: 20 per product was a conservative statement below physical holdings, not a hard maximum. The founder authorizes **three units per represented shade as a staged release allocation**, to be matched to exact SKU/variant and stock lot; supplier-on-order replenishment remains separate from on-hand inventory (DR-064). `src/modules/catalog/catalog.ts` groups available stock by `variant_id` and subtracts reserved and committed quantities. On 26 November the authenticated staging staff workspace displayed only demo products and demo stock lots; the real supplier products and lots had not been created, and no demo was removed. The staff new-product flow requires a reviewed photo, packaging/content review and photo rights before publication, while stock import requires an existing active reviewed SKU. No hosted supplier, product, lot, setting or publication write was made by this documentation change; details in TEST-EVIDENCE.
 
 ## Where Phase 1 stands — 24 November 2026
+
+Local receipt launch check (DR-062). Customer messages must be enabled before production checkout opens.
 
 Reviewed on 23 November against GitHub `main` at `3986f28` (PR #9), after Codex's PRs #6–#9 (16–23 November) and Claude's PR #5 (6 November); updated on 24 November with the founder's decisions (DR-057, DR-058) and a read-only check of the staging database. The local checkouts on the development machine were behind `main` until this review.
 

@@ -1,5 +1,12 @@
 # Test evidence
 
+## Founder G2 and staging supplier inventory review — 26 November 2026
+
+- Source checkout: `origin/main` at `e4ea67a09244686be90c0dcfff1426ef852201a2` in isolated branch `docs/founder-g2-supplier-staging`; original dirty WIP checkout untouched. Founder attestation and inventory allocation are decision records, **not independent NCSA document verification or a physical stock count** (DR-063, DR-064).
+- Authenticated staging Staff → Catalog showed only `Sample Labs` products marked `publishedDemo`, with publication checks including missing rights/photos/stock. Staff → Stock showed `DEMO-SYN-*` stock lots, with per-SKU on-hand, reserved, committed and available columns. Staff → Catalog → New product draft requires each variant's own SKU and RWF price; it cannot be published without a reviewed photo and affirmations of packaging/content review and image rights. Staff → Stock → Import counted stock states it accepts **existing reviewed SKUs only**. These were read-only observations; no draft, product, stock lot, settings version or demo was changed.
+- Code review: `src/modules/catalog/catalog.ts` lines 199–220 groups sellable lots by `variant_id`, computes `SUM(quantity_on_hand - reserved_qty - committed_qty)`, and lines 242–273 expose availability per active variant. `docs/STOCK-IMPORT.md` documents the eight-column, existing-SKU lot import. This verifies the **design** of variant-level stock, not actual supplier stock in the hosted database.
+- No application tests, physical count, hosted import preview/apply, product publication, demo withdrawal, public checkout or live payment were run in this documentation-only change. Source list/price candidates and four selector discrepancies remain in `BeautyBOX-OS/ops/2026-11-26-her-majesty-source-audit.md` outside this repository.
+
 ## Customer-facing delivery details — 24 November 2026
 
 Local Chromium check for the page change in `8391864`: `playwright test --grep "customer help pages follow"` passed (1 test). The browser saved hours and a promise through Staff Settings on the test database, checked Help and Delivery & returns with the values configured and then cleared, and restored the original values. The test used a production build. Hosted verification is a separate release check.
