@@ -14,18 +14,19 @@ Reviewed on 23 November against GitHub `main` at `3986f28` (PR #9), after Codex'
 
 Work moves from Claude Code to Codex on another computer. Pick up here. `AGENTS.md` has the rules for keeping these docs current.
 
-1. **Staging receipt passed on 24 November 2026.** The confirmation reached the founder’s Gmail inbox. The RWF 6,500 total and the linked paid order BB-7D78-KCK3 matched checkout. [Test evidence](TEST-EVIDENCE.md#staging-receipt--24-november-2026)
-2. **Staging operating details saved on 24 November 2026 (settings version 5).** Customer Help displayed both contact links. Customer Help and Delivery & returns did not display the configured dispatch hours or delivery promise; the local branch now renders both fields, and the targeted browser check passes (see TEST-EVIDENCE). Staging still needs the release.
+1. **Bulk actions for staff catalog** (CC-26, DR-063). New `POST /api/v1/staff/products/bulk-action` lets staff archive or publish many products at once from the catalogue list. Each product is processed independently with per-product results; publishing enforces all per-product gates (content reviewed, image rights confirmed, approved photo, active variant, verified counted stock, published category). Synthetic/demo records can be archived but never published. Cross-page selection is out of scope — bulk actions apply to products on the current catalogue page only. Demo retirement on staging used this flow end-to-end through the authenticated preview pane.
+2. **Staging receipt passed on 24 November 2026.** The confirmation reached the founder's Gmail inbox. The RWF 6,500 total and the linked paid order BB-7D78-KCK3 matched checkout. [Test evidence](TEST-EVIDENCE.md#staging-receipt--24-november-2026)
+3. **Staging customer delivery details passed on 25 November 2026.** Help and Delivery & returns display the saved 24/7 dispatch hours and three-hour Kigali delivery promise. Customer Help also displays both support contact links. [Test evidence](TEST-EVIDENCE.md#staging-customer-delivery-details--25-november-2026)
    - Support phone `+250 788 641 811` and e-mail `care@beautyboxmarket.com`.
    - Delivery promise "Delivered within 3 hours in Kigali" and dispatch hours 24/7.
    - "Customer messages" stays on.
    - Optionally the Silverback Mall pin, Kigali boundary and tariff (DR-050, DR-051) as a new settings version.
-3. **Founder, outside parties (the slowest items):**
+4. **Founder, outside parties (the slowest items):**
    - pawaPay production merchant approval.
    - Google declined reopening because the billing account is not in good standing. The billing administrator should check payment alerts and contact Cloud Billing Support to resolve the restriction before the live routing pilot.
    - NCSA data-controller registration and authorization to store data abroad, for BeautyBOX LTD. Then approve the policies (DR-058).
    - Real counted stock, prices and photographs.
-4. **Engineering, when unblocked:**
+5. **Engineering, when unblocked:**
    - Wording approval for the e-mails (B09).
    - Production environment set-up per G5: Vercel Pro, its own Supabase project and buckets, Resend key, `EMAIL_PROVIDER=resend`, customer messages on.
    - Bounded live Google route check.

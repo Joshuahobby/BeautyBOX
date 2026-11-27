@@ -3,7 +3,7 @@
   "info": {
     "title": "BeautyBOX Phase 1 application API",
     "version": "1.2.0",
-    "description": "Design contract, not an implemented service. Server-derived money; RWF integer amounts. API prefix /api/v1. ISO UTC timestamps, opaque cursor pagination. Cookie auth requires origin/CSRF defense. All mutations use version checks where specified; idempotent intent keys claimed atomically. Staff roles are server DB records plus active MFA session. Error status mapping: validation400/422, auth401/403, private-not-found404, state/idempotency409, rate429, unavailable503. Unknown financial outcomes stay pending. Provider wire payloads are defined by official provider schemas, not this internal contract.\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-20 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed.\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged.\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated. CC-24 adds the customer-messages switch to staff settings."
+    "description": "Design contract, not an implemented service. Server-derived money; RWF integer amounts. API prefix /api/v1. ISO UTC timestamps, opaque cursor pagination. Cookie auth requires origin/CSRF defense. All mutations use version checks where specified; idempotent intent keys claimed atomically. Staff roles are server DB records plus active MFA session. Error status mapping: validation400/422, auth401/403, private-not-found404, state/idempotency409, rate429, unavailable503. Unknown financial outcomes stay pending. Provider wire payloads are defined by official provider schemas, not this internal contract.\n\nv1.1.0 (BeautyBOX app): the v1.0.0 handoff contract plus documented additive changes CC-01..CC-20 (docs/CONTRACT-CHANGES.md). No v1.0.0 path, request field or status code was removed.\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged.\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated. CC-24 adds the customer-messages switch to staff settings. CC-26 adds bulk publication actions for the staff catalog (archive / publish many products at once)."
   },
   "servers": [
     {
@@ -3909,6 +3909,59 @@
           }
         }
       }
+    },
+    "/staff/products/bulk-action": {
+      "post": {
+        "operationId": "bulkSetProductPublication",
+        "summary": "Bulk publish or archive catalog items",
+        "description": "Applies one publication action to many products. Each product is processed independently; results include per-product success or failure. Publishing requires all checks to pass per product; archive always succeeds with a reason. Synthetic/reference records cannot publish but can be archived.",
+        "security": [
+          {
+            "StaffSession": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Per-product results",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BulkActionResponse"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Structured failure; use HTTP 400/401/403/409/422/429/503 as appropriate.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BulkActionInput"
+              }
+            }
+          }
+        },
+        "x-required-roles": [
+          "ADMIN",
+          "OPERATIONS"
+        ]
+      }
     }
   },
   "components": {
@@ -7725,6 +7778,105 @@
         ],
         "additionalProperties": false,
         "description": "CC-22: the recipient as sent when a checkout is updated; email is required."
+      },
+      "FieldError": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "field",
+          "message"
+        ],
+        "additionalProperties": false
+      },
+      "BulkActionInput": {
+        "type": "object",
+        "properties": {
+          "productIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "minItems": 1,
+            "maxItems": 100
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "PUBLISH",
+              "ARCHIVE"
+            ]
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "productIds",
+          "action",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "BulkActionResult": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ok": {
+            "type": "boolean"
+          },
+          "publishState": {
+            "type": "string",
+            "enum": [
+              "PUBLISHED",
+              "ARCHIVED"
+            ]
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "fieldErrors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            }
+          }
+        },
+        "required": [
+          "productId",
+          "ok"
+        ],
+        "additionalProperties": false
+      },
+      "BulkActionResponse": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BulkActionResult"
+            }
+          }
+        },
+        "required": [
+          "results"
+        ],
+        "additionalProperties": false
       }
     },
     "parameters": {

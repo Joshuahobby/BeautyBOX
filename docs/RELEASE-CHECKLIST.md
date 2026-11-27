@@ -67,6 +67,7 @@ Status values: ✅ done (evidence in repo) · 🟡 partly done · ⬜ open (foun
 
 - [x] Staging receipt passed on 24 November 2026 (DR-062). The founder’s Gmail inbox received the confirmation for BB-7D78-KCK3. Its RWF 6,500 total matched checkout and its link opened the same paid order. [Test evidence](TEST-EVIDENCE.md#staging-receipt--24-november-2026)
 - [ ] Confirm production uses its own Resend key and has Customer messages enabled before opening checkout.
+- [x] Staging customer delivery details passed on 25 November 2026. Help and Delivery & returns both displayed 24/7 dispatch hours and “Delivered within 3 hours in Kigali”. [Test evidence](TEST-EVIDENCE.md#staging-customer-delivery-details--25-november-2026)
 - [ ] Catalog importer dry run and stock reconciliation signed by operations.
 - [ ] Payment and refund critical scenarios passed against the pawaPay sandbox; no unresolved money discrepancy. (Locally without callbacks or request signing: passed 2026-10-24, DR-043. On staging with signed requests and signed callbacks: a payment on 2026-10-25, and a refund on 2026-11-01: order BB-J2JS-KAWB was refunded in full (RWF 5,100) from the staff order page on 2026-11-01: approved 10:20:33 UTC, sent signed at 10:21:00, pawaPay's refund callback arrived with a verified signature at 10:21:02 and only prompted the status check, which confirmed it; refund SUCCEEDED with no flag, payment REFUNDED, refund case closed.)
 - [ ] Delivery pilot and quote acceptance approved.

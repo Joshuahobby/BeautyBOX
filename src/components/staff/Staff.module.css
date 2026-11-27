@@ -160,6 +160,11 @@
   border-color: transparent;
 }
 
+.colSelect {
+  width: 44px;
+  padding: 0 var(--space-2);
+}
+
 .authPage {
   min-height: 100vh;
   display: grid;

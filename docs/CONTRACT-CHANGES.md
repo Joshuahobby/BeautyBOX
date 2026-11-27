@@ -74,3 +74,9 @@ Adds `notificationsEnabled` (boolean) to the `Settings` schema of `GET /staff/se
 ## CC-25 — Receipt launch check (DR-062)
 
 Staff settings can return `CUSTOMER_MESSAGES_DISABLED` in the existing string array `publicationBlocks`. It follows the saved Customer messages switch independently of `EMAIL_ADAPTER_NOT_LIVE`. Production checkout uses the same checks.
+
+## CC-26 — Bulk publication actions for staff catalog (v1.2)
+
+New `POST /api/v1/staff/products/bulk-action` (ADMIN/OPERATIONS, Idempotency-Key). Body `{productIds: uuid[], action: "PUBLISH" | "ARCHIVE", reason: string}`. Processes each product independently and returns `{results: [{productId, ok, publishState?, code?, message?, fieldErrors?}]}` per product. Publishing applies all per-product checks (content reviewed, image rights confirmed, approved photo, active variant, verified counted stock, published category) and answers `PUBLICATION_BLOCKED` when any gate fails; synthetic/reference records cannot publish but can always be archived with a reason. Archive withdraws public photo copies; publishing restores them. Each product's `expectedVersion` is read from the current row before the write, so concurrent edits surface as per-product `VERSION_CONFLICT` results rather than failing the whole batch.
+
+Response schema: `BulkActionResponse` with `results[]` of `BulkActionResult`. Request schema: `BulkActionInput`.

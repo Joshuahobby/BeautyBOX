@@ -1,5 +1,9 @@
 # Test evidence
 
+## Staging customer delivery details — 25 November 2026
+
+Staging served revision `e4ea67a` after [PR #14](https://github.com/Joshuahobby/BeautyBOX/pull/14) passed the [Quality checks](https://github.com/Joshuahobby/BeautyBOX/actions/runs/45471185127). In the staging browser, Help and Delivery & returns each displayed “Dispatch hours: 24/7” and “Delivered within 3 hours in Kigali” from the saved settings. Help also retained the configured phone and email links. The targeted local Chromium test passed with the fields configured and cleared against the test database and a production build.
+
 ## Baseline reconciliation — 24 November 2026
 
 The local work was preserved in three commits on `wip/2026-11-24-local-reconcile` and rebased onto `origin/main` `3008d1a`. The branch adds the registered name, the customer help delivery details and the receipt evidence; the receipt implementation and contract change are already on `main` (PR #13).

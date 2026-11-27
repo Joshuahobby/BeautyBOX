@@ -1,4 +1,5 @@
 import "server-only";
+import { z } from "@/lib/validation";
 import { Prisma } from "@/generated/prisma/client";
 import { db, transaction, type Tx } from "@/server/db";
 import { now } from "@/modules/shared/clock";
@@ -454,4 +455,36 @@ export async function setPublication(
 
 export async function listCategoriesForStaff() {
   return db().category.findMany({ orderBy: [{ sortOrder: "asc" }, { title: "asc" }], select: { id: true, slug: true, title: true, parentId: true, isPublished: true } });
+}
+
+/** Bulk publication change across many products. One result per product id. */
+export type BulkPublicationResult =
+  | { productId: string; ok: true; publishState: "PUBLISHED" | "ARCHIVED" }
+  | { productId: string; ok: false; code: string; message: string; fieldErrors: { field: string; message: string }[] };
+
+export async function bulkSetPublication(
+  staff: StaffIdentity,
+  input: { productIds: string[]; state: "PUBLISHED" | "ARCHIVED"; reason: string },
+  idempotencyKey: string,
+  requestId: string | null,
+): Promise<BulkPublicationResult[]> {
+  const results: BulkPublicationResult[] = [];
+  for (const productId of input.productIds) {
+    if (!z.uuid().safeParse(productId).success) {
+      results.push({ productId, ok: false, code: "VALIDATION_ERROR", message: "Invalid product ID.", fieldErrors: [] });
+      continue;
+    }
+    try {
+      const view = await loadStaffProduct(db(), productId);
+      await setPublication(staff, productId, { expectedVersion: view.version, state: input.state, reason: input.reason }, idempotencyKey, requestId);
+      results.push({ productId, ok: true, publishState: input.state });
+    } catch (error) {
+      if (error instanceof DomainError) {
+        results.push({ productId, ok: false, code: error.code, message: error.message, fieldErrors: error.fieldErrors ?? [] });
+      } else {
+        results.push({ productId, ok: false, code: "INTERNAL_ERROR", message: "Unexpected error.", fieldErrors: [] });
+      }
+    }
+  }
+  return results;
 }

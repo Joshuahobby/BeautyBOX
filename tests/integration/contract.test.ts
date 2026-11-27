@@ -52,6 +52,7 @@ import * as importApply from "@/app/api/v1/staff/inventory/import-previews/[prev
 import * as staffProducts from "@/app/api/v1/staff/products/route";
 import * as staffProduct from "@/app/api/v1/staff/products/[productId]/route";
 import * as publication from "@/app/api/v1/staff/products/[productId]/publication/route";
+import * as bulkAction from "@/app/api/v1/staff/products/bulk-action/route";
 import * as members from "@/app/api/v1/staff/members/route";
 import * as member from "@/app/api/v1/staff/members/[memberId]/route";
 import * as mediaIntents from "@/app/api/v1/staff/media/upload-intents/route";
@@ -819,6 +820,129 @@ describe("API contract conformance (v1.1)", () => {
       },
     });
     expectConformance();
+  });
+
+  it("bulk archive and publish catalog items", async () => {
+    const admin = await staffHeader("ADMIN");
+    const category = await db().category.findUniqueOrThrow({
+      where: { slug: "skincare" },
+    });
+
+    // Create two draft products without stock (cannot publish yet)
+    const draft1 = await call(
+      staffProducts.POST,
+      "POST",
+      "/staff/products",
+      {
+        staff: admin,
+        body: {
+          title: "Bulk Archive Test 1",
+          slug: "bulk-archive-test-1",
+          brand: "Test Brand",
+          categoryId: category.id,
+          description: "Draft one.",
+          variants: [
+            {
+              id: null,
+              sku: "BULK-ARCH-01",
+              attributes: { size: "30 ml" },
+              priceRwf: 9000,
+              isActive: true,
+            },
+          ],
+          media: [],
+          contentReviewed: false,
+          imageRightsConfirmed: false,
+          isSynthetic: false,
+        },
+      },
+    );
+    const id1 = String((draft1.body.product as Json).id);
+
+    const draft2 = await call(
+      staffProducts.POST,
+      "POST",
+      "/staff/products",
+      {
+        staff: admin,
+        body: {
+          title: "Bulk Archive Test 2",
+          slug: "bulk-archive-test-2",
+          brand: "Test Brand",
+          categoryId: category.id,
+          description: "Draft two.",
+          variants: [
+            {
+              id: null,
+              sku: "BULK-ARCH-02",
+              attributes: { size: "50 ml" },
+              priceRwf: 12000,
+              isActive: true,
+            },
+          ],
+          media: [],
+          contentReviewed: false,
+          imageRightsConfirmed: false,
+          isSynthetic: false,
+        },
+      },
+    );
+    const id2 = String((draft2.body.product as Json).id);
+
+    // Bulk archive both drafts
+    const archived = await call(
+      bulkAction.POST,
+      "POST",
+      "/staff/products/bulk-action",
+      {
+        staff: admin,
+        body: {
+          productIds: [id1, id2],
+          action: "ARCHIVE",
+          reason: "Founder requested retirement of test drafts.",
+        },
+      },
+    );
+    expect((archived.body.results as Json[])).toHaveLength(2);
+    expect(((archived.body.results as Json[]).every((r: Json) => r.ok))).toBe(true);
+    expect(((archived.body.results as Json[]).every((r: Json) => r.publishState === "ARCHIVED"))).toBe(true);
+
+    // Verify both are archived
+    const p1 = await call(
+      staffProduct.GET,
+      "GET",
+      `/staff/products/${id1}`,
+      { staff: admin, params: { productId: id1 } },
+    );
+    const p2 = await call(
+      staffProduct.GET,
+      "GET",
+      `/staff/products/${id2}`,
+      { staff: admin, params: { productId: id2 } },
+    );
+    expect((p1.body.publishState as string)).toBe("ARCHIVED");
+    expect((p2.body.publishState as string)).toBe("ARCHIVED");
+
+    // Bulk publish should fail for archived products (no stock, not reviewed)
+    const publishAttempt = await call(
+      bulkAction.POST,
+      "POST",
+      "/staff/products/bulk-action",
+      {
+        staff: admin,
+        body: {
+          productIds: [id1, id2],
+          action: "PUBLISH",
+          reason: "Attempt publish without stock.",
+        },
+      },
+    );
+    expect(((publishAttempt.body.results as Json[]).every((r: Json) => !r.ok))).toBe(true);
+    expect(
+      ((publishAttempt.body.results as Json[]).every(
+        (r: Json) => (r.code as string) === "PUBLICATION_BLOCKED",
+      )),
+    ).toBe(true);
   });
 
   it("suppliers, obligations, settlement and settings", async () => {
