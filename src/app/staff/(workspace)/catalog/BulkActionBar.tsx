@@ -25,27 +25,36 @@ export function BulkActionBar({ productIds }: Props) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: string; text: string; fields?: string[] } | null>(null);
   const [results, setResults] = useState<BulkResult[] | null>(null);
-  const [selectedCount, setSelectedCount] = useState(0);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
-  // Keep selected count in sync with the server-rendered checkboxes.
+  // Keep the local selection in sync with the server-rendered checkboxes,
+  // including clicks that land outside React (the checkboxes are rendered by
+  // the catalog page, not by this form). Querying the document keeps the
+  // count and the submit gate accurate however the boxes were clicked.
   useEffect(() => {
-    if (!formRef.current) return;
-    const boxes = formRef.current.querySelectorAll<HTMLInputElement>('input[name="productIds"]:checked');
-    setSelectedCount(Array.from(boxes).map((b) => b.value).filter((id) => productIds.includes(id)).length);
-  }, [productIds, action, reason, busy]);
+    const sync = () => {
+      const boxes = document.querySelectorAll<HTMLInputElement>('input[name="productIds"]:checked');
+      const ids = Array.from(boxes).map((b) => b.value).filter((id) => productIds.includes(id));
+      setSelectedIds(ids);
+    };
+    sync();
+    document.addEventListener("change", sync);
+    return () => document.removeEventListener("change", sync);
+  }, [productIds]);
 
-  const selectedIds = () => {
-    if (!formRef.current) return [];
-    const boxes = formRef.current.querySelectorAll<HTMLInputElement>('input[name="productIds"]:checked');
+  // Authoritative read: the live checkboxes in the DOM, not React-synced state,
+  // so externally clicked checkboxes still drive the action.
+  const checkedProductIds = useCallback(() => {
+    const boxes = document.querySelectorAll<HTMLInputElement>('input[name="productIds"]:checked');
     return Array.from(boxes).map((b) => b.value).filter((id) => productIds.includes(id));
-  };
+  }, [productIds]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
     setMessage(null);
     setResults(null);
-    const ids = selectedIds();
+    const ids = checkedProductIds();
     if (ids.length === 0) {
       setMessage({ tone: "warning", text: "Select at least one product." });
       setBusy(false);
@@ -146,7 +155,7 @@ export function BulkActionBar({ productIds }: Props) {
         />
         <div className="row">
           <span className="label-text muted">
-            {selectedCount} of {productIds.length} selected on this page
+            {selectedIds.length} of {productIds.length} selected on this page
           </span>
         </div>
         <div className="row">
@@ -154,7 +163,7 @@ export function BulkActionBar({ productIds }: Props) {
             type="submit"
             variant={isArchive ? "secondary" : "primary"}
             busy={busy}
-            disabled={!reason.trim() || selectedCount === 0}
+            disabled={!reason.trim() || selectedIds.length === 0}
           >
             {label} selected
           </Button>
