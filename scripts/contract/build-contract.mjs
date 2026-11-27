@@ -75,10 +75,111 @@ schemas.Settings.properties.notificationsEnabled = {
 };
 schemas.Settings.properties.publicationBlocks.description =
   "Server-computed reasons public checkout must stay closed. CUSTOMER_MESSAGES_DISABLED means the Customer messages switch is off, independently of the e-mail provider.";
+// CC-26: bulk publication actions for staff catalog (archive / publish many products at once).
+contract.paths["/staff/products/bulk-action"] = {
+  post: {
+    operationId: "bulkSetProductPublication",
+    summary: "Bulk publish or archive catalog items",
+    description:
+      "Applies one publication action to many products. Each product is processed independently; results include per-product success or failure. Publishing requires all checks to pass per product; archive always succeeds with a reason. Synthetic/reference records cannot publish but can be archived.",
+    security: [{ StaffSession: [] }],
+    responses: {
+      200: {
+        description: "Per-product results",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/BulkActionResponse" },
+          },
+        },
+      },
+      default: {
+        description: "Structured failure; use HTTP 400/401/403/409/422/429/503 as appropriate.",
+        content: {
+          "application/json": {
+            schema: { $ref: "#/components/schemas/Error" },
+          },
+        },
+      },
+    },
+    parameters: [
+      { $ref: "#/components/parameters/IdempotencyKey" },
+    ],
+    requestBody: {
+      required: true,
+      content: {
+        "application/json": {
+          schema: { $ref: "#/components/schemas/BulkActionInput" },
+        },
+      },
+    },
+    "x-required-roles": ["ADMIN", "OPERATIONS"],
+  },
+};
+schemas.FieldError = {
+  type: "object",
+  properties: {
+    field: { type: "string" },
+    message: { type: "string" },
+  },
+  required: ["field", "message"],
+  additionalProperties: false,
+};
+schemas.BulkActionInput = {
+  type: "object",
+  properties: {
+    productIds: {
+      type: "array",
+      items: { type: "string", format: "uuid" },
+      minItems: 1,
+      maxItems: 100,
+    },
+    action: {
+      type: "string",
+      enum: ["PUBLISH", "ARCHIVE"],
+    },
+    reason: {
+      type: "string",
+      minLength: 1,
+      maxLength: 500,
+    },
+  },
+  required: ["productIds", "action", "reason"],
+  additionalProperties: false,
+};
+schemas.BulkActionResult = {
+  type: "object",
+  properties: {
+    productId: { type: "string", format: "uuid" },
+    ok: { type: "boolean" },
+    publishState: {
+      type: "string",
+      enum: ["PUBLISHED", "ARCHIVED"],
+    },
+    code: { type: "string" },
+    message: { type: "string" },
+    fieldErrors: {
+      type: "array",
+      items: { $ref: "#/components/schemas/FieldError" },
+    },
+  },
+  required: ["productId", "ok"],
+  additionalProperties: false,
+};
+schemas.BulkActionResponse = {
+  type: "object",
+  properties: {
+    results: {
+      type: "array",
+      items: { $ref: "#/components/schemas/BulkActionResult" },
+    },
+  },
+  required: ["results"],
+  additionalProperties: false,
+};
 contract.info.version = "1.2.0";
 contract.info.description +=
   "\n\nv1.2.0: CC-21 adds atomic cart option replacement. Existing responses and methods are unchanged." +
-  "\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated. CC-24 adds the customer-messages switch to staff settings.";
+  "\n\nCC-22 adds the recipient's e-mail address: returned with checkouts and orders when present, and required when a checkout is updated. CC-24 adds the customer-messages switch to staff settings. CC-26 adds bulk publication actions for the staff catalog (archive / publish many products at once).";
 const output = JSON.stringify(contract, null, 2) + "\n";
 const target = path.join(root, "docs/api/API-Contract-v1.2.openapi.json");
 if (process.argv.includes("--check")) {

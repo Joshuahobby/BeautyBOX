@@ -3,6 +3,7 @@ import { listStaffProducts } from "@/modules/catalog/admin";
 import { ButtonLink } from "@/components/ui/Button";
 import { Notice } from "@/components/ui/Notice";
 import { staffPageAccess } from "@/server/staff-page";
+import { BulkActionBar } from "./BulkActionBar";
 import styles from "@/components/staff/Staff.module.css";
 
 export const dynamic = "force-dynamic";
@@ -24,19 +25,19 @@ export default async function StaffCatalogPage({ searchParams }: { searchParams:
   if (access.kind === "FORBIDDEN") return <Notice tone="warning" title="Your role does not include the catalog." />;
   const sp = await searchParams;
   const page = await listStaffProducts({ cursor: sp.cursor ?? null, limit: 25 });
+  const productIds = page.items.map((p) => p.product.id);
   return (
     <div className={styles.stack}>
       <div className={`${styles.row} u-between`}>
         <h1 className="page-title">Catalog</h1>
-        <div className={styles.row}>
-          <ButtonLink href="/staff/catalog/import" variant="secondary">Bulk import drafts</ButtonLink>
-          <ButtonLink href="/staff/catalog/new">New product draft</ButtonLink>
-        </div>
+        <ButtonLink href="/staff/catalog/new">New product draft</ButtonLink>
       </div>
+      {page.items.length > 0 && <BulkActionBar productIds={productIds} />}
       <div className={styles.tableRegion} role="region" aria-label="Products" tabIndex={0}>
         <table className={styles.table}>
           <thead>
             <tr>
+              <th scope="col" className={styles.colSelect}></th>
               <th scope="col">Product</th>
               <th scope="col">Status</th>
               <th scope="col" className={styles.num}>Variants</th>
@@ -46,11 +47,14 @@ export default async function StaffCatalogPage({ searchParams }: { searchParams:
           <tbody>
             {page.items.length === 0 ? (
               <tr>
-                <td colSpan={4}>No products yet.</td>
+                <td colSpan={5}>No products yet.</td>
               </tr>
             ) : (
               page.items.map((p) => (
                 <tr key={p.product.id}>
+                  <td>
+                    <input type="checkbox" name="productIds" value={p.product.id} />
+                  </td>
                   <td>
                     <Link href={`/staff/catalog/${p.product.id}`}>{p.product.title}</Link>
                     <div className="label-text muted">{p.product.brand}</div>

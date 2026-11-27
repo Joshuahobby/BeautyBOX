@@ -53,6 +53,12 @@ export const publicationInput = z.strictObject({
   reason: z.string().min(1).max(500),
 });
 
+export const bulkActionInput = z.strictObject({
+  productIds: z.array(z.string().uuid()).min(1).max(100),
+  action: z.enum(["PUBLISH", "ARCHIVE"]),
+  reason: z.string().min(1).max(500),
+});
+
 export const stockAdjustmentInput = z.strictObject({
   lotId: z.uuid(),
   expectedVersion: safeInt(1),
